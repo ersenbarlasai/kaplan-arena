@@ -11,6 +11,10 @@ $sid = [guid]::NewGuid().ToString('N').Substring(0, 8)
 $utf8 = New-Object System.Text.UTF8Encoding($false)
 $pathRe = '^[A-Za-z0-9_\-]+(/[A-Za-z0-9_\-]+)*$'
 $db = New-Object 'System.Collections.Generic.Dictionary[string,string]'
+# Statik dosyalar: yalnız app/*.js|css ve assets/ altındaki görsel/font/lisans dosyaları; gizli dosya ve '..' kabul edilmez.
+$staticRe = '^/(app/[A-Za-z0-9_\-]+\.(js|css)|assets/([A-Za-z0-9_\-]+/)*[A-Za-z0-9_\-]+(\.[A-Za-z0-9_\-]+)*\.(webp|png|svg|woff2|css|txt))$'
+$rootFull = [System.IO.Path]::GetFullPath($root).TrimEnd([System.IO.Path]::DirectorySeparatorChar) + [System.IO.Path]::DirectorySeparatorChar
+$mime = @{ '.js'='text/javascript; charset=utf-8'; '.css'='text/css; charset=utf-8'; '.webp'='image/webp'; '.png'='image/png'; '.svg'='image/svg+xml'; '.woff2'='font/woff2'; '.txt'='text/plain; charset=utf-8' }
 $rev = 0
 
 function Get-LanIPs {
@@ -88,7 +92,7 @@ if (-not $listener) {
 
 Clear-Host
 Write-Host ''
-Write-Host '   KAPLAN ARENA SUNUCUSU CALISIYOR  (Surum 7)' -ForegroundColor Yellow
+Write-Host '   KAPLAN ARENA SUNUCUSU CALISIYOR  (Surum 8)' -ForegroundColor Yellow
 Write-Host "   Klasor: $root"
 Write-Host '   ------------------------------------------------'
 Write-Host "   Yarisma ekrani: http://localhost:$port/"
@@ -105,7 +109,7 @@ Write-Host ''
 Write-Host '   Yarisma bitene kadar bu pencereyi KAPATMAYIN.'
 Write-Host ''
 
-Start-Process "http://localhost:$port/"
+if ($env:KAPLAN_NO_BROWSER -ne '1') { Start-Process "http://localhost:$port/" }
 
 while ($listener.IsListening) {
   try { $ctx = $listener.GetContext() } catch { break }
@@ -158,11 +162,29 @@ while ($listener.IsListening) {
       $ipsJson = (@($ips | ForEach-Object { '"' + $_ + '"' })) -join ','
       Send-Text $res ('{"app":"kaplan-arena","port":' + $port + ',"ips":[' + $ipsJson + ']}') 'application/json'
     }
-    elseif ($p -eq '/' -or $p -eq '/index.html' -or $p -eq '/kaplan-arena.html') {
+    elseif ($p -eq '/' -or $p -eq '/index.html' -or $p -eq '/kaplan-arena.html' -or $p -eq '/katil' -or $p -eq '/katil/') {
       $bytes = [System.IO.File]::ReadAllBytes($htmlPath)
       $res.StatusCode = 200
       $res.ContentType = 'text/html; charset=utf-8'
       $res.Headers['Cache-Control'] = 'no-store'
+      $res.ContentLength64 = $bytes.Length
+      $res.OutputStream.Write($bytes, 0, $bytes.Length)
+      $res.OutputStream.Close()
+    }
+    elseif ($p -match $staticRe) {
+      # Uygulama modülleri, görseller ve fontlar: yalnız beyaz listedeki yollar, proje klasörü içinde.
+      $rel = $p.TrimStart('/').Replace('/', [System.IO.Path]::DirectorySeparatorChar)
+      $full = [System.IO.Path]::GetFullPath([System.IO.Path]::Combine($root, $rel))
+      $ext = [System.IO.Path]::GetExtension($full).ToLowerInvariant()
+      if (-not $full.StartsWith($rootFull, [System.StringComparison]::OrdinalIgnoreCase) -or -not $mime.ContainsKey($ext) -or -not [System.IO.File]::Exists($full)) {
+        Send-Text $res 'Bulunamadi' 'text/plain; charset=utf-8' 404
+        continue
+      }
+      $bytes = [System.IO.File]::ReadAllBytes($full)
+      $res.StatusCode = 200
+      $res.ContentType = $mime[$ext]
+      $res.Headers['Cache-Control'] = 'no-cache'
+      $res.Headers['X-Content-Type-Options'] = 'nosniff'
       $res.ContentLength64 = $bytes.Length
       $res.OutputStream.Write($bytes, 0, $bytes.Length)
       $res.OutputStream.Close()

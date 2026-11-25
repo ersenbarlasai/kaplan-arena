@@ -1,0 +1,330 @@
+{
+  "at": "2026-11-25T19:55:42.376Z",
+  "results": [
+    {
+      "name": "karşılama: künye eksiksiz ve sıralı",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "karşılama: başlıklar",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "yarışma başladı ve 6 haneli kod üretildi",
+      "ok": true,
+      "detail": "953017"
+    },
+    {
+      "name": "sahne: ses etkinleştirme/test adımı",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "admin sahneyi tanıdı ve etkin ses sahnesi seçildi",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "iki telefon sınıflarını aldı",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "hazırlık: telefonlara soru gönderilmez",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "hazırlık: sahne soruyu göstermez",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "hazırlık: telefon soru metnini görmez",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "hazırlıkta süre işlemez",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "soru gösterilince sahne ve telefon soruyu görür",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "joker kabul: hak tüketildi",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "joker tanıtımı: ortak saat durdu",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "telefon durumu: duraklama yayımlandı",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "tanıtım bitince saat kendiliğinden devam etti (başka neden yok)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "süre sıfırda cevap kabulü kilitlendi (aşama locked, otomatik açıklama yok)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "kilit sonrası otomatik açıklama/ilerleme yok",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "kabul edilen: son geçerli gönderim (1350); duraklamadaki ve süre sonrası 1355 sayılmadı",
+      "ok": true,
+      "detail": "{\"0\":{\"v\":1350,\"t\":1795636397354},\"1\":{\"v\":1400,\"t\":1795636396980}}"
+    },
+    {
+      "name": "açıklamada puan gösterilmez",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Soru 1: normal doğru +10, Çifte Puan kazanamadı → ceza 0 puanda 0",
+      "ok": true,
+      "detail": "{\"0\":10,\"1\":0}"
+    },
+    {
+      "name": "tekrar puan gösterme puanı çoğaltmaz",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "telefon: joker cezası gösterimi",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "puan ekranı kendiliğinden geçmez",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "sonraki soru hazırlıkla açılır, süre başlamaz",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "ilk cevaptan sonra joker reddedilir",
+      "ok": true,
+      "detail": "Cevap gönderildikten sonra joker kullanılamaz."
+    },
+    {
+      "name": "reddedilen jokerin hakkı tüketilmez",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "aynı soruda ikinci joker isteği reddedilir",
+      "ok": true,
+      "detail": "Bu soruda zaten bir joker kullanıldı."
+    },
+    {
+      "name": "reddedilen ikinci joker hakkı tüketmez",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Çift Cevap: tek seçimle gönderilemez",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "süre bitmeden açıklama onay ister",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Soru 2: Çift Cevap biri doğru +10; yanlış normal cevap 0",
+      "ok": true,
+      "detail": "{\"1\":10}"
+    },
+    {
+      "name": "Soru 3: Çifte Puan yanlış −10 (10→0), en yakın +10",
+      "ok": true,
+      "detail": "{\"0\":-10,\"1\":10}"
+    },
+    {
+      "name": "iptal: puan etkisi geri alındı",
+      "ok": true,
+      "detail": "[10,10,0,0,0,0]"
+    },
+    {
+      "name": "iptal: bu sorudaki joker iade edildi, önceki jokerler korundu",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "tekrar iptal ikinci iade yapmaz",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "iptal durumu sahne ve telefonda",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "eşzamanlı jokerler tek tanıtımda birleşti",
+      "ok": true,
+      "detail": "{\"id\":15,\"pauseAt\":1795636466256.5,\"until\":1795636469756.5,\"items\":[{\"i\":0,\"name\":\"9B\",\"j\":\"double\"},{\"i\":3,\"name\":\"10C\",\"j\":\"x2\"}]}"
+    },
+    {
+      "name": "admin telefonsuz sınıf için joker kullandı",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "tek telefonun kopması yarışmayı durdurmaz",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "sahne kaybında süre ve cevap kabulü durdu",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "telefona sahne duraklaması yayımlandı",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "sahne dönünce aynı soru/kalan süre; devam admin onayında",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "yeniden açılan sahne eski sesleri çalmadı",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "ara: karşılamaya dönüşte süre durdu (break + admin)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "ara dönüşü: yarışma bitmedi, aynı soru, kalan süre korundu, devam admin onayında",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "telefon yeniden bağlandı: kullanılan jokerler mühürlü",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "süre içinde gönderilip geç ulaşan cevap açıklamadan sonra da sayılır",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Soru 4: Çift Cevap +10, admin jokeri cevapsız (0 puan → 0), normal doğru +10, geç ulaşan doğru +10",
+      "ok": true,
+      "detail": "{\"0\":10,\"1\":10,\"2\":0,\"3\":0,\"5\":10}"
+    },
+    {
+      "name": "sahne ses: joker sesi tanıtım başına bir kez çaldı (gruplu tanıtım tek ses)",
+      "ok": true,
+      "detail": "4/4"
+    },
+    {
+      "name": "sahne host kilidi ya da API isteği yapmadı",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "admin ve telefon ses üretmez (StageAudio yalnız sahnede)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "2. etapta herkes 0 → eşitlik",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "eşitlik sorusunda joker yok",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "finale 4 sınıf çıktı",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "finalde haklar korunur: C iki jokeri de kullanmış, B Çifte Puanı (iade edilen) kullanabilir",
+      "ok": true,
+      "detail": "[[1,0],[1,1],[0,0],[0,0]]"
+    },
+    {
+      "name": "Final: Çifte Puan doğru +20",
+      "ok": true,
+      "detail": "{\"0\":20}"
+    },
+    {
+      "name": "şampiyonluk sahnede",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "künye 1024×768 (4:3) projeksiyonda kırpılmıyor",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "eski kayıt göçü: veri korunur, şema 2, yedek kopya",
+      "ok": true,
+      "detail": "{\"schema\":2,\"title\":\"Eski Yarışma\",\"q\":\"Eski soru\",\"score\":30,\"phase\":\"open\",\"reasons\":[\"admin\",\"break\"],\"em\":13,\"backup\":true}"
+    },
+    {
+      "name": "yedek dışa aktarma arma eşleşmesini içerir",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "yedek içe aktarma arma eşleşmelerini değiştirmez",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "yeni sınıf eklemek mevcut armaları değiştirmez; 14. sınıf arma alır",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "erken bitiş sahnede",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "uzun adlı sınıflarla 4:3 sahnede kaydırma/taşma yok",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "tarayıcı sayfa hatası yok",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

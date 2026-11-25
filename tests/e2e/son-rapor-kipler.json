@@ -1,0 +1,155 @@
+{
+  "at": "2026-11-25T19:56:00.346Z",
+  "results": [
+    {
+      "name": "file://: yerel fontlar (Türkçe glifler) yüklendi",
+      "ok": true,
+      "detail": "[true,true,true]"
+    },
+    {
+      "name": "file://: görsel varlıklar yüklendi",
+      "ok": true,
+      "detail": "[true]"
+    },
+    {
+      "name": "file://: sahne arka planı yüklenebilir",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file:// internetsiz: telefon katılımı varmış gibi gösterilmez",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file://: ayrı sahne penceresi postMessage ile bağlandı",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file://: sahne soruyu gösterdi (telefonsuz yarışma)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "file://: telefonsuz puanlama (admin girişi)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "yerel sunucu başladı",
+      "ok": true,
+      "detail": "://localhost:8090/\n   Not: 8080 portu bu bilgisayarda baska bir program tarafindan kullaniliyor; 8090 kullaniliyor.\n   UYARI: Yonetici izni verilmedigi icin telefonlar baglanamaz.\n   BASLAT dosyasini kapatip tekrar acin ve izin sorusuna EVET deyin.\n\n   Yarisma bitene kadar bu pencereyi KAPATMAYIN.\n\n"
+    },
+    {
+      "name": "yerel sunucu /app/core.js → 200 text/javascript",
+      "ok": true,
+      "detail": "200 text/javascript; charset=utf-8"
+    },
+    {
+      "name": "yerel sunucu /app/style.css → 200 text/css",
+      "ok": true,
+      "detail": "200 text/css; charset=utf-8"
+    },
+    {
+      "name": "yerel sunucu /assets/fonts/fonts.css → 200 text/css",
+      "ok": true,
+      "detail": "200 text/css; charset=utf-8"
+    },
+    {
+      "name": "yerel sunucu /assets/img/orman.webp → 200 image/webp",
+      "ok": true,
+      "detail": "200 image/webp"
+    },
+    {
+      "name": "yerel sunucu /assets/arma/arma-ay.svg → 200 image/svg+xml",
+      "ok": true,
+      "detail": "200 image/svg+xml"
+    },
+    {
+      "name": "yerel sunucu /assets/fonts/cinzel-latin-wght-normal.woff2 → 200 font/woff2",
+      "ok": true,
+      "detail": "200 font/woff2"
+    },
+    {
+      "name": "yerel sunucu /assets/fonts/OFL-Cinzel.txt → 200 text/plain",
+      "ok": true,
+      "detail": "200 text/plain; charset=utf-8"
+    },
+    {
+      "name": "yerel sunucu / → 200 text/html",
+      "ok": true,
+      "detail": "200 text/html; charset=utf-8"
+    },
+    {
+      "name": "yerel sunucu reddeder: /.env.local",
+      "ok": true,
+      "detail": "404"
+    },
+    {
+      "name": "yerel sunucu reddeder: /.git/config",
+      "ok": true,
+      "detail": "404"
+    },
+    {
+      "name": "yerel sunucu reddeder: /app/../.env.local",
+      "ok": true,
+      "detail": "404"
+    },
+    {
+      "name": "yerel sunucu reddeder: /assets/../kaplan-sunucu.ps1",
+      "ok": true,
+      "detail": "404"
+    },
+    {
+      "name": "yerel sunucu reddeder: /%2e%2e/%2e%2e/Windows/win.ini",
+      "ok": true,
+      "detail": "404"
+    },
+    {
+      "name": "yerel sunucu reddeder: /assets/..%2f..%2f.env.local",
+      "ok": true,
+      "detail": "403"
+    },
+    {
+      "name": "yerel sunucu reddeder: /tasarim/oneri.html",
+      "ok": true,
+      "detail": "404"
+    },
+    {
+      "name": "yerel sunucu reddeder: /api/ka.js",
+      "ok": true,
+      "detail": "404"
+    },
+    {
+      "name": "yerel sunucu reddeder: /kaplan-sunucu.ps1",
+      "ok": true,
+      "detail": "404"
+    },
+    {
+      "name": "yerel sunucu reddeder: /app/.hidden.js",
+      "ok": true,
+      "detail": "404"
+    },
+    {
+      "name": "yerel sunucu: admin yerel ağ kipinde",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "yerel sunucu: telefon cevabı yetkili olarak kabul edildi",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "yerel sunucu: puan uygulandı",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "yerel sunucu: sahne puan tablosunu gösterdi",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

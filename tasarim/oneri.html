@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kaplan Arena tasarım yönü</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@500;700;800;900&display=swap">
+<style>
+:root{
+  --night:#140b2e; --night-2:#21124d; --violet:#3a1f86; --glass:rgba(255,255,255,.07); --glass-line:rgba(255,255,255,.14);
+  --ink:#fff7ec; --soft:#c9bfe8;
+  --tiger:#ff8a1f; --tiger-hi:#ffb547; --tiger-lo:#c2480b;
+  --pink:#ff4fa3; --cyan:#35d7ff; --lime:#5fe27a; --sun:#ffd23f; --red:#ff5468;
+  --a:#ff5468; --b:#3d8bff; --c:#ffc21a; --d:#2fcf73;
+  --display:'Baloo 2', system-ui, sans-serif; --body:'Nunito', system-ui, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:#0b0620;color:var(--ink);font-family:var(--body);padding:32px 16px 64px}
+.wrap{max-width:1180px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+h1,h2,h3{font-family:var(--display);margin:0;line-height:1.05}
+.lead h1{font-size:clamp(2rem,4vw,3rem)} .lead h1 span{color:var(--tiger-hi)}
+.lead p{color:var(--soft);max-width:760px;font-size:1.05rem;margin:.5rem 0 0}
+.sec h2{font-size:1.35rem;margin-bottom:12px;color:var(--tiger-hi)}
+.grid{display:grid;gap:14px}
+.sw{border-radius:18px;padding:14px;min-height:92px;display:flex;flex-direction:column;justify-content:flex-end;font-weight:800;font-size:.85rem}
+.sw small{font-weight:700;opacity:.8}
+.type{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+.card{background:var(--glass);border:1px solid var(--glass-line);border-radius:24px;padding:20px}
+.stripes{background-color:var(--night);background-image:
+  radial-gradient(ellipse 70% 60% at 50% 0%, rgba(124,77,255,.45), transparent 70%),
+  url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cpath d='M-10 40 Q40 20 80 46 T170 30' stroke='%23ffffff' stroke-opacity='.035' stroke-width='14' fill='none' stroke-linecap='round'/%3E%3Cpath d='M-10 120 Q50 96 90 124 T170 110' stroke='%23ffffff' stroke-opacity='.035' stroke-width='10' fill='none' stroke-linecap='round'/%3E%3C/svg%3E")}
+.btn{font-family:var(--display);font-weight:800;font-size:1.15rem;border:0;border-radius:18px;padding:.7em 1.4em;color:#2a0f00;cursor:pointer;
+  background:linear-gradient(180deg,var(--tiger-hi),var(--tiger));box-shadow:0 6px 0 var(--tiger-lo),0 10px 24px rgba(255,138,31,.35);transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translateY(5px);box-shadow:0 1px 0 var(--tiger-lo)}
+.btn.ghost{background:rgba(255,255,255,.1);color:var(--ink);box-shadow:0 6px 0 rgba(0,0,0,.35)}
+.pill{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:6px 14px;font-weight:800;font-size:.9rem;background:rgba(255,255,255,.1);border:1px solid var(--glass-line)}
+.pill i{width:9px;height:9px;border-radius:50%;background:var(--lime);box-shadow:0 0 10px var(--lime)}
+.ribbon{position:relative;display:inline-block;font-family:var(--display);font-weight:800;font-size:1.3rem;color:#073314;background:linear-gradient(180deg,#8cf5a0,var(--lime));padding:.25em 1.2em;border-radius:12px;box-shadow:0 5px 0 #1f8f43;transform:rotate(-3deg)}
+.emblem{width:64px;height:64px;flex:none}
+.comps{display:flex;flex-wrap:wrap;gap:18px;align-items:center}
+/* projector */
+.screen{aspect-ratio:16/9;border-radius:28px;overflow:hidden;border:1px solid var(--glass-line);display:grid;grid-template-rows:auto 1fr auto;padding:18px 22px;gap:14px}
+.top{display:flex;align-items:center;gap:12px;font-weight:800}
+.top .t{font-family:var(--display);font-size:1.2rem;flex:1}
+.chip{border-radius:999px;padding:5px 12px;background:rgba(255,255,255,.1);font-size:.8rem}
+.chip.pin{background:var(--tiger);color:#2a0f00}
+.mid{display:grid;grid-template-columns:1fr auto;gap:18px;align-items:center;min-height:0}
+.q{background:#fff;color:#231447;border-radius:26px;padding:20px 24px;box-shadow:0 10px 0 rgba(0,0,0,.25)}
+.q .cat{display:inline-block;background:#ede6ff;color:#5a2fd0;font-weight:900;font-size:.75rem;border-radius:999px;padding:4px 10px;margin-bottom:8px}
+.q h3{font-size:clamp(1.1rem,2.2vw,1.9rem);font-weight:800}
+.ans{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.an{display:flex;align-items:center;gap:10px;border-radius:16px;padding:10px 12px;font-weight:900;color:#fff;font-size:clamp(.8rem,1.3vw,1.05rem);box-shadow:0 5px 0 rgba(0,0,0,.25)}
+.an b{width:30px;height:30px;border-radius:10px;background:rgba(255,255,255,.25);display:grid;place-items:center;font-family:var(--display);flex:none}
+.timer{width:clamp(90px,11vw,140px);aspect-ratio:1;border-radius:50%;display:grid;place-items:center;
+  background:conic-gradient(var(--tiger-hi) 0 72%, rgba(255,255,255,.1) 72% 100%);position:relative}
+.timer::before{content:'';position:absolute;inset:10px;border-radius:50%;background:var(--night-2)}
+.timer span{position:relative;font-family:var(--display);font-size:clamp(1.8rem,3.5vw,2.8rem);font-weight:800}
+.teams{display:flex;gap:8px;flex-wrap:wrap}
+.tm{flex:1;min-width:90px;border-radius:14px;padding:8px 10px;background:rgba(255,255,255,.08);border:2px solid var(--c);display:flex;justify-content:space-between;align-items:center;font-weight:900;font-size:.85rem}
+.tm em{font-style:normal;font-family:var(--display);font-size:1.1rem;color:var(--c)}
+.tm.ok{background:color-mix(in srgb,var(--c) 22%,transparent)}
+/* phone */
+.phones{display:flex;gap:22px;flex-wrap:wrap;justify-content:center}
+.phone{width:280px;border-radius:40px;padding:12px;background:#05020f;box-shadow:0 0 0 2px #2b2150}
+.ph{border-radius:30px;overflow:hidden;min-height:540px;display:flex;flex-direction:column;gap:12px;padding:18px 14px}
+.ph .hd{display:flex;align-items:center;justify-content:space-between;font-weight:900}
+.ph .me{background:var(--pink);color:#3b0020;border-radius:999px;padding:4px 12px;font-family:var(--display)}
+.ph .qq{background:#fff;color:#231447;border-radius:22px;padding:14px;font-weight:800;box-shadow:0 7px 0 rgba(0,0,0,.25)}
+.ph .qq small{display:block;color:#7a6aa6;font-weight:800;margin-bottom:4px}
+.pad{display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:1}
+.pd{border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#fff;font-weight:900;font-size:.85rem;text-align:center;padding:10px;box-shadow:0 7px 0 rgba(0,0,0,.3)}
+.pd b{font-family:var(--display);font-size:1.8rem;line-height:1}
+.done{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;text-align:center}
+.burst{width:150px;height:150px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle,#ffe07a 0 30%,transparent 31%),repeating-conic-gradient(rgba(255,210,63,.35) 0 10deg,transparent 10deg 20deg)}
+.check{width:72px;height:72px;border-radius:50%;background:var(--lime);display:grid;place-items:center;font-size:2.4rem;color:#073314;font-weight:900;box-shadow:0 6px 0 #1f8f43}
+.notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+.notes .card h3{font-size:1.1rem;margin-bottom:6px;color:var(--tiger-hi)}
+.notes p{margin:0;color:var(--soft);line-height:1.5}
+@media (max-width:760px){.mid{grid-template-columns:1fr}.timer{justify-self:center}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<section class="lead">
+  <h1>Kaplan Arena · <span>Gece Arenası</span></h1>
+  <p>Koyu siyah yerine derin mor-lacivert bir gece sahnesi; kaplan turuncusu tek kahraman renk. Dokunulası, tombul, "basılan" düğmeler, beyaz soru kartı, renk + harf ile ayrışan şıklar, kutlama anlarında kurdele ve konfeti. Projeksiyonda uzaktan okunur, telefonda oyun hissi verir.</p>
+</section>
+
+<section class="sec">
+  <h2>Renkler</h2>
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(120px,1fr))">
+    <div class="sw" style="background:var(--night)">Gece<small>#140B2E · zemin</small></div>
+    <div class="sw" style="background:var(--violet)">Mor<small>#3A1F86 · ışık/kart</small></div>
+    <div class="sw" style="background:linear-gradient(180deg,var(--tiger-hi),var(--tiger));color:#2a0f00">Kaplan<small>#FF8A1F · ana vurgu</small></div>
+    <div class="sw" style="background:var(--pink);color:#3b0020">Pembe<small>#FF4FA3 · ikincil</small></div>
+    <div class="sw" style="background:var(--cyan);color:#003646">Camgöbeği<small>#35D7FF · bilgi</small></div>
+    <div class="sw" style="background:var(--lime);color:#073314">Doğru<small>#5FE27A</small></div>
+    <div class="sw" style="background:var(--red)">Yanlış<small>#FF5468</small></div>
+  </div>
+  <div class="grid" style="grid-template-columns:repeat(4,1fr);margin-top:10px">
+    <div class="sw" style="background:var(--a);min-height:56px">A · kırmızı</div>
+    <div class="sw" style="background:var(--b);min-height:56px">B · mavi</div>
+    <div class="sw" style="background:var(--c);color:#3a2a00;min-height:56px">C · sarı</div>
+    <div class="sw" style="background:var(--d);color:#04321a;min-height:56px">D · yeşil</div>
+  </div>
+</section>
+
+<section class="sec">
+  <h2>Yazı ve bileşenler</h2>
+  <div class="type">
+    <div class="card"><div style="font-family:var(--display);font-weight:800;font-size:2.4rem;line-height:1">Şampiyon 11-B!</div><p style="color:var(--soft);margin:.4rem 0 0">Başlık: <b>Baloo 2</b> 800 · yuvarlak, tombul, Türkçe karakterler tam (ğ ş İ ı ç ö ü)</p></div>
+    <div class="card"><div style="font-weight:800;font-size:1.3rem">Türkiye'nin en uzun nehri hangisidir?</div><p style="color:var(--soft);margin:.4rem 0 0">Metin: <b>Nunito</b> 500–900 · projeksiyonda net, sıcak</p></div>
+  </div>
+  <div class="card comps" style="margin-top:14px">
+    <svg class="emblem" viewBox="0 0 64 64" aria-label="Kaplan amblemi"><circle cx="32" cy="34" r="26" fill="#ff8a1f"/><path d="M10 18 L18 8 L24 20Z M54 18 L46 8 L40 20Z" fill="#ff8a1f"/><path d="M32 10 L29 20 L35 20Z M14 30 L22 32 L14 36Z M50 30 L42 32 L50 36Z" fill="#2a0f00"/><ellipse cx="32" cy="44" rx="13" ry="9" fill="#fff3e0"/><circle cx="23" cy="31" r="3.4" fill="#2a0f00"/><circle cx="41" cy="31" r="3.4" fill="#2a0f00"/><path d="M28 41 h8 l-4 4z" fill="#2a0f00"/></svg>
+    <button class="btn">Yarışmayı Başlat</button>
+    <button class="btn ghost">Soru Yönetimi</button>
+    <span class="pill"><i></i>Telefon bağlantısı açık</span>
+    <span class="ribbon">DOĞRU!</span>
+    <span class="chip pin" style="font-weight:900;font-size:1rem;padding:8px 16px;border-radius:999px">Şifre 322 479</span>
+  </div>
+</section>
+
+<section class="sec">
+  <h2>Projeksiyon · soru ekranı</h2>
+  <div class="screen stripes">
+    <div class="top">
+      <svg class="emblem" style="width:38px;height:38px" viewBox="0 0 64 64"><circle cx="32" cy="34" r="26" fill="#ff8a1f"/><path d="M10 18 L18 8 L24 20Z M54 18 L46 8 L40 20Z" fill="#ff8a1f"/><path d="M32 10 L29 20 L35 20Z" fill="#2a0f00"/><ellipse cx="32" cy="44" rx="13" ry="9" fill="#fff3e0"/><circle cx="23" cy="31" r="3.4" fill="#2a0f00"/><circle cx="41" cy="31" r="3.4" fill="#2a0f00"/></svg>
+      <span class="t">Kaplan Arena</span><span class="chip">1. Etap · Soru 4/10</span><span class="chip pin">Şifre 322 479</span>
+    </div>
+    <div class="mid">
+      <div class="q">
+        <span class="cat">COĞRAFYA</span>
+        <h3>Türkiye'nin en uzun nehri hangisidir?</h3>
+        <div class="ans">
+          <div class="an" style="background:var(--a)"><b>A</b>Fırat</div>
+          <div class="an" style="background:var(--b)"><b>B</b>Kızılırmak</div>
+          <div class="an" style="background:var(--c);color:#3a2a00"><b>C</b>Sakarya</div>
+          <div class="an" style="background:var(--d)"><b>D</b>Dicle</div>
+        </div>
+      </div>
+      <div class="timer"><span>32</span></div>
+    </div>
+    <div class="teams">
+      <div class="tm ok" style="--c:var(--pink)">10-A <em>40</em></div>
+      <div class="tm ok" style="--c:var(--cyan)">12-B <em>30</em></div>
+      <div class="tm" style="--c:var(--lime)">12-A <em>30</em></div>
+      <div class="tm ok" style="--c:var(--sun)">11-C <em>20</em></div>
+      <div class="tm" style="--c:#b58cff">10-C <em>10</em></div>
+      <div class="tm" style="--c:#2fe0c4">9-A <em>10</em></div>
+    </div>
+  </div>
+  <p style="color:var(--soft);margin:.6rem 0 0">Cevap veren sınıfın kutusu kendi rengiyle dolar; puan değişince sayı yukarı sayar, sıralama kayarak yer değiştirir.</p>
+</section>
+
+<section class="sec">
+  <h2>Telefon · kaptan</h2>
+  <div class="phones">
+    <div class="phone"><div class="ph stripes">
+      <div class="hd"><span style="font-family:var(--display);font-size:1.1rem;color:var(--tiger-hi)">Kaplan Arena</span><span class="me">10-A</span></div>
+      <div class="qq"><small>Soru 4/10 · 32 sn</small>Türkiye'nin en uzun nehri hangisidir?</div>
+      <div class="pad">
+        <div class="pd" style="background:var(--a)"><b>A</b>Fırat</div>
+        <div class="pd" style="background:var(--b)"><b>B</b>Kızılırmak</div>
+        <div class="pd" style="background:var(--c);color:#3a2a00"><b>C</b>Sakarya</div>
+        <div class="pd" style="background:var(--d)"><b>D</b>Dicle</div>
+      </div>
+    </div></div>
+    <div class="phone"><div class="ph stripes">
+      <div class="hd"><span style="font-family:var(--display);font-size:1.1rem;color:var(--tiger-hi)">Kaplan Arena</span><span class="me">10-A</span></div>
+      <div class="done">
+        <div class="burst"><div class="check">✓</div></div>
+        <span class="ribbon">HARİKA!</span>
+        <div style="font-family:var(--display);font-size:2.4rem;font-weight:800;color:var(--tiger-hi)">+10</div>
+        <div style="color:var(--soft);font-weight:800">Sınıfın şu an <b style="color:#fff">1.</b> sırada</div>
+      </div>
+    </div></div>
+  </div>
+</section>
+
+<section class="sec">
+  <h2>Hareket ve ses</h2>
+  <div class="notes">
+    <div class="card"><h3>Basılan düğmeler</h3><p>Her düğmenin altında koyu bir "taban" var; basınca aşağı iner. Telefonda cevaba dokunmak oyun hissi verir.</p></div>
+    <div class="card"><h3>Kutlama anları</h3><p>Doğru cevapta kurdele + ışın patlaması, etap sonunda podyum, şampiyonda konfeti (zaten var) ve taç.</p></div>
+    <div class="card"><h3>Gerilim</h3><p>Son 5 saniyede sayaç halkası nabız gibi atar ve kırmızıya döner; yanlış cevapta kart hafifçe sallanır.</p></div>
+    <div class="card"><h3>Okunurluk</h3><p>Şıklar yalnızca renkle değil harfle de ayrışır; beyaz soru kartı arka salonda bile okunur. Hareket azaltma ayarına uyulur.</p></div>
+  </div>
+</section>
+
+</div>
+</body>
+</html>

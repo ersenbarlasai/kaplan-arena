@@ -1,0 +1,50 @@
+[
+  {
+    "file": "arena.png",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "alpha_range": null
+  },
+  {
+    "file": "kale.png",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "alpha_range": null
+  },
+  {
+    "file": "kaplan-rehber.png",
+    "size": [
+      1024,
+      1536
+    ],
+    "mode": "RGBA",
+    "alpha_range": [
+      0,
+      254
+    ]
+  },
+  {
+    "file": "karsilama.png",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "alpha_range": null
+  },
+  {
+    "file": "orman.png",
+    "size": [
+      1672,
+      941
+    ],
+    "mode": "RGB",
+    "alpha_range": null
+  }
+]

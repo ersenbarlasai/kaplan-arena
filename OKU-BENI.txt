@@ -1,51 +1,136 @@
-﻿KAPLAN ARENA - NASIL BAŞLATILIR?
+﻿KAPLAN ARENA · EFSANEYE YOLCULUK
+Kaplan Okulları Yapayzeka Kulübü sunar.
 
-Yarışma ekranını iki yoldan biriyle açın (ikisi de aynı şekilde çalışır):
-  A) Tarayıcıda https://kaplan-arena.vercel.app adresine girin, ya da
-  B) Bu klasördeki kaplan-arena.html dosyasına çift tıklayın.
-Kurulum, yönetici izni ya da BASLAT gerekmez. Bilgisayarın internete bağlı
-olması yeterlidir.
+========================================================================
+1) AÇMA: YÖNETİM PANELİ VE SAHNE (PROJEKSİYON)
+========================================================================
+Yarışma iki pencereyle yürür:
+  * Yönetim paneli  : bilgisayarın kendi ekranında, yalnız sizin gördüğünüz.
+  * Sahne ekranı    : projeksiyonda, seyircinin gördüğü (yönetim düğmesi yok).
 
-1) "Yarışmayı Başlat" deyin. Her etabın Katılım ekranında QR kod ve
-   6 haneli şifre çıkar.
-2) Kaptanlar telefonla katılır (Wi-Fi ya da mobil veri, aynı ağ gerekmez):
-   - QR kodu telefon kamerasıyla okutun, ya da
-   - Telefon tarayıcısına kaplan-arena.vercel.app/katil yazıp şifreyi girin.
-3) Her sınıfın kaptanı kendi sınıfını seçer ve cevapları telefondan verir.
+Ek monitör gerekmez; projeksiyon ikinci ekran olur.
+  1. Projeksiyonu bağlayın. Windows'ta Win + P > "Genişlet" seçin.
+  2. Yönetim panelini açın (aşağıdaki yollardan biri):
+       A) Tarayıcıda https://kaplan-arena.vercel.app
+       B) Bu klasördeki kaplan-arena.html dosyasına çift tıklayın
+       C) İnternet yoksa BASLAT.bat (yerel ağ modu, aşağıda)
+  3. Karşılama ekranında "Sahne Ekranını Aç" deyin. Açılan pencereyi
+     projeksiyon ekranına sürükleyin; "Tam Ekran" düğmesi ya da F11.
+     Tarayıcı açılır pencereyi engellerse adres çubuğundan bu sayfaya izin verin.
+  4. Sahnede "Sesi Etkinleştir ve Test Et" deyin. Test sesi salon
+     hoparlöründen duyulmalı. (Sessiz kullanmak için "Sessiz Devam Et".)
+     Sesler YALNIZ sahne penceresinden çalar; yönetim paneli ve telefonlar
+     sessizdir. Ses aç/kapat ve seviye: yönetim paneli > Ayarlar.
+  5. Yönetim panelinde "Yolculuğa Başla" > "Yarışmayı Başlat".
 
-AYNI ANDA TEK YARIŞMA
-- Aynı anda yalnızca bir yarışma yapılabilir. Bir yerde (Vercel adresi ya da
-  bilgisayardaki dosya, herhangi bir cihaz) yarışma açıkken başka bir yerden
-  yarışma ekranı açılırsa "Şu anda başka bir yerde açık bir yarışma var"
-  uyarısı çıkar, yarışma başlatılamaz; açık olan ekrana da "açılmaya
-  çalışıldı ve engellendi" bildirimi gider.
-- Açık yarışma "Yarışmayı Bitir" ile ya da final tamamlanınca serbest kalır.
-  Açık ekran 5 dakika boyunca kapalı kalırsa (tarayıcı kapandı, internet
-  gitti) kilit kendiliğinden düşer.
-- Aynı bilgisayarda aynı adresten yeniden açarsanız yarışmaya kaldığınız
-  yerden devam edersiniz.
+Sahne penceresi kapanırsa ya da bağlantısı koparsa açık sorudaki süre ve
+cevap kabulü durur, panelde uyarı çıkar. "Sahne Ekranını Aç" ile yeniden
+açın; aynı soru ve kalan süre gelir, devamı siz başlatırsınız ("Devam Et").
+Sahne olmadan sürdürmek için "Sahnesiz Devam" seçilebilir.
 
-SORULAR NEREDE SAKLANIR?
-- Sorular ve ayarlar tarayıcıda, açılan adrese göre saklanır. Vercel adresi
-  ile bilgisayardaki dosya ayrı yerlerdir. Birinden diğerine geçerken
-  Soru Yönetimi > Yedekleme ile dışa aktarıp öbüründe içe aktarın.
-  Soruları yarışmayı yapacağınız bilgisayar ve adreste girmeniz en iyisi.
+========================================================================
+2) YARIŞMA AKIŞI (TAMAMEN SİZİN KONTROLÜNÜZDE)
+========================================================================
+Kura > Orman Geçidi (1. etap) > Kadim Kale (2. etap) > Kaplan Arenası (final).
+Her soru için panelde tek bir ana düğme sırayla şunları yapar:
+  1. "Hazır mısınız?"  Soru sahneye ve telefonlara henüz GİTMEZ, süre işlemez.
+  2. "Soruyu Göster"   Soru sahnede ve telefonlarda açılır, ortak süre başlar.
+                       "Duraklat" / "Devam Et" ile süreyi durdurabilirsiniz.
+  3. Süre bitince cevaplar kilitlenir; doğru cevap kendiliğinden açılmaz.
+  4. "Cevabı Açıkla"   Doğru cevap görünür (süre bitmeden basarsanız onay
+                       sorulur; süre durur, cevaplar kilitlenir).
+                       Panelde telefondan gelen cevaplara göre doğru bilenler
+                       işaretlenir; gerekirse düzeltin. Puanlar henüz görünmez.
+  5. "Puanları Göster" Puanlar bir kez uygulanır ve sahnede gösterilir.
+  6. "Sonraki Soru"    Yeni sorunun "Hazır mısınız?" ekranı açılır.
+Hiçbir adım kendiliğinden ilerlemez. "Puanları Düzelt" ile ±10, "Geri Al" ile
+son işlem geri alınır.
 
-TELEFONLAR BAĞLANAMAZSA
-- Bilgisayarın ve telefonların internete eriştiğini kontrol edip sayfayı
-  yenileyin. Okul Wi-Fi'si engelliyorsa telefonlar mobil veriyle katılabilir.
-- İnternet hiç yoksa Kaplan Arena tek ekran olarak da oynanır (telefonsuz
-  mod): puanları siz girersiniz.
+SORUYU İPTAL ET: Hatalı bir soru için "Soruyu İptal Et" (onaylı). O sorudan
+kimse puan ya da ceza almaz; uygulanmış puan etkisi geri alınır, o soruda
+kullanılan jokerler iade edilir. Önceki sorular etkilenmez. Sonra
+"Sonraki Soru".
 
-İNTERNETSİZ YEREL AĞ MODU (isteğe bağlı, eski yöntem)
-- İnternet yok ama herkes aynı Wi-Fi'deyse BASLAT.bat'a çift tıklayın,
-  izin sorusuna EVET deyin. Bilgisayarda küçük bir sunucu açılır, telefonlar
-  ekrandaki yerel adres (ör. 192.168.1.25:8090) ve şifreyle katılır.
-  Siyah pencereyi yarışma bitene kadar KAPATMAYIN.
+ARA: Panelde "Karşılama" deyince sahne karşılama ekranına döner, süre ve
+cevap kabulü durur, telefonlarda "Ara verildi" yazar. "Yarışmaya Devam Et"
+ile aynı soruya dönülür; süreyi siz başlatırsınız. Kayıtlar silinmez.
 
-YÖNETİCİ İÇİN (Vercel kurulumu, bir kez)
-- Proje Vercel'e yüklenir. Vercel panelinde proje > Storage > "Upstash for
-  Redis" eklenip projeye bağlanır (ücretsiz). Telefon senkronu bu veri
-  deposunu kullanır (api/ka.js). Bağlı değilse sayfa telefonsuz modda açılır.
-- Vercel adresi değişirse kaplan-arena.html içindeki VERCEL_URL satırını
-  yeni adresle güncelleyin (dosyadan açınca bu adres kullanılır).
+========================================================================
+3) TELEFONLA KATILIM (SINIF KAPTANLARI)
+========================================================================
+- Katılım ekranında QR kod ve 6 haneli yarışma kodu görünür.
+- Kaptan QR'ı okutur ya da adresi yazıp kodu girer, sonra sınıfını seçer.
+- Şık seçmek cevap GÖNDERMEZ; "Cevabı Gönder" düğmesine basılır. Süre
+  bitene kadar değiştirip yeniden gönderilebilir; son gönderilen geçerlidir.
+  "Gönderilemedi" yazarsa bağlantıyı kontrol edip yeniden gönderin.
+- Telefonu olmayan sınıflar için cevapları ve puanları panelde siz girersiniz.
+- Bir telefonun bağlantısı kopması yarışmayı durdurmaz; telefon geri
+  gelince gönderdiği cevap ve kalan jokerleri görünür.
+
+========================================================================
+4) JOKERLER
+========================================================================
+Her sınıfın TÜM YARIŞMA boyunca (etap ve finalde yenilenmez) birer hakkı var:
+  * Çift Cevap  : yalnız şıklı soruda; iki farklı şık seçilip birlikte
+                  gönderilir. Biri doğruysa +10.
+  * Çifte Puan  : şıklı ve tahmin sorusunda; doğruysa +20 (tahminde en yakın
+                  sınıf olmak; eşit uzaklıktakiler birlikte kazanır).
+  * Jokerli soruda yanlış ya da cevapsız: −10. Puan sıfırın altına inmez
+    (5 puanı olan sınıftan 5 düşer).
+  * Aynı soruda bir sınıf yalnız bir joker kullanır. Eşitlik sorularında
+    joker yoktur.
+  * Joker yalnız süre işlerken ve sınıf o soruya ilk cevabını göndermeden
+    önce kullanılabilir; duraklamada, süre bitince ya da açıklamadan sonra
+    kullanılamaz. Telefonda etkisi ve cezası yazan bir onay çıkar.
+  * Onaylanan joker GERİ ALINAMAZ. Telefonsuz sınıf için panelde sınıfın
+    satırındaki joker düğmesi aynı kurallarla kullanılır.
+  * Joker kullanılınca sahnede kısa, sesli bir tanıtım olur; bu sırada süre
+    ve cevaplar bütün sınıflar için birkaç saniye durur, sonra kalan süreyle
+    devam eder. Aynı anda gelen jokerler tek tanıtımda gösterilir.
+
+========================================================================
+5) ÇALIŞMA BİÇİMLERİ
+========================================================================
+İNTERNETLE (önerilen): Vercel adresi ya da kaplan-arena.html. Telefonlar
+  Wi-Fi ya da mobil veriyle kaplan-arena.vercel.app/katil adresinden katılır.
+İNTERNETSİZ YEREL AĞ: BASLAT.bat'a çift tıklayın, izin sorusuna EVET deyin.
+  Siyah pencere açık kalmalı. Telefonlar aynı Wi-Fi'den ekrandaki yerel adres
+  (ör. 192.168.1.25:8090) ve kodla katılır. Sahne de "Sahne Ekranını Aç" ile
+  aynı şekilde açılır. Görseller, yazı tipleri ve sesler klasörle birlikte
+  gelir; internet gerekmez.
+TELEFONSUZ: İnternet ve yerel sunucu yoksa yarışma tek bilgisayarla oynanır;
+  panelde "Telefon bağlantısı yok" yazar, cevapları siz girersiniz.
+
+Klasör bütün olarak taşınmalıdır: kaplan-arena.html, app/ ve assets/
+klasörleri birlikte olmalı.
+Yönetim panelini aynı bilgisayarda tek sekmede açık tutun; aynı adresten
+açık iki panel sekmesi birbirinin kaydını ezebilir.
+
+========================================================================
+6) AYNI ANDA TEK YARIŞMA
+========================================================================
+İnternet modunda aynı anda yalnız bir yarışma yürütülebilir. Başka bir
+yerden yönetim paneli açılırsa "Şu anda başka bir yerde açık bir yarışma
+var" uyarısı çıkar ve açık panele bildirim gider. Yarışma bitince ya da açık
+panel 5 dakika kapalı kalırsa kilit kalkar. Sahne penceresi kilit almaz.
+
+========================================================================
+7) SORULAR VE YEDEK
+========================================================================
+- Sorular, ayarlar ve sınıf armaları tarayıcıda, açılan adrese göre saklanır
+  (Vercel adresi ile dosyadan açma ayrı yerlerdir). Birinden diğerine
+  geçerken Soru Yönetimi > Yedekleme ile dışa aktarıp öbüründe içe aktarın.
+- Her sınıfın arması kalıcıdır; yeni sınıf eklemek mevcut armaları değiştirmez.
+- Eski sürümden gelen kayıt ilk açılışta otomatik güncellenir; eski kaydın bir
+  kopyası "kaplan-arena-v1-yedek-sema1" adıyla tarayıcıda saklanır.
+
+========================================================================
+8) TEKNİK (YÖNETİCİ)
+========================================================================
+- Vercel: Storage > "Upstash for Redis" projeye bağlı olmalı (api/ka.js).
+  Vercel adresi değişirse app/net.js içindeki VERCEL_URL satırını güncelleyin.
+- Testler (geliştirici):  node --test tests/*.test.js
+  Tarayıcı senaryoları:   tests/e2e/run.js ve tests/e2e/modes.js
+  (Chrome ve puppeteer-core gerekir; ayrıntı tasarim/TESLIM-RAPORU.md).
+- Yazı tipleri: Cinzel, Alegreya, Alegreya Sans (SIL Open Font License 1.1;
+  lisanslar assets/fonts/OFL-*.txt).

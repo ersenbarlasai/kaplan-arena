@@ -1,0 +1,294 @@
+/* Kaplan Arena — admin eylemleri. Yarışma akışı tam manueldir; hiçbir eylem kendiliğinden ilerlemez. */
+const ACT = {
+  cancel(){ ui.confirm = null; render(); },
+
+  /* ---- ekranlar ---- */
+  welcome(){
+    const g = G();
+    if (g.started && !g.finished){
+      g.brk = true;
+      if (inQ() && g.phase === 'open' && g.clock){ C.pause(g, 'break', nowS()); C.pause(g, 'admin', nowS()); }
+      save();
+    }
+    setScreen('welcome');
+  },
+  begin(){
+    const g = G();
+    if (g.brk){ g.brk = false; if (g.clock){ C.unpause(g, 'break', nowS()); } save(); }
+    setScreen(g.started && !g.finished && LOCK.state !== 'other' ? 'game' : 'menu');
+  },
+  menu(){ setScreen('menu'); },
+  start(){ if (LOCK.state === 'other') return render(); setScreen('game'); },
+  manage(){ ui.screen = 'manage'; ui.confirm = null; render(); },
+  settings(){ ui.screen = 'settings'; ui.confirm = null; render(); },
+  openStage(){
+    if (!StageHost.open()) toast('Sahne penceresi açılamadı. Tarayıcının açılır pencere engelini bu sayfa için kapatın.', 6000);
+    else toast('Sahne penceresi açıldı. Projeksiyona taşıyıp tam ekran yapın; sesi sahnede etkinleştirin.', 5000);
+  },
+  noStage(){ ui.noStageOk = true; const g = G(); if (g.clock && g.clock.reasons.includes('stage')){ C.unpause(g, 'stage', nowS()); save(); } render(); },
+  toggleSound(){ S.settings.sound = !S.settings.sound; save(); render(); },
+
+  /* ---- yarışma başlat/bitir ---- */
+  newGameAsk(){ ui.confirm = 'newgame'; render(); },
+  async newGameYes(){
+    const g = newGame(); g.started = true; g.since = Math.round(nowS());
+    if (lockOn()){
+      let j;
+      try{ j = await lockReq('acquire', true, g); }catch(e){ return toast('Bağlantı kurulamadı, tekrar deneyin.'); }
+      LOCK.info = j.info || null;
+      if (j.state !== 'mine'){ LOCK.state = 'other'; ui.confirm = null; setScreen('menu'); return; }
+      LOCK.state = 'mine';
+    }
+    S.game = g; syncEmblems(); ui.confirm = null; ui.drawShown = null;
+    if (NET.ok){ try{ NET.db.ref('games/' + S.game.pin + '/meta').set({ created:TS(), title:S.settings.title }); }catch(e){} }
+    addEvent('stage');
+    save(); setScreen('game'); lockSync(false);
+  },
+  endAsk(){ ui.confirm = 'end'; render(); },
+  endYes(){ const g = G(); if (g.clock) C.stopClock(g, nowS()); ui.confirm = null; g.started = true; g.view = 'ended'; g.finished = true; save(); setScreen('game'); lockSync(false); },
+
+  /* ---- kura ve etap ---- */
+  drawGo(){
+    const g = G(), sh = shuffle(S.settings.classes), n1 = Math.ceil(sh.length / 2);
+    g.draw = { s1:sh.slice(0, n1), s2:sh.slice(n1) }; C.assignEmblems(S.settings.emblems, sh);
+    save(); runDrawAnim();
+  },
+  redrawAsk(){ ui.confirm = 'redraw'; render(); },
+  redrawYes(){ ui.confirm = null; ACT.drawGo(); },
+  drawOk(){
+    const g = G();
+    g.teams.s1 = g.draw.s1.map(n => ({ name:n, score:0 }));
+    g.teams.s2 = g.draw.s2.map(n => ({ name:n, score:0 }));
+    g.stage = 0; g.view = 'teams'; addEvent('stage'); save(); render();
+  },
+  startStage(){
+    const key = stageKey();
+    if (!S.questions[key].length) return toast('Bu etapta soru yok. Önce Soru Yönetimi ekranından soru ekleyin.');
+    curTeams().forEach(t => t.score = 0);
+    const g = G(); g.result = null; g.tie = null; g.last = null; g.history = [];
+    toQuestion(0); save(); render();
+  },
+
+  /* ---- soru aşamaları ---- */
+  showQ(){
+    const g = G(); if (!inQ() || g.phase !== 'ready') return;
+    C.showQuestion(g, S.settings.seconds * 1000, nowS());
+    if (ui.stageSeen && StageHost.count() === 0 && !ui.noStageOk){ C.pause(g, 'stage', nowS()); C.pause(g, 'admin', nowS()); }
+    save(); render();
+  },
+  pause(){ const g = G(); if (g.phase !== 'open') return; C.pause(g, 'admin', nowS()); save(); render(); },
+  resume(){
+    const g = G(); if (g.phase !== 'open' || !g.clock) return;
+    if (g.clock.reasons.includes('stage') && StageHost.count() === 0 && !ui.noStageOk) return toast('Sahne bağlı değil. Sahneyi yeniden açın ya da "Sahnesiz Devam" seçin.', 5000);
+    if (g.clock.reasons.includes('joker')) return toast('Joker tanıtımı bitince devam edebilirsiniz.');
+    C.unpause(g, 'admin', nowS()); save(); render();
+  },
+  revealAsk(){
+    const g = G(); if (!inQ()) return;
+    if (g.phase === 'open' && clockLeftMs() > 0){ ui.confirm = 'reveal'; return render(); }
+    ACT.revealYes();
+  },
+  revealYes(){
+    const g = G(); ui.confirm = null;
+    if (!C.reveal(g, nowS())) return render();
+    ui.touched = false;
+    freezeAnswers();
+    addEvent('reveal'); save(); render();
+    // Süre içinde gönderilmiş ama henüz ulaşmamış cevaplar (ağ gecikmesi) için hemen yeniden yokla ve
+    // puanlar gösterilmeden önce iki kez yenile. Kabul ölçütü gönderim zamanıdır, ulaşma zamanı değil.
+    try{ if (NET.ok && NET.db && NET.db.start) NET.db.start(); }catch(e){}
+    const qk = currentQk();
+    [1500, 3000].forEach(ms => setTimeout(() => { const g2 = G(); if (currentQk() === qk && inQ() && g2.phase === 'revealed' && !(g2.scored || {})[qk] && !ui.touched){ freezeAnswers(); save(); render(); } }, ms));
+  },
+  toggleTeam(d){ const i = +d.i; ui.touched = true; ui.sel = ui.sel.includes(i) ? ui.sel.filter(x => x !== i) : [...ui.sel, i]; render(); },
+  showScores(){
+    const g = G(); if (g.view !== 'question' || g.phase !== 'revealed') return;
+    const q = curQ(), teams = curTeams(), qk = currentQk();
+    let winners = [], detail = null;
+    if (q.type === 'ders') winners = [...ui.sel].sort((a, b) => a - b);
+    else {
+      const guesses = teams.map((t, i) => parseNum(ui.guesses[i]));
+      const bad = teams.findIndex((t, i) => String(ui.guesses[i] || '').trim() && guesses[i] == null);
+      if (bad >= 0) return toast(`${teams[bad].name} için geçerli bir sayı girin.`);
+      const r = C.closestWinners(guesses, q.answer); winners = r.winners; detail = { guesses, dists:r.dists };
+    }
+    const jk = {}; teams.forEach((t, i) => { const j = activeJk(i); if (j) jk[i] = j; });
+    if (!g.scored[qk]){ pushHistory(); C.applyScore(g, teams, qk, winners, jk, { detail }); }
+    const sc = g.scored[qk];
+    g.last = { qk, winners:sc.winners, delta:sc.delta, jk:sc.jk, detail:sc.detail, answer:q.answer, unit:q.unit };
+    g.view = 'scoreboard'; ui.scoreEdit = false; addEvent('scores'); save(); render();
+  },
+  undo(){
+    const g = G(); if (!g.history.length) return;
+    const h = g.history.slice(0, -1), snap = JSON.parse(g.history[g.history.length - 1]);
+    S.game = Object.assign(snap, { history:h }); ui.scoreEdit = false;
+    if (S.game.frozen && currentQk() && S.game.frozen[currentQk()]) prefillFrom(S.game.frozen[currentQk()]);
+    save(); render(); toast('Son işlem geri alındı.');
+  },
+  scoreEdit(){ ui.scoreEdit = !ui.scoreEdit; render(); },
+  adj(d){ const t = curTeams()[+d.i]; pushHistory(); t.score = Math.max(0, t.score + (+d.v)); save(); render(); },
+  next(){
+    const g = G();
+    if (!(g.view === 'scoreboard' || (g.view === 'question' && g.phase === 'cancelled'))) return;
+    if (g.qIndex + 1 < S.questions[stageKey()].length) toQuestion(g.qIndex + 1);
+    else { finishStage(); }
+    save(); render();
+  },
+  cancelAsk(){ ui.confirm = 'cancelq'; render(); },
+  cancelYes(){
+    const g = G(); ui.confirm = null;
+    if (!(g.view === 'question' || g.view === 'scoreboard')) return render();
+    const qk = (() => { const q = S.questions[stageKey()][g.qIndex]; return q ? `${stageKey()}_${g.qIndex}_${q.id}` : null; })();
+    if (!qk) return render();
+    if (g.cancelled[qk]){ toast('Bu soru zaten iptal edildi.'); return; }
+    pushHistory();
+    g.view = 'question';
+    C.cancelQuestion(g, curTeams(), qk, nowS());
+    g.last = null; addEvent('cancel'); save(); render(); toast('Soru iptal edildi; puan etkisi geri alındı, jokerler iade edildi.', 5000);
+  },
+  jkAsk(d){ ui.confirm = `jk:${d.i}:${d.j}`; render(); },
+  jkYes(d){
+    const g = G(), i = +d.i, j = d.j, t = curTeams()[i]; ui.confirm = null;
+    if (!t || g.view !== 'question') return render();
+    const qk = currentQk(), now = nowS();
+    const ctx = { qk, qtype:curQ().type, isTie:false, i, name:t.name, j, t:now, admin:true, owner:null, dev:'admin', node:(NET.live.ans || {})[i] };
+    const why = C.checkJoker(g, ctx);
+    if (why) return toast(why, 5000);
+    const res = C.acceptJoker(g, ctx, now); if (!res.grouped) addEvent('joker');
+    save(); render();
+  },
+
+  /* ---- eşitlik ve etap sonu ---- */
+  startTie(){
+    const g = G(), r = g.result;
+    g.tieRound = (g.tieRound || 0) + 1;
+    g.tie = { candidates:r.tie.candidates, slots:r.tie.slots, poolIdx:g.tieUsed };
+    g.view = 'tie'; g.phase = 'ready'; g.clock = null; g.win = []; g.intro = null; ui.guesses = {}; ui.tieAns = '';
+    save(); render();
+  },
+  resolveTie(){
+    const g = G(), t = g.tie, teams = curTeams();
+    if (g.phase !== 'revealed') return toast('Önce cevabı açıklayın.');
+    const q = S.questions.tie[t.poolIdx];
+    const ans = q ? q.answer : parseNum(document.getElementById('tie-ans')?.value);
+    if (ans == null) return toast('Önce doğru cevabı girin.');
+    const scores = t.candidates.map(i => { const v = parseNum(ui.guesses[i]); return { i, score:v == null ? -Infinity : -Math.round(Math.abs(v - ans) * 1e6) / 1e6 }; });
+    if (scores.every(s => s.score === -Infinity)) return toast('En az bir sınıfın tahminini girin.');
+    pushHistory();
+    if (q) g.tieUsed = Math.max(g.tieUsed, t.poolIdx + 1);
+    const res = cutoff(scores, t.slots);
+    const detail = t.candidates.map(i => `${teams[i].name}: ${ui.guesses[i] ? fmt(parseNum(ui.guesses[i])) : '—'}`).join(', ');
+    g.result.qualified = g.result.qualified.concat(res.qualified);
+    ui.guesses = {}; ui.tieAns = '';
+    if (res.tie){
+      g.tieRound = (g.tieRound || 0) + 1;
+      g.tie = { candidates:res.tie.candidates, slots:res.tie.slots, poolIdx:g.tieUsed };
+      g.phase = 'ready'; g.clock = null; g.win = [];
+      save(); render(); toast('Yine eşitlik! Yeni bir eşitlik sorusu hazır.');
+    } else {
+      g.result.tie = null;
+      g.result.tieNote = `Eşitlik sorusunu ${res.qualified.map(i => teams[i].name).join(' ve ')} kazandı (cevap ${fmt(ans)}; ${detail})`;
+      g.tie = null; g.view = 'stageEnd'; g.phase = 'ready'; g.clock = null; save(); render();
+    }
+  },
+  advance(){
+    const g = G(), st = STAGES[g.stage], key = st.key, teams = curTeams();
+    if (!g.result || g.result.tie) return;
+    if (key !== 'final'){
+      g.qualified[key] = g.result.qualified.map(i => ({ name:teams[i].name, from:st.name }));
+      g.stage++; g.history = []; g.result = null; g.view = 'teams';
+      if (g.stage === 2) g.teams.final = [...g.qualified.s1, ...g.qualified.s2].map(t => ({ name:t.name, from:t.from, score:0 }));
+      addEvent('stage'); save(); render();
+    } else {
+      g.view = 'champion'; g.finished = true; addEvent('champion'); save(); render(); lockSync(false);
+    }
+  },
+  confetti(){ addEvent('champion'); save(); },
+  joinOpen(){ ui.joinOpen = true; render(); },
+  joinClose(){ ui.joinOpen = false; render(); },
+  keyToggle(){ ui.showKey = !ui.showKey; render(); },
+  async lockRetry(){ const ok = await lockSync(true); render(); toast(ok ? 'Açık başka yarışma yok, başlatabilirsiniz.' : 'Diğer yarışma hâlâ açık.'); },
+  localEndAsk(){ ui.confirm = 'localend'; render(); },
+  localEndYes(){
+    const g = G(); ui.confirm = null; if (g.clock) C.stopClock(g, nowS()); g.view = 'ended'; g.finished = true; save();
+    if (NET.ok && g.pin){ try{ NET.db.ref('games/' + g.pin + '/state').set(buildState()); }catch(e){} }
+    render(); toast('Bu cihazdaki eski yarışma kapatıldı.');
+  },
+
+  /* ---- soru yönetimi, yedek, ayarlar (mevcut davranış korunur) ---- */
+  tab(d){ ui.tab = d.k; ui.confirm = null; render(); },
+  addQ(d){ ui.edit = d.t === 'ders' ? {id:null, type:'ders', subject:SUBJECTS[0], text:'', options:['','','',''], answer:'A'} : {id:null, type:'tahmin', text:'', answer:'', unit:''}; render(); document.getElementById('e-text')?.focus(); },
+  editQ(d){ const q = S.questions[ui.tab].find(x=>x.id===d.id); if (!q) return; ui.edit = JSON.parse(JSON.stringify(q)); render(); },
+  closeEdit(){ ui.edit = null; render(); },
+  overlayClose(d, el, e){ if (e.target === el){ ui.edit = null; render(); } },
+  saveQ(){
+    const e = ui.edit, v = id => document.getElementById(id)?.value ?? '';
+    const text = v('e-text').trim(); if (!text) return toast('Soru metnini yazın.');
+    let q;
+    if (e.type === 'ders'){
+      const options = [0,1,2,3].map(i=>v('e-opt-'+i).trim());
+      if (options.some(o=>!o)) return toast('Dört şıkkın hepsini doldurun.');
+      const ans = document.querySelector('input[name="e-ans"]:checked')?.value; if (!ans) return toast('Doğru şıkkı işaretleyin.');
+      q = {id:e.id||uid(), type:'ders', subject:v('e-subject'), text, options, answer:ans};
+    } else {
+      const n = parseNum(v('e-num')); if (n == null) return toast('Doğru cevabı sayı olarak girin.');
+      q = {id:e.id||uid(), type:'tahmin', text, answer:n, unit:v('e-unit').trim()};
+    }
+    const list = S.questions[ui.tab], ix = list.findIndex(x=>x.id===q.id);
+    if (ix >= 0) list[ix] = q; else list.push(q);
+    ui.edit = null; save(); render(); toast('Soru kaydedildi.');
+  },
+  delAsk(d){ ui.confirm = 'del:'+d.id; render(); },
+  delYes(d){ S.questions[ui.tab] = S.questions[ui.tab].filter(q=>q.id!==d.id); ui.confirm = null; save(); render(); toast('Soru silindi.'); },
+  move(d){ const l = S.questions[ui.tab], i = l.findIndex(q=>q.id===d.id), j = i + (+d.d); if (j<0||j>=l.length) return; [l[i],l[j]] = [l[j],l[i]]; save(); render(); },
+  copyBackup(){
+    const ta = document.getElementById('backup-text');
+    const fallback = () => { ta.focus(); ta.select(); toast('Metin seçildi; Ctrl+C ile kopyalayın.'); };
+    try{ navigator.clipboard.writeText(ui.backup).then(()=>toast('Yedek metni kopyalandı.'), fallback); }catch(e){ fallback(); }
+  },
+  downloadBackup(){
+    try{
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([ui.backup], {type:'application/json'}));
+      a.download = 'kaplan-arena-yedek.json'; document.body.appendChild(a); a.click(); a.remove();
+    }catch(e){ toast('İndirme yapılamadı; metni kopyalayın.'); }
+  },
+  importAsk(){
+    const txt = (document.getElementById('imp-text')?.value || '').trim(); ui.importText = txt;
+    if (!txt) return toast('Önce bir yedek dosyası seçin ya da metni yapıştırın.');
+    try{ validateImport(JSON.parse(txt)); }catch(e){ return toast('Yedek okunamadı: ' + e.message); }
+    ui.confirm = 'import'; render();
+  },
+  samplesAsk(){ ui.confirm = 'samples'; render(); },
+  samplesYes(){ S.questions = sampleQuestions(); ui.confirm = null; save(); render(); toast('Örnek sorular yüklendi.'); },
+  resetAllAsk(){ ui.confirm = 'resetall'; render(); },
+};
+
+/* Mevcut yönetim eylemlerinin şema 2 ile uyumlu sürümleri */
+Object.assign(ACT, {
+  exportData(){ ui.backup = JSON.stringify({ app:'kaplan-arena', version:2, settings:S.settings, questions:S.questions }, null, 2); render(); },
+  importYes(){
+    try{
+      const o = validateImport(JSON.parse(ui.importText));
+      S.questions = o.questions; if (o.settings) S.settings = Object.assign(S.settings, o.settings);
+      syncEmblems();
+      ui.confirm = null; ui.importText = ''; save(); render(); toast('Sorular içe aktarıldı.');
+    }catch(e){ toast('Yedek okunamadı: ' + e.message); }
+  },
+  saveSettings(){
+    const title = document.getElementById('set-title').value.trim() || 'Kaplan Arena';
+    const sec = Math.round(Number(document.getElementById('set-sec').value));
+    if (!(sec >= 5 && sec <= 600)) return toast('Süre 5 ile 600 saniye arasında olmalı.');
+    const classes = document.getElementById('set-classes').value.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+    if (new Set(classes).size !== classes.length) return toast('Sınıf listesinde aynı isim iki kez geçiyor.');
+    if (classes.length < 4) return toast('En az 4 sınıf girin.');
+    S.settings.title = title; S.settings.seconds = sec; S.settings.classes = classes;
+    S.settings.sound = document.getElementById('set-sound').checked;
+    S.settings.volume = Math.max(0, Math.min(100, Math.round(Number(document.getElementById('set-vol').value))));
+    S.settings.reduceMotion = document.getElementById('set-motion').checked;
+    syncEmblems();
+    save(); render(); toast('Ayarlar kaydedildi.');
+  },
+  soundTest(){ addEvent('test'); save(); toast('Etkin ses sahnesine test sesi gönderildi.'); },
+  resetAllYes(){ S = defaultState(); ui.confirm = null; save(); setScreen('menu'); lockSync(false); toast('Tüm veriler sıfırlandı.'); }
+});
