@@ -111,8 +111,14 @@ Eski kükremeler (kaplan-kukreme-gercek, STILIZE taslak) kullanılmadı; aynı a
 
 `media.js` (autoplay bayrağı olmadan, sahnede gerçek "Sesi Etkinleştir" tıklamasıyla): açılış sahnede sesli 1920×1080/60 s oynar; admin sayfasında video yok; 6 zorla yeniden çizim/yayında video öğesi aynı kalır ve ilerler; merkezi ses kapat/aç videoyu susturur/açar; Atla ve Durdur sabit karşılamaya döner; sahne yenilenince eski açılış baştan çalmaz, ara döngüsü sürer; döngü sonda başa sarar; eksik dosyada sabit karşılama; hareketleri azaltmada açılış oynatılmaz; aktif soruda ara: süre ve cevap penceresi kapalı, kalan süre korunur, döngü sınırı/açılış bitişi yarışmayı başlatmaz, Devam sonrası süre yalnız admin "devam" ile başlar, puan/joker korunur; telefon sayfasında video yok; test sunucusunda Range→206; file:// ara ve açılış oynar; PowerShell sunucusu: açık uçlu Range → 206 ve 1 MB, dosya sonu/son-ek aralıkları, geçersiz aralık → 416, yol dışına çıkış reddi, video oynarken `/api/info` gecikmesiz, akarak oynatma ve 45. saniyeye ileri sarma; konsol hatası yok.
 
-Vercel: `assets/` dağıtıma dahil (`.vercelignore` yalnız `tasarim/`, `tests/` vb. dışlar); push sonrası canlı adres ayrıca kontrol edildi (aşağıdaki son durum notuna bakın).
+Vercel: `assets/` dağıtıma dahil (`.vercelignore` yalnız `tasarim/`, `tests/` vb. dışlar); push sonrası canlı adres kontrol edildi (bkz. §9).
 
 ## 8. Kaynak ve lisans
 
 `ses-gercek/KAYNAK-LISANS.md`, `lisanslar/`, `kaynaklar-indirme.json`, `girdiler/MUZIK-TESLIMI.md` korunur. Metal/kapı/zincir/savurma: BigSoundBank ve Freesound (stib) CC0 kaynaklarından foley. Müzikler: kullanıcının Suno oturumunda üretilen iki parça (MUZIK-TESLIMI.md). **Kükreme (`kukreme-kullanici`) kullanıcının sağladığı dosyadır; kaynağı/lisansı belgelenmemiştir, CC0 değildir** (KUKREME-KULLANICI-NOTU.md). Başlık vurgusu sentetik tasarım sesidir.
+
+## 9. Son durum
+
+- Commit `67748b4` (`main`), `origin` (https://github.com/ersenbarlasai/kaplan-arena.git) üzerine normal push: `983255b..67748b4`. Force push/reset yapılmadı.
+- Vercel otomatik dağıtımı (ayrı elle dağıtım yapılmadı): `https://kaplan-arena.vercel.app/assets/sinematik/acilis-60sn.mp4` → 200, `video/mp4`, 33 763 450 bayt (yerel dosyayla aynı), `Accept-Ranges: bytes`; `ara-30sn-loop.mp4` Range isteği → 206; yayındaki `app/shared.js` yeni `CINE` yollarını içeriyor. Canlı yönetim paneli test için açılmadı (yarışma kilidini almamak için).
+- Git LFS kullanılmadı; en büyük dosya 32,2 MB (GitHub 100 MB sınırının altında). Uygulamadaki `assets/sinematik/*.mp4` ile `ciktilar/*.mp4` bayt-bayt aynıdır (git aynı nesneyi bir kez saklar).

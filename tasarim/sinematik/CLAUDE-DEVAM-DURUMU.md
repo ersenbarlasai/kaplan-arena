@@ -15,7 +15,9 @@ Son güncelleme: 26 Kasım 2026
 
 ## Sıradaki
 
-- [ ] Commit + normal push (main → origin), Vercel otomatik dağıtım kontrolü.
+- [x] Commit `67748b4` + normal push (main → origin); Vercel otomatik dağıtımı videoları 200/206 ile sunuyor.
+
+Görev tamamlandı; kalan tek adım kullanıcının salonda dinleme/izleme onayı.
 
 ## Notlar
 
