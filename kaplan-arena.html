@@ -1664,6 +1664,8 @@ const IS_PLAYER = (()=>{
   const q = new URLSearchParams(location.search);
   if (q.has('sunucu')) return false;
   if (q.has('pin') || q.has('katil')) return true;
+  // GitHub Pages'te yerel sunucu yok: sayfa telefonsuz yarisma ekrani olarak acilir.
+  if (/\.github\.io$/i.test(location.hostname)) return false;
   return location.protocol.startsWith('http') && !['localhost','127.0.0.1','[::1]','::1'].includes(location.hostname);
 })();
 
