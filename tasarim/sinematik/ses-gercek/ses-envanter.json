@@ -1,0 +1,248 @@
+{
+  "checked_date": "2026-11-26",
+  "license": "CC0-1.0 per listed source pages",
+  "verification": "file decoding, metadata and sample peak; not final listening/mix approval",
+  "files": [
+    {
+      "file": "kaynaklar/celik-carpisma-BigSoundBank.mp3",
+      "bytes": 139428,
+      "duration_s": 3.412458,
+      "stream": {
+        "codec_name": "mp3",
+        "sample_rate": "48000",
+        "channels": 1,
+        "bits_per_sample": 0,
+        "side_data_list": [
+          {}
+        ]
+      },
+      "sample_peak_dbfs": -3.226,
+      "sha256": "6bfa594f920b97770b0b44999f211053f292bfb6ca8c9810e701a50338310f6b",
+      "full_decode_ok": true
+    },
+    {
+      "file": "kaynaklar/kapi-gicirti-BigSoundBank.mp3",
+      "bytes": 1095488,
+      "duration_s": 27.3632,
+      "stream": {
+        "codec_name": "mp3",
+        "sample_rate": "48000",
+        "channels": 1,
+        "bits_per_sample": 0
+      },
+      "sample_peak_dbfs": -0.161,
+      "sha256": "b48c6a51c47751b5b1bf0dce6d4a39febbf5954697999f716ee7118a7278cc55",
+      "full_decode_ok": true
+    },
+    {
+      "file": "kaynaklar/kapi-hareket-BigSoundBank.mp3",
+      "bytes": 1466048,
+      "duration_s": 36.6272,
+      "stream": {
+        "codec_name": "mp3",
+        "sample_rate": "48000",
+        "channels": 1,
+        "bits_per_sample": 0
+      },
+      "sample_peak_dbfs": -0.057,
+      "sha256": "be5e28147863597d96a81600c2000e16c75b044e4bf0dab5d8a3ce66811589ef",
+      "full_decode_ok": true
+    },
+    {
+      "file": "kaynaklar/kapi-stib-fs346267.m4a",
+      "bytes": 609584,
+      "duration_s": 37.0,
+      "stream": {
+        "codec_name": "aac",
+        "sample_rate": "48000",
+        "channels": 2,
+        "bits_per_sample": 0
+      },
+      "sample_peak_dbfs": -4.561,
+      "sha256": "6c53e6e918cb4fc73fabaca39e4809d4227c06057300b642182b3631e4aeb81b",
+      "full_decode_ok": true
+    },
+    {
+      "file": "kaynaklar/kaplan-lauramellis-CC0-turev.m4a",
+      "bytes": 20441,
+      "duration_s": 1.6,
+      "stream": {
+        "codec_name": "aac",
+        "sample_rate": "32000",
+        "channels": 1,
+        "bits_per_sample": 0
+      },
+      "sample_peak_dbfs": -3.717,
+      "sha256": "d0933458fcd7377bd0ea69dda1726ca5663aa9c5246a2a620dd803f2aa54c695",
+      "full_decode_ok": true
+    },
+    {
+      "file": "kaynaklar/kilic-suruntu-BigSoundBank.mp3",
+      "bytes": 23617,
+      "duration_s": 1.07102,
+      "stream": {
+        "codec_name": "mp3",
+        "sample_rate": "44100",
+        "channels": 1,
+        "bits_per_sample": 0
+      },
+      "sample_peak_dbfs": -0.589,
+      "sha256": "a671096b30c26e582692bf6598e25f93af22968667c9c1bdeb7eb373415766d1",
+      "full_decode_ok": true
+    },
+    {
+      "file": "kaynaklar/savurma-BigSoundBank.mp3",
+      "bytes": 13178,
+      "duration_s": 0.548571,
+      "stream": {
+        "codec_name": "mp3",
+        "sample_rate": "44100",
+        "channels": 1,
+        "bits_per_sample": 0
+      },
+      "sample_peak_dbfs": -2.162,
+      "sha256": "e686fb0b7513e0a15257a29413e2a394ee0847927cb9483dc53ebcf408460e22",
+      "full_decode_ok": true
+    },
+    {
+      "file": "kaynaklar/zincir-BigSoundBank.mp3",
+      "bytes": 170445,
+      "duration_s": 4.235025,
+      "stream": {
+        "codec_name": "mp3",
+        "sample_rate": "44100",
+        "channels": 2,
+        "bits_per_sample": 0
+      },
+      "sample_peak_dbfs": -0.28,
+      "sha256": "b95c780c5c9809491169c5bce8ae44c2f69ecbbef2c447a35ee9e098f50c14c6",
+      "full_decode_ok": true
+    },
+    {
+      "file": "hazir/kalkan-vurus-kayit-foley.wav",
+      "bytes": 518502,
+      "duration_s": 1.8,
+      "stream": {
+        "codec_name": "pcm_s24le",
+        "sample_rate": "48000",
+        "channels": 2,
+        "bits_per_sample": 24
+      },
+      "sample_peak_dbfs": -6.021,
+      "sha256": "3b32e9aa8e1279fc8b8b313a9225b78267da6940437d005a4b00e95791f02a5f",
+      "full_decode_ok": true
+    },
+    {
+      "file": "hazir/kapi-acilis-kayit-foley.wav",
+      "bytes": 1728102,
+      "duration_s": 6.0,
+      "stream": {
+        "codec_name": "pcm_s24le",
+        "sample_rate": "48000",
+        "channels": 2,
+        "bits_per_sample": 24
+      },
+      "sample_peak_dbfs": -6.021,
+      "sha256": "4410165885f138a4ba22a49e0dfb93e97d93bcd2e11ddd0ab28e89b30d7824d6",
+      "full_decode_ok": true
+    },
+    {
+      "file": "hazir/kapi-gicirti-gercek.wav",
+      "bytes": 1008102,
+      "duration_s": 3.5,
+      "stream": {
+        "codec_name": "pcm_s24le",
+        "sample_rate": "48000",
+        "channels": 2,
+        "bits_per_sample": 24
+      },
+      "sample_peak_dbfs": -6.021,
+      "sha256": "1079dc01effd12a6a64b53956df843d90804cecb23dbfc575ac7bd0bab305523",
+      "full_decode_ok": true
+    },
+    {
+      "file": "hazir/kapi-gicirti-stib-alternatif.wav",
+      "bytes": 1152102,
+      "duration_s": 4.0,
+      "stream": {
+        "codec_name": "pcm_s24le",
+        "sample_rate": "48000",
+        "channels": 2,
+        "bits_per_sample": 24
+      },
+      "sample_peak_dbfs": -6.021,
+      "sha256": "3909451b11499ffd7eaad3583c9a914aaf7dfc8c90b4007531561f0141c973bb",
+      "full_decode_ok": true
+    },
+    {
+      "file": "hazir/kaplan-kukreme-gercek.wav",
+      "bytes": 460902,
+      "duration_s": 1.6,
+      "stream": {
+        "codec_name": "pcm_s24le",
+        "sample_rate": "48000",
+        "channels": 2,
+        "bits_per_sample": 24
+      },
+      "sample_peak_dbfs": -6.021,
+      "sha256": "d9a0a209a11eb31bc07bdcf5356fa0d4db41d4e4dde9956f4bed5b136ac2c3b4",
+      "full_decode_ok": true
+    },
+    {
+      "file": "hazir/kilic-suruntu-gercek.wav",
+      "bytes": 301038,
+      "duration_s": 1.044917,
+      "stream": {
+        "codec_name": "pcm_s24le",
+        "sample_rate": "48000",
+        "channels": 2,
+        "bits_per_sample": 24
+      },
+      "sample_peak_dbfs": -6.021,
+      "sha256": "e75b6b4f92872843663f2bf90696ce0372057cb839eb5d7f99d98e717fd7c85d",
+      "full_decode_ok": true
+    },
+    {
+      "file": "hazir/kilic-temas-kayit-foley.wav",
+      "bytes": 518502,
+      "duration_s": 1.8,
+      "stream": {
+        "codec_name": "pcm_s24le",
+        "sample_rate": "48000",
+        "channels": 2,
+        "bits_per_sample": 24
+      },
+      "sample_peak_dbfs": -6.021,
+      "sha256": "71f87c1bbe195f41a707ec47ce7e87000e199d52b3d9fa9e7c70836f696d427e",
+      "full_decode_ok": true
+    },
+    {
+      "file": "hazir/savurma-gercek.wav",
+      "bytes": 150570,
+      "duration_s": 0.522458,
+      "stream": {
+        "codec_name": "pcm_s24le",
+        "sample_rate": "48000",
+        "channels": 2,
+        "bits_per_sample": 24
+      },
+      "sample_peak_dbfs": -6.021,
+      "sha256": "53a17f529ba5db775171750d70abadc6cdbd2863e41aa063e3def7707500a50d",
+      "full_decode_ok": true
+    },
+    {
+      "file": "hazir/zincir-gercek.wav",
+      "bytes": 1218876,
+      "duration_s": 4.231854,
+      "stream": {
+        "codec_name": "pcm_s24le",
+        "sample_rate": "48000",
+        "channels": 2,
+        "bits_per_sample": 24
+      },
+      "sample_peak_dbfs": -6.021,
+      "sha256": "622beab3c989f3bedfb909c0a07d4961ce41123937a4a39b676630c99c91e184",
+      "full_decode_ok": true
+    }
+  ]
+}

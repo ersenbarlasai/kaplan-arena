@@ -1,0 +1,68 @@
+{
+  "provider": "Suno",
+  "generation_model_ui": "v6",
+  "purpose": "Kaplan Arena school tournament opening and intermission",
+  "review": "file structure, duration and full decoding verified; no listening comparison or final mixing approval",
+  "opening": {
+    "title": "Kaplan Arena - The Roar Before the Arena",
+    "turkish_meaning": "Arena Öncesindeki Kükreme",
+    "downloaded_source": "https://suno.com/song/fffbde7f-2ed4-4553-b2c4-3be0c0ae18a2",
+    "other_generated_alternative": "https://suno.com/song/a1970680-4286-434e-a1b3-031bf6580a7a"
+  },
+  "intermission": {
+    "title": "Kaplan Arena - Embers of the Waiting Arena",
+    "turkish_meaning": "Bekleyen Arenanın Korları",
+    "downloaded_source": "https://suno.com/song/4cfa2824-55e5-4ab0-a0bf-e54ca20d1dad",
+    "other_generated_alternative": "https://suno.com/song/2a8928de-ecec-4008-90d9-c1e456491390"
+  },
+  "files": [
+    {
+      "file": "acilis-muzik.mp3",
+      "bytes": 1381031,
+      "duration_s": 58.8,
+      "audio": {
+        "codec_name": "mp3",
+        "sample_rate": "48000",
+        "channels": 2
+      },
+      "sha256": "a7a4bf76d77d163a3575199f4081e7ae64c850f5a0acdf2b4e76326225997914",
+      "full_decode_ok": true
+    },
+    {
+      "file": "acilis-muzik.wav",
+      "bytes": 11303418,
+      "duration_s": 58.8,
+      "audio": {
+        "codec_name": "pcm_s16le",
+        "sample_rate": "48000",
+        "channels": 2
+      },
+      "sha256": "f464171b82d571f84eb5facdb46fab5f922e7f639e8b4331c0cd5cfecfe8f8a2",
+      "full_decode_ok": true
+    },
+    {
+      "file": "ara-muzik.mp3",
+      "bytes": 1704905,
+      "duration_s": 74.96,
+      "audio": {
+        "codec_name": "mp3",
+        "sample_rate": "48000",
+        "channels": 2
+      },
+      "sha256": "eafec796562c5d7654cf4085de53e3f7bd78ecf5cbcea30ae0f01b44edade403",
+      "full_decode_ok": true
+    },
+    {
+      "file": "ara-muzik.wav",
+      "bytes": 14406138,
+      "duration_s": 74.96,
+      "audio": {
+        "codec_name": "pcm_s16le",
+        "sample_rate": "48000",
+        "channels": 2
+      },
+      "sha256": "40f22a9e1d4753b0126ca7605a06ae2aafccaa273885a530b6991c79f07e7dc9",
+      "full_decode_ok": true
+    }
+  ]
+}

@@ -55,6 +55,15 @@ ARA: Panelde "Karşılama" deyince sahne karşılama ekranına döner, süre ve
 cevap kabulü durur, telefonlarda "Ara verildi" yazar. "Yarışmaya Devam Et"
 ile aynı soruya dönülür; süreyi siz başlatırsınız. Kayıtlar silinmez.
 
+SİNEMATİK: Karşılama ekranında "Açılış Filmini Oynat" (60 sn) ve "Ara Döngüsü"
+(30 sn, sakin, kesintisiz döner) düğmeleri vardır; üst çubukta da "Ara Döngüsü"
+bulunur. Film yalnız sahne penceresinde ve sesi yalnız orada çalar; panel ve
+telefonlar sessizdir. "Atla" açılışı bitirir, "Durdur / Karşılamaya Dön" sabit
+karşılamaya döner. Yarışma sırasında açılırsa süre ve cevap kabulü durur; film
+bitse de yarışma kendiliğinden ilerlemez: "Yarışmaya Devam Et", ardından süreyi
+siz başlatırsınız. Hareketleri azaltma açıksa açılış yerine sabit karşılama
+gösterilir. Video dosyası yoksa/açılamazsa sahne sabit karşılamayla sürer.
+
 ========================================================================
 3) TELEFONLA KATILIM (SINIF KAPTANLARI)
 ========================================================================

@@ -90,7 +90,7 @@ const StageView = (() => {
         const cls = rev ? (L === m.answer ? 'correct' : 'dim') : '';
         return `<div class="sg-opt ${cls}"><b class="L">${L}</b><span>${esc(o)}</span>${rev && L === m.answer ? '<i class="ok">✓</i>' : ''}</div>`; }).join('')}</div>`;
     }
-    return rev ? `<div class="sg-reveal"><small>Doğru cevap</small><b>${esc(fmt(m.answer))}</b><i>${esc(q.unit || '')}</i></div>`
+    return rev ? `<div class="sg-reveal gold"><small>Doğru cevap</small><b>${esc(fmt(m.answer))}</b><i>${esc(q.unit || '')}</i></div>`
                : `<div class="sg-hint">Tahmininizi telefondan gönderin. Gerçek cevaba en yakın sınıf kazanır.${q.unit ? ` <b>Birim: ${esc(q.unit)}</b>` : ''}</div>`;
   }
   S.question = (m) => {
@@ -102,8 +102,20 @@ const StageView = (() => {
         <h2 class="sg-qt ${q.text.length > 140 ? 'long' : ''}">${esc(q.text)}</h2>
         ${questionBody(m)}
       </div>
-      ${lockTxt}${pausedBand(m)}${teamsRow(m)}</div>`;
+      ${lockTxt}${pausedBand(m)}${m.correct ? correctPanel(m.correct) : teamsRow(m)}</div>`;
   };
+  /* Doğru Bilenler: kararlı sınıf sırası (cevap hızı değil). Girişleri RevealFX zamanlar. */
+  function correctPanel(c){
+    if (c.none) return `<div class="sg-cor none" data-cor-panel><div class="sg-cor-h">Bu soruda doğru cevap gelmedi</div></div>`;
+    const n = c.list.length;
+    return `<div class="sg-cor n${Math.min(n, 14)}" data-cor-panel>
+      <div class="sg-cor-h">${c.tahmin ? 'En yakın tahmin' : 'Doğru bilenler'}</div>
+      <div class="sg-cor-list">${c.list.map(t => `<div class="sg-cor-item ${t.x2 ? 'x2' : ''}" data-cor="${esc(t.name)}">
+        <span class="trail" aria-hidden="true"></span>
+        <span class="crest">${armaHTML(t.arma, 'sg-arma', '')}${t.x2 ? '<b class="seal" aria-label="Çifte Puan">×2</b>' : ''}</span>
+        <span class="nm">${esc(t.name)}</span>
+        ${t.dbl ? '<em class="tag">2 Şık</em>' : ''}${t.guess != null ? `<em class="gs">${esc(t.guess)}</em>` : ''}</div>`).join('')}</div></div>`;
+  }
   S.tie = (m) => {
     const rev = m.phase === 'revealed';
     return `${bg(m.stage.img)}<div class="sg-dim soft"></div><div class="sg-frame q">
@@ -128,7 +140,7 @@ const StageView = (() => {
     const max = Math.max(10, ...rows.map(r => r.score));
     return `<div class="sg-board">${rows.map((t, k) => `<div class="sg-row-b ${t.out ? 'out' : ''} ${t.win ? 'win' : ''}">
         <span class="rk r${k + 1}">${k + 1}</span>${armaHTML(t.arma, 'sg-arma', '')}<span class="nm">${esc(t.name)}${t.badge ? `<em>${esc(t.badge)}</em>` : ''}</span>
-        ${opt && opt.delta ? delta(t) : ''}<span class="bar"><i style="width:${Math.round(t.score / max * 100)}%"></i></span><b class="sc">${t.score}</b></div>`).join('')}</div>`;
+        ${opt && opt.delta ? delta(t) : ''}<span class="bar"><i style="width:${Math.round(t.score / max * 100)}%"></i></span><b class="sc" ${opt && opt.delta && t.from != null ? `data-from="${t.from}" data-to="${t.score}"` : ''}>${t.score}</b></div>`).join('')}</div>`;
   }
   S.scores = (m) => `${bg(m.stage.img)}<div class="sg-dim"></div><div class="sg-frame">
       <header class="sg-head">${stageBadge(m)}<h2 class="sg-h">Puan Durumu</h2><span>Soru ${m.q ? m.q.n : ''} / ${m.q ? m.q.total : ''}${m.answerText ? ` · doğru cevap: ${esc(m.answerText)}` : ''}</span></header>
@@ -203,3 +215,63 @@ function runConfetti(cv){
     if (t - t0 < 7000) requestAnimationFrame(frame); else ctx.clearRect(0, 0, W, H);
   })(t0);
 }
+
+/* ---------- RevealFX: Doğru Bilenler girişleri ve puan sayımı ----------
+   Zamanlama gösterimin başlangıç anına göredir (model.correct.elapsed). Canlı izlenen girişler animasyonlu ve
+   (yalnız sahnede) sesli; bağlantı/yenileme sonrası geçmiş girişler doğrudan görünür, ses ve animasyon tekrar
+   oynamaz. Ekran ya da gösterim değişince bütün zamanlayıcılar iptal edilir; hiçbir zaman akışı ilerletmez. */
+const RevealFX = (() => {
+  const S = new WeakMap();
+  const OPT_MS = 1300;                 // önce doğru şık altınla belirginleşir
+  const gap = n => Math.max(260, Math.min(700, Math.round(3200 / Math.max(1, n))));   // toplam giriş ~3,2 sn ile sınırlı
+  function state(root){ let s = S.get(root); if (!s){ s = { cid:null, t0:0, done:new Set(), sched:new Set(), timers:[], sid:null, raf:0 }; S.set(root, s); } return s; }
+  function reset(s){ s.timers.forEach(clearTimeout); s.timers = []; s.sched = new Set(); s.done = new Set(); if (s.raf) cancelAnimationFrame(s.raf); s.raf = 0; }
+  function apply(root, m, sound){
+    const s = state(root), sg = root.querySelector('.sg');
+    const c = m && m.screen === 'question' && m.phase === 'revealed' && m.correct ? m.correct : null;
+    if (!c || c.id !== s.cid){
+      s.timers.forEach(clearTimeout); s.timers = []; s.sched = new Set(); s.done = new Set();
+      s.cid = c ? c.id : null;
+      if (c){ s.t0 = Date.now() - c.elapsed; s.live = c.elapsed < 700 && !m.motion; if (s.live && sg) sg.classList.add('rv-anim'); }
+    }
+    if (c && sg){
+      const items = [...sg.querySelectorAll('[data-cor]')], g = gap(items.length), now = Date.now();
+      items.forEach((el, k) => {
+        const key = el.dataset.cor, at = s.t0 + OPT_MS + k * g;
+        if (s.done.has(key) || m.motion || now >= at){ s.done.add(key); el.classList.add('in'); return; }
+        if (s.sched.has(key)) return;
+        s.sched.add(key);
+        s.timers.push(setTimeout(() => {
+          if (s.cid !== c.id) return;
+          s.done.add(key);
+          const cur = root.querySelector(`.sg [data-cor="${CSS.escape(key)}"]`);
+          if (cur){ cur.classList.add('in', 'fx'); if (sound) sound(); }
+        }, at - now));
+      });
+      const panel = sg.querySelector('[data-cor-panel]');
+      if (panel){ const showAt = s.t0 + OPT_MS - 300; if (m.motion || now >= showAt) panel.classList.add('on'); else s.timers.push(setTimeout(() => { const p = root.querySelector('.sg [data-cor-panel]'); if (p) p.classList.add('on'); }, showAt - now)); }
+    }
+    // puan ekranı: toplamlar önceki değerden yeni değere sayılır (bir kez)
+    const sc = m && m.screen === 'scores' && m.scoreAnim ? m.scoreAnim : null;
+    if (!sc || sc.id !== s.sid){
+      if (s.raf) cancelAnimationFrame(s.raf); s.raf = 0;
+      s.sid = sc ? sc.id : null;
+      if (sc && sg){
+        const live = sc.elapsed < 900 && !m.motion;
+        const nums = [...sg.querySelectorAll('[data-from]')];
+        if (live){
+          sg.classList.add('sc-anim');
+          const t0 = performance.now(), dur = 1400;
+          nums.forEach(el => el.textContent = el.dataset.from);
+          const step = t => {
+            const p = Math.min(1, (t - t0) / dur), e = 1 - Math.pow(1 - p, 3);
+            root.querySelectorAll('.sg [data-from]').forEach(el => { const a = +el.dataset.from, b = +el.dataset.to; el.textContent = Math.round(a + (b - a) * e); });
+            if (p < 1 && s.sid === sc.id) s.raf = requestAnimationFrame(step); else s.raf = 0;
+          };
+          s.raf = requestAnimationFrame(step);
+        }
+      }
+    }
+  }
+  return { apply };
+})();

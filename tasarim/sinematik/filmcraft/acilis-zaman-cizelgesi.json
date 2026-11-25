@@ -1,0 +1,351 @@
+{
+ "name": "Acilis 60sn",
+ "durationFrames": 1800,
+ "video": [
+  {
+   "track": "Sahneler",
+   "clips": [
+    {
+     "name": "01-dunya-kesfi.png",
+     "startS": 0,
+     "endS": 6,
+     "sourceInS": 0,
+     "gainDb": 0
+    },
+    {
+     "name": "02-kaplan-yolculuk.png",
+     "startS": 6,
+     "endS": 12,
+     "sourceInS": 0,
+     "gainDb": 0
+    },
+    {
+     "name": "03-kale-kapisi.png",
+     "startS": 12,
+     "endS": 18,
+     "sourceInS": 0,
+     "gainDb": 0
+    },
+    {
+     "name": "04-turnuva-karsilasma.png",
+     "startS": 18,
+     "endS": 24,
+     "sourceInS": 0,
+     "gainDb": 0
+    },
+    {
+     "name": "05-kilic-temasi.png",
+     "startS": 24,
+     "endS": 27,
+     "sourceInS": 0,
+     "gainDb": 0
+    },
+    {
+     "name": "06-kalkan-temasi.png",
+     "startS": 27,
+     "endS": 31,
+     "sourceInS": 0,
+     "gainDb": 0
+    },
+    {
+     "name": "07-arenaya-giris.png",
+     "startS": 31,
+     "endS": 38,
+     "sourceInS": 0,
+     "gainDb": 0
+    },
+    {
+     "name": "08-arena-ihtisam.png",
+     "startS": 38,
+     "endS": 44,
+     "sourceInS": 0,
+     "gainDb": 0
+    },
+    {
+     "name": "09-kaplan-kukreme.png",
+     "startS": 44,
+     "endS": 48,
+     "sourceInS": 0,
+     "gainDb": 0
+    },
+    {
+     "name": "10-final-kunye.png",
+     "startS": 48,
+     "endS": 60,
+     "sourceInS": 0,
+     "gainDb": 0
+    }
+   ],
+   "transitions": 5
+  },
+  {
+   "track": "Atmosfer",
+   "clips": [
+    {
+     "name": "sis-seridi.png",
+     "startS": 0,
+     "endS": 18,
+     "sourceInS": 0,
+     "gainDb": 0
+    },
+    {
+     "name": "isik-huzmeleri.png",
+     "startS": 31,
+     "endS": 44,
+     "sourceInS": 0,
+     "gainDb": 0
+    },
+    {
+     "name": "sis-seridi.png",
+     "startS": 48,
+     "endS": 60,
+     "sourceInS": 0,
+     "gainDb": 0
+    }
+   ],
+   "transitions": 0
+  },
+  {
+   "track": "Kivilcim-Isik",
+   "clips": [
+    {
+     "name": "Shape",
+     "startS": 12.9,
+     "endS": 18,
+     "sourceInS": 0,
+     "gainDb": 0
+    },
+    {
+     "name": "temas-kivilcim.png",
+     "startS": 22,
+     "endS": 22.467,
+     "sourceInS": 0,
+     "gainDb": 0
+    },
+    {
+     "name": "temas-kivilcim.png",
+     "startS": 24.2,
+     "endS": 24.667,
+     "sourceInS": 0,
+     "gainDb": 0
+    },
+    {
+     "name": "temas-kivilcim.png",
+     "startS": 28,
+     "endS": 28.467,
+     "sourceInS": 0,
+     "gainDb": 0
+    },
+    {
+     "name": "altin-toz.png",
+     "startS": 31,
+     "endS": 48,
+     "sourceInS": 0,
+     "gainDb": 0
+    }
+   ],
+   "transitions": 0
+  },
+  {
+   "track": "Kapi isigi",
+   "clips": [
+    {
+     "name": "Shape",
+     "startS": 12.9,
+     "endS": 18,
+     "sourceInS": 0,
+     "gainDb": 0
+    },
+    {
+     "name": "Shape",
+     "startS": 47.5,
+     "endS": 60,
+     "sourceInS": 0,
+     "gainDb": 0
+    }
+   ],
+   "transitions": 0
+  },
+  {
+   "track": "Baslik",
+   "clips": [
+    {
+     "name": "KAPLAN ARENA",
+     "startS": 44.9,
+     "endS": 60,
+     "sourceInS": 0,
+     "gainDb": 0
+    }
+   ],
+   "transitions": 1
+  },
+  {
+   "track": "Kunye",
+   "clips": [
+    {
+     "name": "Shape",
+     "startS": 48.3,
+     "endS": 60,
+     "sourceInS": 0,
+     "gainDb": 0
+    }
+   ],
+   "transitions": 0
+  },
+  {
+   "track": "Vinyet",
+   "clips": [
+    {
+     "name": "Adjustment Layer",
+     "startS": 0,
+     "endS": 60,
+     "sourceInS": 0,
+     "gainDb": 0
+    }
+   ],
+   "transitions": 0
+  }
+ ],
+ "audio": [
+  {
+   "track": "Muzik",
+   "clips": [
+    {
+     "name": "acilis-muzik.wav",
+     "startS": 0,
+     "endS": 58.8,
+     "sourceInS": 0,
+     "gainDb": -2
+    }
+   ],
+   "transitions": 0
+  },
+  {
+   "track": "SFX Temas",
+   "clips": [
+    {
+     "name": "kilic-temas-kayit-foley.wav",
+     "startS": 22,
+     "endS": 23.767,
+     "sourceInS": 0.04,
+     "gainDb": 8
+    },
+    {
+     "name": "kilic-temas-kayit-foley.wav",
+     "startS": 24.2,
+     "endS": 25.967,
+     "sourceInS": 0.04,
+     "gainDb": 8
+    },
+    {
+     "name": "kalkan-vurus-kayit-foley.wav",
+     "startS": 28,
+     "endS": 29.767,
+     "sourceInS": 0.04,
+     "gainDb": 11
+    }
+   ],
+   "transitions": 0
+  },
+  {
+   "track": "SFX Savurma",
+   "clips": [
+    {
+     "name": "savurma-gercek.wav",
+     "startS": 21.733,
+     "endS": 22.233,
+     "sourceInS": 0,
+     "gainDb": 6
+    },
+    {
+     "name": "savurma-gercek.wav",
+     "startS": 27.733,
+     "endS": 28.233,
+     "sourceInS": 0,
+     "gainDb": 6
+    },
+    {
+     "name": "savurma-gercek.wav",
+     "startS": 30.833,
+     "endS": 31.367,
+     "sourceInS": 0,
+     "gainDb": 3
+    }
+   ],
+   "transitions": 0
+  },
+  {
+   "track": "SFX Surtunme-Zincir",
+   "clips": [
+    {
+     "name": "zincir-gercek.wav",
+     "startS": 11.6,
+     "endS": 15.833,
+     "sourceInS": 0,
+     "gainDb": -2
+    },
+    {
+     "name": "kilic-suruntu-gercek.wav",
+     "startS": 21.967,
+     "endS": 23,
+     "sourceInS": 0,
+     "gainDb": 3
+    },
+    {
+     "name": "kilic-suruntu-gercek.wav",
+     "startS": 24.167,
+     "endS": 25.2,
+     "sourceInS": 0,
+     "gainDb": 3
+    }
+   ],
+   "transitions": 0
+  },
+  {
+   "track": "SFX Kapi",
+   "clips": [
+    {
+     "name": "kapi-acilis-kayit-foley.wav",
+     "startS": 13,
+     "endS": 19,
+     "sourceInS": 0,
+     "gainDb": 5
+    }
+   ],
+   "transitions": 0
+  },
+  {
+   "track": "SFX Kapi gicirti",
+   "clips": [
+    {
+     "name": "kapi-gicirti-gercek.wav",
+     "startS": 12.967,
+     "endS": 16.467,
+     "sourceInS": 0,
+     "gainDb": 2
+    }
+   ],
+   "transitions": 0
+  },
+  {
+   "track": "SFX Kukreme-Baslik",
+   "clips": [
+    {
+     "name": "kukreme-kullanici.wav",
+     "startS": 44.133,
+     "endS": 46.6,
+     "sourceInS": 0,
+     "gainDb": 4
+    },
+    {
+     "name": "baslik-vurgusu-01.wav",
+     "startS": 48,
+     "endS": 51,
+     "sourceInS": 0,
+     "gainDb": 1
+    }
+   ],
+   "transitions": 0
+  }
+ ]
+}

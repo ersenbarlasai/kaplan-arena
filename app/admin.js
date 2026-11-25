@@ -58,7 +58,23 @@ function toast(m, ms){ ui.msg = m; render(); clearTimeout(toast.h); toast.h = se
 function pushHistory(){ const g = G(); const snap = Object.assign({}, g, { history:[] }); g.history.push(JSON.stringify(snap)); if (g.history.length > 40) g.history.shift(); }
 
 /* ---------- saat döngüsü ---------- */
+function cineStatus(){
+  const c = cineState();
+  if (!c) return 'Sahnede sabit karşılama';
+  if (c.mode === 'loop') return 'Sahnede ara döngüsü oynuyor';
+  if (c.ended) return 'Açılış filmi bitti · sahnede sabit karşılama';
+  if (reducedMotion()) return 'Hareketleri azaltma açık · sahnede sabit karşılama';
+  const s = Math.min(CINE.opening.dur, Math.floor(c.elapsed / 1000));
+  return `Sahnede açılış filmi · 0:${String(s).padStart(2, '0')} / 1:00`;
+}
+function cineTick(){
+  const c = cineState();
+  if (c && c.ended && !ui.cineEnded){ ui.cineEnded = true; render(); return; }
+  const el = document.getElementById('cine-st');
+  if (el){ const t = cineStatus(); if (el.textContent !== t) el.textContent = t; }
+}
 function adminTick(){
+  cineTick();
   const g = G(); if (!g || !g.started) return;
   const now = nowS(); let changed = false;
   if (inQ() && g.phase === 'open'){
@@ -97,6 +113,7 @@ function buildState(){
     if (g.intro) s.intro = g.intro.items.map(it => ({ i:it.i, j:it.j }));
     if (g.phase === 'revealed') s.answer = q ? q.answer : null;
     teams.forEach((t, i) => { const a = liveAccepted(i); if (a) s.ack[i] = a.t; });
+    if (g.phase === 'revealed' && !isTie()){ const r = rvWinners(); if (r && g.rv) s.correct = r.winners; }
     s.jrej = g.jrej || {};
   }
   if (g.view === 'scoreboard' && g.last){ s.lastWinners = g.last.winners; s.lastDelta = g.last.delta || null; s.lastJk = g.last.jk || null; s.answer = g.last.answer; s.qn = g.qIndex + 1; }
@@ -176,7 +193,7 @@ function stageModel(){
     sound:{ on:!!S.settings.sound, volume:S.settings.volume, stage:StageHost.soundStage() }, stage:{ key:st.key, name:st.name, place:st.place, img:st.img } };
   const present = ui.present || 'welcome';
   if (present === 'welcome' || (!g.started && present !== 'map')){
-    return Object.assign(m, { screen:'welcome', credits:CREDITS, resume:g.started && !g.finished });
+    return Object.assign(m, { screen:'welcome', credits:CREDITS, resume:g.started && !g.finished, cine:cineModel() });
   }
   if (present === 'map' || !g.started){
     const done = i => g.started && (g.stage > i || (g.stage === i && (g.view === 'stageEnd' || g.view === 'champion')) || g.finished);
@@ -211,13 +228,15 @@ function stageModel(){
     }
     if (g.phase === 'ready') return Object.assign(m, base, { screen:'ready', q:qi });
     const pq = q.type === 'ders' ? { text:q.text, options:q.options, subject:q.subject, type:'ders' } : { text:q.text, unit:q.unit || '', type:'tahmin', subject:'Tahmin' };
-    return Object.assign(m, base, { screen:'question', q:Object.assign(qi, pq), answer:g.phase === 'revealed' ? q.answer : null });
+    return Object.assign(m, base, { screen:'question', q:Object.assign(qi, pq), answer:g.phase === 'revealed' ? q.answer : null, correct:g.phase === 'revealed' ? correctModel() : null });
   }
   if (g.view === 'scoreboard' && g.last){
     const q = curQ(), L = g.last;
     return Object.assign(m, { screen:'scores', q:{ n:g.qIndex + 1, total:S.questions[st.key].length },
       answerText:q ? (q.type === 'ders' ? `${q.answer}) ${q.options[LETTERS.indexOf(q.answer)]}` : `${fmt(q.answer)} ${q.unit || ''}`.trim()) : '',
-      board:boardRows(curTeams(), (t, i) => ({ delta:L.delta ? L.delta[i] : (L.winners.includes(i) ? 10 : undefined), jk:L.jk && L.jk[i] })) });
+      scoreAnim:{ id:'sc:' + (L.qk || g.qIndex) + ':' + (L.at || 0), elapsed:L.at ? Math.max(0, nowS() - L.at) : 1e9 },
+      board:boardRows(curTeams(), (t, i) => { const d = L.delta ? L.delta[i] : (L.winners.includes(i) ? 10 : undefined);
+        return { delta:d, jk:L.jk && L.jk[i], from:Math.max(0, t.score - (d || 0)) }; }) });
   }
   if (g.view === 'stageEnd' && g.result){
     const r = g.result, isFinal = st.key === 'final', tieSet = r.tie ? r.tie.candidates : [];
@@ -235,6 +254,19 @@ function stageModel(){
   }
   if (g.view === 'ended') return Object.assign(m, { screen:'ended', board:boardRows(curTeams()) });
   return Object.assign(m, { screen:'map', classes:[], mapStages:[] });
+}
+/* Sinematik oturumu (yalnız karşılama ekranında). Her oynatma yeni kimlik alır; sahne aynı kimliği yeniden
+   başlatmaz. Açılış süresi dolunca model boşalır (sahne sabit karşılamaya döner). */
+function cineState(){
+  const c = ui.cine; if (!c) return null;
+  const elapsed = Math.max(0, Date.now() - c.at);
+  const ended = c.mode === 'opening' && elapsed > (CINE.opening.dur + 1) * 1000;
+  return { mode:c.mode, id:c.id, elapsed, ended };
+}
+function cineModel(){
+  const c = cineState(); if (!c || c.ended) return null;
+  const cfg = CINE[c.mode];
+  return { mode:c.mode, id:c.id, elapsed:c.elapsed, src:cfg.src, poster:cfg.poster || '' };
 }
 function reducedMotion(){
   let os = false; try{ os = matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}
@@ -279,6 +311,28 @@ function prefillFrom(frozen){
     else ui.guesses[i] = numStr(a.v);
   });
 }
+/* ---------- Doğru Bilenler gösterimi ----------
+   g.rv = { qk, id, at, sel, guesses }: açıklama anında oluşur, elle düzeltmeler de buraya yazılır.
+   Bu bir doğruluk gösterimidir; puan "Puanları Göster"e kadar uygulanmaz ve gösterilmez. */
+function rvWinners(){
+  const g = G(), q = curQ(), teams = curTeams();
+  if (!inQ() || isTie() || g.phase !== 'revealed' || !q) return null;
+  if (q.type === 'ders') return { winners:[...ui.sel].filter(i => teams[i]).sort((a, b) => a - b), guesses:null };
+  const guesses = teams.map((t, i) => parseNum(ui.guesses[i]));
+  return { winners:C.closestWinners(guesses, q.answer).winners, guesses };
+}
+function rvSync(){
+  const g = G(), qk = currentQk();
+  if (!g.rv || g.rv.qk !== qk) return;
+  g.rv.sel = [...ui.sel]; g.rv.guesses = Object.assign({}, ui.guesses);
+}
+function correctModel(){
+  const g = G(), r = rvWinners(); if (!r || !g.rv) return null;
+  const teams = curTeams();
+  const list = r.winners.map(i => { const t = teams[i], j = activeJk(i);
+    return { name:t.name, arma:emblem(t.name), x2:j === 'x2', dbl:j === 'double', guess:r.guesses && r.guesses[i] != null ? fmt(r.guesses[i]) : null }; });
+  return { id:g.rv.id, elapsed:Math.max(0, nowS() - g.rv.at), list, none:list.length === 0, tahmin:!!r.guesses };
+}
 /* Açıklama anında kabul edilmiş cevapları dondurur (pencere içinde gönderilmiş, yetkili cihazdan, geçerli biçimde). */
 function freezeAnswers(){
   const g = G(), qk = currentQk(), frozen = {};
@@ -307,6 +361,7 @@ function toQuestion(idx){
 }
 function setScreen(s){
   ui.screen = s;
+  if (s !== 'welcome') ui.cine = null;           // karşılamadan çıkınca sinematik durur
   if (s === 'welcome') ui.present = 'welcome';
   else if (s === 'menu') ui.present = 'map';
   else if (s === 'game') ui.present = 'game';

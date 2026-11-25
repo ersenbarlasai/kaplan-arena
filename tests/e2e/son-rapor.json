@@ -1,5 +1,5 @@
 {
-  "at": "2026-11-25T19:55:42.376Z",
+  "at": "2026-11-25T22:58:43.618Z",
   "results": [
     {
       "name": "karşılama: künye eksiksiz ve sıralı",
@@ -14,7 +14,7 @@
     {
       "name": "yarışma başladı ve 6 haneli kod üretildi",
       "ok": true,
-      "detail": "953017"
+      "detail": "699365"
     },
     {
       "name": "sahne: ses etkinleştirme/test adımı",
@@ -89,7 +89,7 @@
     {
       "name": "kabul edilen: son geçerli gönderim (1350); duraklamadaki ve süre sonrası 1355 sayılmadı",
       "ok": true,
-      "detail": "{\"0\":{\"v\":1350,\"t\":1795636397354},\"1\":{\"v\":1400,\"t\":1795636396980}}"
+      "detail": "{\"0\":{\"v\":1350,\"t\":1795647376417},\"1\":{\"v\":1400,\"t\":1795647376043}}"
     },
     {
       "name": "açıklamada puan gösterilmez",
@@ -184,7 +184,7 @@
     {
       "name": "eşzamanlı jokerler tek tanıtımda birleşti",
       "ok": true,
-      "detail": "{\"id\":15,\"pauseAt\":1795636466256.5,\"until\":1795636469756.5,\"items\":[{\"i\":0,\"name\":\"9B\",\"j\":\"double\"},{\"i\":3,\"name\":\"10C\",\"j\":\"x2\"}]}"
+      "detail": "{\"id\":15,\"pauseAt\":1795647447327.5,\"until\":1795647450827.5,\"items\":[{\"i\":0,\"name\":\"10B\",\"j\":\"double\"},{\"i\":3,\"name\":\"9C\",\"j\":\"x2\"}]}"
     },
     {
       "name": "admin telefonsuz sınıf için joker kullandı",

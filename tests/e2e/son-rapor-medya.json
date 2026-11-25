@@ -1,0 +1,222 @@
+{
+ "tarih": "2026-11-25T22:55:43.446Z",
+ "gecen": 43,
+ "toplam": 43,
+ "sonuclar": [
+  {
+   "name": "web kopyası var: assets/sinematik/acilis-60sn.mp4",
+   "ok": true,
+   "detail": "assets/sinematik/acilis-60sn.mp4"
+  },
+  {
+   "name": "web kopyası var: assets/sinematik/ara-30sn-loop.mp4",
+   "ok": true,
+   "detail": "assets/sinematik/ara-30sn-loop.mp4"
+  },
+  {
+   "name": "web kopyası var: assets/sinematik/ara-poster.webp",
+   "ok": true,
+   "detail": "assets/sinematik/ara-poster.webp"
+  },
+  {
+   "name": "admin karşılamada sinematik kontrolleri var",
+   "ok": true,
+   "detail": "[true,true,true]"
+  },
+  {
+   "name": "açılış sahnede oynuyor (görünür, sesli)",
+   "ok": true,
+   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":0.479458,\"src\":\"http://localhost:3091/assets/sinematik/acilis-60sn.mp4\",\"muted\":false,\"vol\":0.8,\"loop\":false,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"\",\"n\":1,\"welcome\":true}"
+  },
+  {
+   "name": "açılış videosu 1920×1080, ~60 s",
+   "ok": true,
+   "detail": "1920x1080 60.01"
+  },
+  {
+   "name": "admin sayfasında video öğesi yok (önizleme sessiz)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "admin durum satırı açılışı gösteriyor",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "model yenilemeleri videoyu sıfırlamıyor/yeniden başlatmıyor",
+   "ok": true,
+   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":3.093173,\"src\":\"http://localhost:3091/assets/sinematik/acilis-60sn.mp4\",\"muted\":false,\"vol\":0.8,\"loop\":false,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"kararli\",\"n\":1,\"welcome\":true}"
+  },
+  {
+   "name": "merkezi ses kapatılınca sahne videosu susar",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "ses yeniden açılınca video sesli",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Atla: video durur, sabit karşılama görünür",
+   "ok": true,
+   "detail": "{\"hidden\":true,\"on\":false,\"paused\":true,\"t\":0,\"src\":\"http://localhost:3091/assets/sinematik/acilis-60sn.mp4\",\"muted\":false,\"vol\":0.8,\"loop\":false,\"w\":0,\"h\":0,\"dur\":null,\"mark\":\"kararli\",\"n\":1,\"welcome\":true}"
+  },
+  {
+   "name": "sahne yenilenince eski açılış filmi baştan çalmaz",
+   "ok": true,
+   "detail": "{\"hidden\":true,\"on\":false,\"paused\":true,\"t\":0,\"src\":\"\",\"muted\":false,\"vol\":1,\"loop\":false,\"w\":0,\"h\":0,\"dur\":null,\"mark\":\"\",\"n\":1,\"welcome\":true}"
+  },
+  {
+   "name": "ara döngüsü oynuyor (loop, sesli)",
+   "ok": true,
+   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":0.500793,\"src\":\"http://localhost:3091/assets/sinematik/ara-30sn-loop.mp4\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":30,\"mark\":\"\",\"n\":1,\"welcome\":true}"
+  },
+  {
+   "name": "ara döngüsü sonda başa sarar, gizlenmez",
+   "ok": true,
+   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":1.3455,\"src\":\"http://localhost:3091/assets/sinematik/ara-30sn-loop.mp4\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":30,\"mark\":\"\",\"n\":1,\"welcome\":true}"
+  },
+  {
+   "name": "sahne yenilenince sakin ara döngüsü sürer",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Durdur: sahne karşılamaya döner",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "eksik video dosyasında sabit karşılama (hata yok)",
+   "ok": true,
+   "detail": "{\"hidden\":true,\"on\":false,\"paused\":true,\"t\":0,\"src\":\"http://localhost:3091/assets/sinematik/yok-boyle-dosya.mp4\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":0,\"h\":0,\"dur\":null,\"mark\":\"\",\"n\":1,\"welcome\":true}"
+  },
+  {
+   "name": "hareketleri azaltma açıkken açılış filmi oynatılmaz",
+   "ok": true,
+   "detail": "{\"hidden\":true,\"on\":false,\"paused\":true,\"t\":0,\"src\":\"http://localhost:3091/assets/sinematik/yok-boyle-dosya.mp4\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":0,\"h\":0,\"dur\":null,\"mark\":\"\",\"n\":1,\"welcome\":true}"
+  },
+  {
+   "name": "aktif soruda ara: süre durdu (break+admin)",
+   "ok": true,
+   "detail": "{\"screen\":\"welcome\",\"running\":false,\"reasons\":[\"break\",\"admin\"],\"inWin\":false,\"left\":58583.5}"
+  },
+  {
+   "name": "aktif soruda ara: cevap kabulü kapalı",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "ara sürerken kalan süre korunur, yarışma ilerlemez",
+   "ok": true,
+   "detail": "{\"running\":false,\"left\":58583.5,\"phase\":\"open\",\"screen\":\"welcome\"}"
+  },
+  {
+   "name": "döngü sınırı yarışmayı başlatmaz",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Yarışmaya Devam: sahnede video kapanır, soru aynı",
+   "ok": true,
+   "detail": "{\"screen\":\"game\",\"cine\":null,\"running\":false,\"reasons\":[\"admin\"],\"q\":0,\"left\":58583.5,\"scores\":[30,20],\"jk\":\"{}\"}"
+  },
+  {
+   "name": "Devam sonrası süre yalnız admin \"devam\" ile başlar",
+   "ok": true,
+   "detail": "[\"admin\"]"
+  },
+  {
+   "name": "puanlar ve jokerler korunur",
+   "ok": true,
+   "detail": "[[30,20],[30,20]]"
+  },
+  {
+   "name": "admin devam edince süre çalışır",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "Karşılama aktif soruyu duraklatır",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "açılış bitişi sahneyi karşılamaya alır, yarışma duraklı kalır",
+   "ok": true,
+   "detail": "{\"running\":false,\"phase\":\"open\",\"q\":0,\"screen\":\"welcome\"}"
+  },
+  {
+   "name": "telefon sayfasında video/sinematik yok",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "test sunucusu mp4 Range → 206",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "file://: ara döngüsü sahnede oynuyor",
+   "ok": true,
+   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":0.501649,\"src\":\"file:///E:/PROJELER/KaplanArena/assets/sinematik/ara-30sn-loop.mp4\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":30,\"mark\":\"\",\"n\":1,\"welcome\":true}"
+  },
+  {
+   "name": "file://: açılış filmi sahnede oynuyor",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "PS yerel sunucu başladı",
+   "ok": true,
+   "detail": "://localhost:8090/\n   Not: 8080 portu bu bilgisayarda baska bir program tarafindan kullaniliyor; 8090 kullaniliyor.\n   UYARI: Yonetici izni verilmedigi icin telefonlar baglanamaz.\n   BASLAT dosyasini kapatip tekrar acin ve izin sorusuna EVET deyin.\n\n   Yarisma bitene kadar bu pencereyi KAPATMAYIN.\n\n"
+  },
+  {
+   "name": "PS: mp4 açık uçlu Range → 206, en çok 1 MB",
+   "ok": true,
+   "detail": "206 bytes 0-1048575/33763450 1048576"
+  },
+  {
+   "name": "PS: dosya sonu aralığı doğru",
+   "ok": true,
+   "detail": "206 500"
+  },
+  {
+   "name": "PS: son-ek aralığı (bytes=-300)",
+   "ok": true,
+   "detail": "206 300"
+  },
+  {
+   "name": "PS: geçersiz aralık → 416",
+   "ok": true,
+   "detail": "416"
+  },
+  {
+   "name": "PS: video yolu dışına çıkış reddedilir",
+   "ok": true,
+   "detail": "404"
+  },
+  {
+   "name": "PS: video oynarken API istekleri bekletilmez",
+   "ok": true,
+   "detail": "53 ms"
+  },
+  {
+   "name": "PS: açılış filmi parça parça akarak oynuyor",
+   "ok": true,
+   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":3.537338,\"src\":\"http://localhost:8090/assets/sinematik/acilis-60sn.mp4\",\"muted\":false,\"vol\":0.8,\"loop\":false,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"\",\"n\":1,\"welcome\":true}"
+  },
+  {
+   "name": "PS: ileri sarma (seek) çalışıyor",
+   "ok": true,
+   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":47.360484,\"src\":\"http://localhost:8090/assets/sinematik/acilis-60sn.mp4\",\"muted\":false,\"vol\":0.8,\"loop\":false,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"\",\"n\":1,\"welcome\":true}"
+  },
+  {
+   "name": "konsol/sayfa hatası yok",
+   "ok": true,
+   "detail": ""
+  }
+ ]
+}

@@ -33,6 +33,7 @@ const StageAudio = (() => {
     tick(t){ tone(1320, t, .07, 'square', .07); tone(660, t, .05, 'sine', .05); },
     timeup(t){ tone(196, t, 1.6, 'sine', .32); tone(98, t, 1.8, 'sine', .22); tone(392, t, .9, 'triangle', .08); },
     reveal(t){ [659.25, 880, 1174.66].forEach((f, k) => tone(f, t + k * .09, .7, 'triangle', .14)); },
+    entry(t){ tone(1174.66, t, .32, 'triangle', .1, 1567.98); tone(587.33, t, .25, 'sine', .06); noise(t, .22, .03, 6000); },
     scores(t){ [392, 523.25, 659.25].forEach((f, k) => tone(f, t + k * .1, .45, 'triangle', .12)); },
     joker(t){
       tone(160, t, .5, 'sawtooth', .07, 900);                   // yükselen vınlama

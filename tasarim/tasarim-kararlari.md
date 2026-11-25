@@ -2,7 +2,7 @@
 
 Tarih: 25 Kasım 2026
 
-Güncel uygulama gereksinimleri: `claude-hazirlik-incelemesi.md` içindeki 1–19 numaralı kullanıcı onayları bu belgenin eski öneri ve inceleme notlarının önüne geçer. Claude uygulama sözleşmesi `CLAUDE-UYGULAMA-PROMPTU.md`, görsel dosya listesi `varliklar/VARLIKLAR.md` içindedir.
+Güncel uygulama gereksinimleri: `claude-hazirlik-incelemesi.md` içindeki 1–20 numaralı kullanıcı onayları bu belgenin eski öneri ve inceleme notlarının önüne geçer. Claude uygulama sözleşmesi `CLAUDE-UYGULAMA-PROMPTU.md`, görsel dosya listesi `varliklar/VARLIKLAR.md` içindedir.
 
 ## Amaç ve görsel yön
 

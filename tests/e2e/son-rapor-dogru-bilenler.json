@@ -1,0 +1,200 @@
+{
+  "at": "2026-11-25T23:00:47.822Z",
+  "results": [
+    {
+      "name": "1. etapta 11 sınıf",
+      "ok": true,
+      "detail": "11"
+    },
+    {
+      "name": "S1: doğru şık önce altınla belirginleşir, arma ~1,3 sn sonra girer",
+      "ok": true,
+      "detail": "[1126,1,true]"
+    },
+    {
+      "name": "S1: tek doğru bilen gösterildi",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S1: giriş sesi bir kez (yalnız sahne)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S1: gösterim sırasında puan değişmedi",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S1: telefona doğru bilenler gitti, puan değişimi gitmedi",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S1: telefonda puan açıklanmadı",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S1: sahnede +10/toplam açıklanmadı",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S1: Puanları Göster ile toplam sayılarak güncellendi",
+      "ok": true,
+      "detail": "[[0,10,7],10]"
+    },
+    {
+      "name": "S1: puan yalnız bir kez uygulandı",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S2: armalar tek tek girdi (artan sayım)",
+      "ok": true,
+      "detail": "[0,1,2,3,4]"
+    },
+    {
+      "name": "S2: sıra sınıf sırası, cevap hızı değil",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S2: Çift Cevap ile doğru sınıf gösterildi (2 Şık)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S2: Çifte Puan ile doğru sınıfta ×2 mührü",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S2: her giriş için bir ses",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S2: puanlar ×2 (+20), çift cevap +10, normal +10",
+      "ok": true,
+      "detail": "{\"0\":20,\"1\":10,\"2\":10,\"3\":10}"
+    },
+    {
+      "name": "S3: doğru sayısal cevap altınla vurgulandı",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S3: en yakın eşit uzaklıktaki iki sınıf (tahminleriyle)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S3: ilerleyince kalan giriş sesleri ekrana taşmadı",
+      "ok": true,
+      "detail": "2"
+    },
+    {
+      "name": "S3: animasyon kendiliğinden soru geçişi yapmadı",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S4: \"Bu soruda doğru cevap gelmedi\" ve kutlama yok",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S4: puan değişmedi (gösterimde)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S5: iptal gösterimi durdurdu, ses taşmadı, puan yok",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S6: yeniden açılan sahnede güncel sonuç geri geldi",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S6: yeniden bağlanınca giriş/açıklama sesleri tekrar çalmadı",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S6: yeniden bağlanınca giriş animasyonu tekrar oynamadı",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S6: admin yenilenince açıklama görünümü korundu, puan uygulanmadı",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S6: admin yenilemesi sahnede ses tetiklemedi",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S6: puan bir kez uygulandı",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S7: azaltılmış harekette hepsi birlikte, animasyonsuz",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S7: azaltılmış harekette giriş sesi yok",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S8: ses kapalıyken hiçbir ses çalmadı",
+      "ok": true,
+      "detail": "[{\"k\":\"reveal\",\"ok\":false,\"t\":1795647629637},{\"k\":\"entry\",\"ok\":false,\"t\":1795647630908},{\"k\":\"entry\",\"ok\":false,\"t\":1795647631607}]"
+    },
+    {
+      "name": "S8: ses kapalıyken gösterim yine çalıştı",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S9: 11 doğru bilenin hepsi göründü",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S9: 1920×1080 armalar/adlar ekranda, kırpılmadan, soru kartıyla çakışmadan",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S9: 1366×768 armalar/adlar ekranda, kırpılmadan, soru kartıyla çakışmadan",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "S9: 1024×768 armalar/adlar ekranda, kırpılmadan, soru kartıyla çakışmadan",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "admin ve telefon ses üretmedi",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "tarayıcı sayfa hatası yok",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

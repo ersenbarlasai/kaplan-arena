@@ -1,0 +1,26 @@
+[
+  {
+    "file": "kaynaklar/kukreme-kullanici.mp3",
+    "duration_s": 2.461995,
+    "audio": {
+      "codec_name": "mp3",
+      "sample_rate": "44100",
+      "channels": 2
+    },
+    "sha256": "98530905645405e3c5bfb594a1963705463e64c0efac1e633376f2b39b75df6c",
+    "origin": "user supplied",
+    "license": "not specified; do not label CC0"
+  },
+  {
+    "file": "hazir/kukreme-kullanici.wav",
+    "duration_s": 2.462,
+    "audio": {
+      "codec_name": "pcm_s24le",
+      "sample_rate": "48000",
+      "channels": 2
+    },
+    "sha256": "b85b920ce828830093d9e25c24f4acef1f8d17021c829a13c06c5319197e1b68",
+    "origin": "user supplied",
+    "license": "not specified; do not label CC0"
+  }
+]

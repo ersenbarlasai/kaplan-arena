@@ -1,0 +1,12 @@
+{
+  "original_page": "https://freesound.org/people/lauramellis/sounds/263115/",
+  "creator": "lauramellis",
+  "license": "CC0",
+  "license_url": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "original_description": "Tiger Roar: a single real tiger call recorded at Louisville Zoo, Kentucky. Public high-quality MP3 version of Freesound recording 263115; source does not identify the tiger subspecies. Quiet lead-in and trailing ambience removed.",
+  "public_original_preview": "https://cdn.freesound.org/previews/263/263115_672090-hq.mp3",
+  "download_used": "https://github.com/nature-tycoon/second-growth/blob/main/assets/sounds/field-tiger-1.m4a",
+  "provenance_metadata": "https://github.com/nature-tycoon/second-growth/blob/main/assets/sounds/field-sources.json",
+  "license_statement": "https://github.com/nature-tycoon/second-growth/blob/main/assets/sounds/LICENSES.md",
+  "source_format_note": "Downloaded an already trimmed/filtered/normalized/faded 96 kbps mono AAC derivative, not original 24-bit WAV. Source is a recorded tiger, not synthetic."
+}

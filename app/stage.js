@@ -17,11 +17,60 @@ const StageClock = {
   }
 };
 
+/* Sinematik katmanı: #sg dışındaki tek, kalıcı <video>. Model her güncellendiğinde yeniden kurulmaz; yalnız oturum
+   kimliği değişince yeni oynatma başlar. Sesi yalnız etkin ses sahnesi açar (MP4 içindeki miks; Web Audio'dan
+   ikinci kez çalınmaz). Yükleme bitene kadar ya da hata/eksik dosyada altta sabit karşılama görünür.
+   Yeniden bağlanma/yenilemede eski açılış filmi baştan çalmaz; hareketleri azaltma açıksa açılış oynatılmaz. */
+function StageCine(box){
+  const vid = box.querySelector('video');
+  let cur = null;                        // { id, mode }
+  const seen = new Set();                // bu pencerede başlatılmış/atlanmış oturumlar
+  function hide(){
+    cur = null; box.classList.remove('on'); box.hidden = true;
+    try{ vid.pause(); }catch(e){}
+    if (vid.getAttribute('src')){ vid.removeAttribute('src'); vid.removeAttribute('poster'); try{ vid.load(); }catch(e){} }
+  }
+  function level(m, soundStage){
+    const s = (m && m.sound) || {}, vol = Math.max(0, Math.min(1, (s.volume || 0) / 100));
+    vid.volume = vol;
+    vid.muted = !(soundStage && s.on && vol > 0);
+  }
+  vid.addEventListener('playing', () => { if (cur) box.classList.add('on'); });
+  vid.addEventListener('ended', () => { if (cur && cur.mode === 'opening') hide(); });
+  vid.addEventListener('error', () => { if (cur){ console.warn('Sinematik yüklenemedi; sabit karşılama gösteriliyor.'); hide(); } });
+  return {
+    apply(m, soundStage){
+      const c = m && m.screen === 'welcome' ? m.cine : null;
+      if (!c){ if (cur) hide(); return; }
+      if (cur && cur.id === c.id){ level(m, soundStage); return; }
+      if (cur) hide();
+      if (seen.has(c.id)) return;
+      seen.add(c.id);
+      if (c.mode === 'opening' && (m.motion || c.elapsed > 2500)) return;   // canlı başlangıç değil → sabit karşılama
+      cur = { id:c.id, mode:c.mode };
+      box.hidden = false;
+      vid.loop = c.mode === 'loop';
+      if (c.poster) vid.setAttribute('poster', c.poster); else vid.removeAttribute('poster');
+      vid.src = c.src;
+      level(m, soundStage);
+      const p = vid.play();
+      if (p && p.catch) p.catch(() => {
+        // Tarayıcı sesli oynatmaya izin vermediyse sessiz dene; o da olmazsa sabit karşılama.
+        if (!cur || cur.id !== c.id) return;
+        vid.muted = true;
+        vid.play().catch(() => { if (cur && cur.id === c.id) hide(); });
+      });
+    },
+    playing: () => !!cur
+  };
+}
+
 function stageInit(){
   document.body.classList.add('mode-stage');
   document.title = 'Kaplan Arena · Sahne';
   const app = document.getElementById('app');
   app.innerHTML = `<div class="stage-root" id="sg"></div>
+    <div class="stage-cine" id="cine" hidden aria-hidden="true"><video playsinline preload="auto" disablepictureinpicture></video></div>
     <div class="stage-setup" id="setup" role="dialog" aria-modal="true" aria-labelledby="setup-h">
       <div class="setup-card">
         <h2 id="setup-h">Sahne Ekranı</h2>
@@ -57,7 +106,9 @@ function stageInit(){
   document.getElementById('fs').onclick = () => { try{ document.documentElement.requestFullscreen().catch(()=>{}); }catch(e){} };
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !setup.hidden) closeSetup(); });
 
+  const cine = StageCine(document.getElementById('cine'));
   function draw(){
+    cine.apply(model, isSoundStage());
     const h = StageView.html(model);
     if (h !== html){
       html = h; sg.innerHTML = h;
@@ -66,6 +117,7 @@ function stageInit(){
       if (cf && !(model && model.motion)) runConfetti(cf);
     }
     StageClock.paint(sg, model);
+    RevealFX.apply(sg, model, () => { if (isSoundStage()) StageAudio.play('entry'); });
   }
   StageClient.init(m => {
     model = m;

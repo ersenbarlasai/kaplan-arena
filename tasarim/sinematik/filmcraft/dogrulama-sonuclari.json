@@ -1,0 +1,171 @@
+{
+ "acilis": {
+  "dosya": "ciktilar/acilis-60sn.mp4",
+  "probe": {
+   "boyut_bayt": 33763450,
+   "sure_s": 60.01,
+   "video": {
+    "codec": "h264",
+    "profil": "High",
+    "genislik": 1920,
+    "yukseklik": 1080,
+    "fps": "30/1",
+    "kare": 1800,
+    "pix_fmt": "yuv420p",
+    "sure_s": 60.0,
+    "bit_hizi_kbps": 4177
+   },
+   "ses": {
+    "codec": "aac",
+    "ornekleme_hz": 48000,
+    "kanal": 2,
+    "sure_s": 60.01,
+    "bit_hizi_kbps": 320
+   }
+  },
+  "tam_decode_hatasiz": true,
+  "decode_hata": "",
+  "loudness": {
+   "entegre_LUFS": -16.1,
+   "LRA_LU": 5.2,
+   "true_peak_dBTP": -1.2
+  },
+  "ornek_tepe_dBFS": -1.23,
+  "efektler": [
+   {
+    "olay": "Kapı / zincir başlangıcı",
+    "zaman_s": 13.0,
+    "kaynak": "kapi-acilis-kayit-foley + kapi-gicirti-gercek + zincir-gercek",
+    "muzik_oncesi_dB": -23.0,
+    "olay_dB": -10.2,
+    "fark_dB": 12.8
+   },
+   {
+    "olay": "Kapı ana darbe (ışık parlaması)",
+    "zaman_s": 17.07,
+    "kaynak": "kapi-acilis-kayit-foley (kaynak 4,07 s)",
+    "muzik_oncesi_dB": -22.1,
+    "olay_dB": -18.0,
+    "fark_dB": 4.0
+   },
+   {
+    "olay": "Kılıç teması 1",
+    "zaman_s": 22.0,
+    "kaynak": "kilic-temas-kayit-foley (+ savurma-gercek öncesi, kilic-suruntu-gercek sonrası)",
+    "muzik_oncesi_dB": -21.2,
+    "olay_dB": -12.3,
+    "fark_dB": 8.9
+   },
+   {
+    "olay": "Kılıç teması 2",
+    "zaman_s": 24.2,
+    "kaynak": "kilic-temas-kayit-foley (+ kilic-suruntu-gercek)",
+    "muzik_oncesi_dB": -25.6,
+    "olay_dB": -11.8,
+    "fark_dB": 13.8
+   },
+   {
+    "olay": "Kalkan teması",
+    "zaman_s": 28.0,
+    "kaynak": "kalkan-vurus-kayit-foley (+ savurma-gercek öncesi)",
+    "muzik_oncesi_dB": -21.1,
+    "olay_dB": -13.0,
+    "fark_dB": 8.1
+   },
+   {
+    "olay": "Geçiş savurması",
+    "zaman_s": 31.0,
+    "kaynak": "savurma-gercek",
+    "muzik_oncesi_dB": -23.7,
+    "olay_dB": -12.1,
+    "fark_dB": 11.6
+   },
+   {
+    "olay": "Kükreme",
+    "zaman_s": 44.3,
+    "kaynak": "kukreme-kullanici",
+    "muzik_oncesi_dB": -24.7,
+    "olay_dB": -13.8,
+    "fark_dB": 10.9
+   },
+   {
+    "olay": "Başlık vurgusu",
+    "zaman_s": 48.0,
+    "kaynak": "ses-taslaklari/baslik-vurgusu-01 (sentetik tasarım sesi)",
+    "muzik_oncesi_dB": -22.1,
+    "olay_dB": -13.2,
+    "fark_dB": 8.9
+   }
+  ]
+ },
+ "ara": {
+  "dosya": "ciktilar/ara-30sn-loop.mp4",
+  "probe": {
+   "boyut_bayt": 6368732,
+   "sure_s": 30.0,
+   "video": {
+    "codec": "h264",
+    "profil": "High",
+    "genislik": 1920,
+    "yukseklik": 1080,
+    "fps": "30/1",
+    "kare": 900,
+    "pix_fmt": "yuv420p",
+    "sure_s": 30.0,
+    "bit_hizi_kbps": 1438
+   },
+   "ses": {
+    "codec": "aac",
+    "ornekleme_hz": 44100,
+    "kanal": 2,
+    "sure_s": 30.0,
+    "bit_hizi_kbps": 256
+   }
+  },
+  "tam_decode_hatasiz": true,
+  "decode_hata": "",
+  "loudness": {
+   "entegre_LUFS": -20.0,
+   "LRA_LU": 1.2,
+   "true_peak_dBTP": -9.4
+  },
+  "ornek_tepe_dBFS": -9.41,
+  "dongu_ses": {
+   "ornek_sayisi": 1323000,
+   "sure_s": 30.0,
+   "sinir_sicramasi": 0.00307,
+   "tipik_fark_p99": 0.01378,
+   "sinir_5ms_rms_dB": [
+    -27.1,
+    -25.7,
+    -28.2,
+    -25.1,
+    -25.2,
+    -23.8,
+    -25.1,
+    -26.2,
+    -23.2,
+    -23.9,
+    -22.2,
+    -24.3,
+    -24.0,
+    -25.1,
+    -25.2,
+    -23.3,
+    -25.6,
+    -24.6,
+    -25.7,
+    -25.5
+   ],
+   "govde_5ms_rms_min_dB": -31.1,
+   "sinirda_sessizlik_var": false
+  },
+  "dongu_goruntu": {
+   "kare": 900,
+   "ardisik_fark_ort": 0.0199,
+   "ardisik_fark_max": 0.4133,
+   "sarma_farki_899_0": 0.3644,
+   "sarma_kesintisiz": true
+  }
+ }
+}

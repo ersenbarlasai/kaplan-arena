@@ -1,4 +1,12 @@
 /* Kaplan Arena — admin eylemleri. Yarışma akışı tam manueldir; hiçbir eylem kendiliğinden ilerlemez. */
+function cineStart(mode){
+  ACT.welcome();                                   // aktif yarışmayı 'break' + 'admin' ile duraklatır, sahneyi karşılamaya alır
+  ui.cine = { mode, id:uid(), at:Date.now() };
+  ui.cineEnded = false;
+  if (!StageHost.count()) toast('Sahne penceresi açık değil. Film sahne ekranında oynar; önce "Sahne Ekranını Aç".', 5000);
+  else if (mode === 'opening' && reducedMotion()) toast('Hareketleri azaltma açık: sahnede açılış filmi yerine sabit karşılama gösterilir.', 5000);
+  render(); pushStage();
+}
 const ACT = {
   cancel(){ ui.confirm = null; render(); },
 
@@ -12,6 +20,12 @@ const ACT = {
     }
     setScreen('welcome');
   },
+  /* ---- sinematik: açılış filmi / ara döngüsü. Aktif yarışmada ortak duraklatma kullanılır (süre ve cevap
+     kabulü birlikte durur); film bitişi, Atla veya Durdur yarışmayı ilerletmez — devam yalnız admin eylemiyle. */
+  cineOpening(){ cineStart('opening'); },
+  cineLoop(){ cineStart('loop'); },
+  cineSkip(){ if (ui.cine && ui.cine.mode === 'opening'){ ui.cine = null; render(); pushStage(); } },
+  cineStop(){ ui.cine = null; if (ui.screen !== 'welcome') ACT.welcome(); else { render(); pushStage(); } },
   begin(){
     const g = G();
     if (g.brk){ g.brk = false; if (g.clock){ C.unpause(g, 'break', nowS()); } save(); }
@@ -93,14 +107,15 @@ const ACT = {
     if (!C.reveal(g, nowS())) return render();
     ui.touched = false;
     freezeAnswers();
+    if (!isTie()) g.rv = { qk:currentQk(), id:'rv' + ((g.evId || 0) + 1) + '_' + Math.round(nowS()), at:nowS(), sel:[...ui.sel], guesses:Object.assign({}, ui.guesses) };
     addEvent('reveal'); save(); render();
     // Süre içinde gönderilmiş ama henüz ulaşmamış cevaplar (ağ gecikmesi) için hemen yeniden yokla ve
     // puanlar gösterilmeden önce iki kez yenile. Kabul ölçütü gönderim zamanıdır, ulaşma zamanı değil.
     try{ if (NET.ok && NET.db && NET.db.start) NET.db.start(); }catch(e){}
     const qk = currentQk();
-    [1500, 3000].forEach(ms => setTimeout(() => { const g2 = G(); if (currentQk() === qk && inQ() && g2.phase === 'revealed' && !(g2.scored || {})[qk] && !ui.touched){ freezeAnswers(); save(); render(); } }, ms));
+    [1500, 3000].forEach(ms => setTimeout(() => { const g2 = G(); if (currentQk() === qk && inQ() && g2.phase === 'revealed' && !(g2.scored || {})[qk] && !ui.touched){ freezeAnswers(); rvSync(); save(); render(); } }, ms));
   },
-  toggleTeam(d){ const i = +d.i; ui.touched = true; ui.sel = ui.sel.includes(i) ? ui.sel.filter(x => x !== i) : [...ui.sel, i]; render(); },
+  toggleTeam(d){ const i = +d.i; ui.touched = true; ui.sel = ui.sel.includes(i) ? ui.sel.filter(x => x !== i) : [...ui.sel, i]; rvSync(); save(); render(); },
   showScores(){
     const g = G(); if (g.view !== 'question' || g.phase !== 'revealed') return;
     const q = curQ(), teams = curTeams(), qk = currentQk();
@@ -115,14 +130,15 @@ const ACT = {
     const jk = {}; teams.forEach((t, i) => { const j = activeJk(i); if (j) jk[i] = j; });
     if (!g.scored[qk]){ pushHistory(); C.applyScore(g, teams, qk, winners, jk, { detail }); }
     const sc = g.scored[qk];
-    g.last = { qk, winners:sc.winners, delta:sc.delta, jk:sc.jk, detail:sc.detail, answer:q.answer, unit:q.unit };
+    g.last = { qk, winners:sc.winners, delta:sc.delta, jk:sc.jk, detail:sc.detail, answer:q.answer, unit:q.unit, at:sc.at || (sc.at = nowS()) };
     g.view = 'scoreboard'; ui.scoreEdit = false; addEvent('scores'); save(); render();
   },
   undo(){
     const g = G(); if (!g.history.length) return;
     const h = g.history.slice(0, -1), snap = JSON.parse(g.history[g.history.length - 1]);
     S.game = Object.assign(snap, { history:h }); ui.scoreEdit = false;
-    if (S.game.frozen && currentQk() && S.game.frozen[currentQk()]) prefillFrom(S.game.frozen[currentQk()]);
+    if (S.game.rv && S.game.rv.qk === currentQk()){ ui.sel = [...(S.game.rv.sel || [])]; ui.guesses = Object.assign({}, S.game.rv.guesses || {}); }
+    else if (S.game.frozen && currentQk() && S.game.frozen[currentQk()]) prefillFrom(S.game.frozen[currentQk()]);
     save(); render(); toast('Son işlem geri alındı.');
   },
   scoreEdit(){ ui.scoreEdit = !ui.scoreEdit; render(); },

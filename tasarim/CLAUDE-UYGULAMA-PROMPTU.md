@@ -1,5 +1,7 @@
 # Claude — Kaplan Arena tasarımını uygula
 
+Ek sinematik görev: Kullanıcının son talebi için `sinematik/CLAUDE-SINEMATIK-PROMPTU.md` ve `sinematik/BASLA.md` dosyalarını da oku. Hazır sahne/katman/ses taslağı paketiyle 60 saniyelik açılış ve sakin ara döngüsü isteniyor. Ayrı admin/sahne, tek ses sahibi, manuel soru başlatma ve ortak duraklatma kuralları video gösteriminde de korunur. Bu ek görev mevcut durağan karşılama fallback'ini kaldırmaz.
+
 Bu görev uygulama görevidir. Tasarım ve aşağıdaki davranışlar kullanıcı tarafından onaylandı. Yeniden genel tasarım soruları sormadan mevcut projede çalış; gerçek bir çelişki/engelle karşılaşırsan somut bulguyla belirt. Hedef yalnız güzel bir ana ekran değil, admin + projeksiyon sahnesi + öğrenci telefonunun birlikte çalışan tamamlanmış deneyimidir. Canlıya yayınlama, push veya uzak veri sıfırlama yapma.
 
 ## 1. Başlangıç ve kaynaklar
@@ -51,6 +53,16 @@ Her soruda (ilk soru dahil): hazırlık “Hazır mısınız?” → admin “So
 Hazırlıkta soru/şık/cevap anahtarı telefonlara veya sahneye sızmaz. Sonraki soruya geçmek süreyi başlatmaz. Admin isterse süre bitmeden “Cevabı Açıkla” der; onaydan sonra süre ve cevaplar kilitlenir. Tüm sınıfların erken cevaplaması otomatik geçiş/açıklama başlatmaz.
 
 Otomatik cevap açıklama, 4 saniyelik otomatik puanlama, 5 saniyelik sonraki soru ve ilişkili zamanlayıcı/kısayol yan etkilerini kaldır. Doğru cevap gösterilirken sınıf puan sonuçları ayrıca “Puanları Göster” denmeden açılmasın; telefonda da aynı gösterim aşaması uygulanmalı. Puanı sistem hesaplar, admin gösterim zamanını seçer. Tekrarlanan tıklama/yenileme/senkronizasyon aynı sorunun puanını yeniden uygulamaz. Eşitlik ve etap sonu da adminin ilerletmesiyle yürür. Mevcut puan düzeltme yetkisi ve güvenli geri alma davranışını koru, yeni hak tüketimiyle tutarlı hale getir.
+
+### Doğru bilenler gösterimi — ek kullanıcı onayı
+
+Admin “Cevabı Açıkla” dediğinde önce doğru şık altın ışıkla belirginleşir. Ardından doğru cevaplayan sınıfların armaları ve adları kısa aralıklarla tek tek sahneye gelir; sonunda bütün doğru bilenler birlikte görünür ve admin ilerletene kadar kalır. Giriş sırası cevap hızına göre bir sıralama/ödül anlamı taşımasın; mevcut sınıf sırası gibi kararlı bir sıra kullan. Çift Cevapta seçimlerden biri doğru olan sınıf da gösterilir. Çifte Puanla doğru bilenin armasında ×2 mührü parlar. Tahmin sorusunda doğru şık yerine doğru sayısal değer vurgulanır, mevcut en yakın cevabı veren kazanan sınıflar aynı gösterime dahil edilir; sonuç hesaplanmadan kazanan uydurulmaz.
+
+Her arma girişinde kısa ışık izi ve yalnız sahnede ölçülü ses kullanılabilir. Telefonlar/admin ses üretmez; ses kapalı ve azaltılmış hareket tercihleri geçerlidir. Hareket azaltıldığında armalar doğrudan birlikte görünür. Sınıf sayısı fazla olduğunda adları/armaları kırpma veya okunamayacak kadar küçültme; uygun çok satırlı yerleşim ve kısa toplam giriş süresi kullan. Bu bir doğruluk gösterimidir, henüz puan uygulaması/gösterimi değildir. Telefon doğru/yanlış durumunu görebilir fakat +10/+20/−10 ve toplam puan değişimi “Puanları Göster” öncesinde açılmaz. Kimse kazanmadıysa “Bu soruda doğru cevap gelmedi” gösterilir; sahte kutlama yapılmaz.
+
+Admin “Puanları Göster” dediğinde gerçek puan değişimleri ve toplamlar animasyonla güncellenir; puanlar yalnız bir kez uygulanır. Animasyon bitişi kendiliğinden sonraki aşamayı başlatmaz. Yenileme/bağlantı dönüşü aynı gösterimin giriş seslerini tekrar çaldırmaz; güncel birleşik sonuç görünür. Admin animasyon sırasında ilerlerse eski animasyon/ses zamanlayıcıları yeni ekrana taşmaz. Soruyu iptal etmek gösterimi de iptal eder. Eşitlik soruları puan/joker üretmeden mevcut eşitlik sonucu akışını korur.
+
+Doğrulama: tek/çok/hiç doğru bilen, çift cevapla doğru, ×2 ile doğru, birden fazla en yakın tahmin, azaltılmış hareket, ses kapalı, gösterim sırasında yenileme/iptal/erken ilerleme; “Puanları Göster” öncesi puan değişmemesi ve sonrası yalnız bir uygulama. Yeni gösterimin sahne ekran görüntüsünü teslim et.
 
 ## 6. Cevaplar ve jokerler
 

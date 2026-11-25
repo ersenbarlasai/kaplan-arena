@@ -1,0 +1,112 @@
+{
+ "name": "Ara 30sn dongu",
+ "durationFrames": 900,
+ "video": [
+  {
+   "track": "Arena",
+   "clips": [
+    {
+     "name": "ara-arena-sakin.png",
+     "startS": 0,
+     "endS": 30,
+     "sourceInS": 0,
+     "gainDb": 0
+    }
+   ],
+   "transitions": 0
+  },
+  {
+   "track": "Sis A",
+   "clips": [
+    {
+     "name": "sis-dongu-3840.png",
+     "startS": 0,
+     "endS": 30,
+     "sourceInS": 0,
+     "gainDb": 0
+    }
+   ],
+   "transitions": 0
+  },
+  {
+   "track": "Sis B",
+   "clips": [
+    {
+     "name": "sis-dongu-3840.png",
+     "startS": 0,
+     "endS": 30,
+     "sourceInS": 0,
+     "gainDb": 0
+    }
+   ],
+   "transitions": 0
+  },
+  {
+   "track": "Isik tozu",
+   "clips": [
+    {
+     "name": "altin-toz.png",
+     "startS": 0,
+     "endS": 30,
+     "sourceInS": 0,
+     "gainDb": 0
+    }
+   ],
+   "transitions": 0
+  },
+  {
+   "track": "Yazilar",
+   "clips": [
+    {
+     "name": "KAPLAN ARENA",
+     "startS": 0,
+     "endS": 30,
+     "sourceInS": 0,
+     "gainDb": 0
+    }
+   ],
+   "transitions": 0
+  },
+  {
+   "track": "Vinyet",
+   "clips": [
+    {
+     "name": "Adjustment Layer",
+     "startS": 0,
+     "endS": 30,
+     "sourceInS": 0,
+     "gainDb": 0
+    }
+   ],
+   "transitions": 0
+  }
+ ],
+ "audio": [
+  {
+   "track": "Ara muzik",
+   "clips": [
+    {
+     "name": "ara-muzik.wav",
+     "startS": 0,
+     "endS": 30,
+     "sourceInS": 14.9,
+     "gainDb": 0
+    }
+   ],
+   "transitions": 0
+  },
+  {
+   "track": "Ara muzik sarma",
+   "clips": [
+    {
+     "name": "ara-muzik.wav",
+     "startS": 28,
+     "endS": 30,
+     "sourceInS": 12.9,
+     "gainDb": 0
+    }
+   ],
+   "transitions": 0
+  }
+ ]
+}

@@ -15,6 +15,12 @@ const CREDITS = {
   mentors: ['Ersen BARLAS', 'Alp Han KOÇDEMİR'],
   students: ['Emre Burak Tölegen', 'Burak Yoğurtçu', 'Halil Mert ACAR', 'Yekta Efe Konuk', 'Çınar Arda', 'Yusuf Emir Kuş', 'Ömer Araf Boncuk', 'Emir Karatay']
 };
+/* Sinematik (FilmCraft çıktıları). Dosya değiştirmek için yalnız buradaki yollar güncellenir. Ses MP4 içindedir;
+   yalnız etkin ses sahnesi sesli oynatır. Açılış bitince/atlanınca sabit karşılama görünür; yarışma kendiliğinden ilerlemez. */
+const CINE = {
+  opening:{ src:'assets/sinematik/acilis-60sn.mp4', dur:60, label:'Açılış filmi' },
+  loop:{ src:'assets/sinematik/ara-30sn-loop.mp4', poster:'assets/sinematik/ara-poster.webp', dur:30, label:'Ara döngüsü' }
+};
 const JK = {
   double:{name:'Çift Cevap', short:'2 Şık', icon:'assets/joker/joker-cift-cevap.svg', desc:'İki farklı şık işaretlenir; biri doğruysa +10.'},
   x2:{name:'Çifte Puan', short:'×2', icon:'assets/joker/joker-cifte-puan.svg', desc:'Doğru cevap +20 puan.'}

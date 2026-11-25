@@ -1,0 +1,169 @@
+[
+  {
+    "file": "hazir/kaplan-kukreme-gercek.wav",
+    "sources": [
+      "kaplan-lauramellis-CC0-turev.m4a"
+    ],
+    "changes": [
+      "no additional pitch or artificial roar layers; existing public derivative is 1.6 seconds",
+      "resampled to 48kHz stereo 24-bit PCM for editing; lost source fidelity is not restored",
+      "short edge fades",
+      "sample peak normalized to -6.02 dBFS"
+    ],
+    "duration_s": 1.6,
+    "bytes": 460902,
+    "sha256": "d9a0a209a11eb31bc07bdcf5356fa0d4db41d4e4dde9956f4bed5b136ac2c3b4",
+    "full_decode_ok": true,
+    "license": "CC0-1.0",
+    "selection": "automatic waveform/energy selection, not final listening approval"
+  },
+  {
+    "file": "hazir/kilic-temas-kayit-foley.wav",
+    "sources": [
+      "celik-carpisma-BigSoundBank.mp3",
+      "kilic-suruntu-BigSoundBank.mp3"
+    ],
+    "changes": [
+      "steel recording excerpt starts 0.020s",
+      "layered real steel-bar impact with recorded blade scrape; NOT documentary sword-on-sword recording",
+      "resampled to 48kHz stereo 24-bit PCM for editing; lost source fidelity is not restored",
+      "short edge fades",
+      "sample peak normalized to -6.02 dBFS"
+    ],
+    "duration_s": 1.8,
+    "bytes": 518502,
+    "sha256": "71f87c1bbe195f41a707ec47ce7e87000e199d52b3d9fa9e7c70836f696d427e",
+    "full_decode_ok": true,
+    "license": "CC0-1.0",
+    "selection": "automatic waveform/energy selection, not final listening approval"
+  },
+  {
+    "file": "hazir/kilic-suruntu-gercek.wav",
+    "sources": [
+      "kilic-suruntu-BigSoundBank.mp3"
+    ],
+    "changes": [
+      "full recorded blade/metal scrape",
+      "resampled to 48kHz stereo 24-bit PCM for editing; lost source fidelity is not restored",
+      "short edge fades",
+      "sample peak normalized to -6.02 dBFS"
+    ],
+    "duration_s": 1.044917,
+    "bytes": 301038,
+    "sha256": "e75b6b4f92872843663f2bf90696ce0372057cb839eb5d7f99d98e717fd7c85d",
+    "full_decode_ok": true,
+    "license": "CC0-1.0",
+    "selection": "automatic waveform/energy selection, not final listening approval"
+  },
+  {
+    "file": "hazir/kalkan-vurus-kayit-foley.wav",
+    "sources": [
+      "celik-carpisma-BigSoundBank.mp3"
+    ],
+    "changes": [
+      "excerpt starts 0.020s",
+      "lowpass 4500Hz; recorded steel impact used as shield Foley, not actual shield recording",
+      "resampled to 48kHz stereo 24-bit PCM for editing; lost source fidelity is not restored",
+      "short edge fades",
+      "sample peak normalized to -6.02 dBFS"
+    ],
+    "duration_s": 1.8,
+    "bytes": 518502,
+    "sha256": "3b32e9aa8e1279fc8b8b313a9225b78267da6940437d005a4b00e95791f02a5f",
+    "full_decode_ok": true,
+    "license": "CC0-1.0",
+    "selection": "automatic waveform/energy selection, not final listening approval"
+  },
+  {
+    "file": "hazir/kapi-acilis-kayit-foley.wav",
+    "sources": [
+      "kapi-hareket-BigSoundBank.mp3",
+      "zincir-BigSoundBank.mp3"
+    ],
+    "changes": [
+      "barn door excerpt starts 0.100s",
+      "heavy chain mixed at low level from 0.3s; castle-gate role, not recording of an actual castle",
+      "resampled to 48kHz stereo 24-bit PCM for editing; lost source fidelity is not restored",
+      "short edge fades",
+      "sample peak normalized to -6.02 dBFS"
+    ],
+    "duration_s": 6.0,
+    "bytes": 1728102,
+    "sha256": "4410165885f138a4ba22a49e0dfb93e97d93bcd2e11ddd0ab28e89b30d7824d6",
+    "full_decode_ok": true,
+    "license": "CC0-1.0",
+    "selection": "automatic waveform/energy selection, not final listening approval"
+  },
+  {
+    "file": "hazir/kapi-gicirti-gercek.wav",
+    "sources": [
+      "kapi-gicirti-BigSoundBank.mp3"
+    ],
+    "changes": [
+      "recorded creak Foley excerpt starts 0.470s",
+      "resampled to 48kHz stereo 24-bit PCM for editing; lost source fidelity is not restored",
+      "short edge fades",
+      "sample peak normalized to -6.02 dBFS"
+    ],
+    "duration_s": 3.5,
+    "bytes": 1008102,
+    "sha256": "1079dc01effd12a6a64b53956df843d90804cecb23dbfc575ac7bd0bab305523",
+    "full_decode_ok": true,
+    "license": "CC0-1.0",
+    "selection": "automatic waveform/energy selection, not final listening approval"
+  },
+  {
+    "file": "hazir/kapi-gicirti-stib-alternatif.wav",
+    "sources": [
+      "kapi-stib-fs346267.m4a"
+    ],
+    "changes": [
+      "wooden edit-suite door excerpt starts 0.230s; backup natural door recording",
+      "resampled to 48kHz stereo 24-bit PCM for editing; lost source fidelity is not restored",
+      "short edge fades",
+      "sample peak normalized to -6.02 dBFS"
+    ],
+    "duration_s": 4.0,
+    "bytes": 1152102,
+    "sha256": "3909451b11499ffd7eaad3583c9a914aaf7dfc8c90b4007531561f0141c973bb",
+    "full_decode_ok": true,
+    "license": "CC0-1.0",
+    "selection": "automatic waveform/energy selection, not final listening approval"
+  },
+  {
+    "file": "hazir/zincir-gercek.wav",
+    "sources": [
+      "zincir-BigSoundBank.mp3"
+    ],
+    "changes": [
+      "full heavy chain movement recording",
+      "resampled to 48kHz stereo 24-bit PCM for editing; lost source fidelity is not restored",
+      "short edge fades",
+      "sample peak normalized to -6.02 dBFS"
+    ],
+    "duration_s": 4.231854,
+    "bytes": 1218876,
+    "sha256": "622beab3c989f3bedfb909c0a07d4961ce41123937a4a39b676630c99c91e184",
+    "full_decode_ok": true,
+    "license": "CC0-1.0",
+    "selection": "automatic waveform/energy selection, not final listening approval"
+  },
+  {
+    "file": "hazir/savurma-gercek.wav",
+    "sources": [
+      "savurma-BigSoundBank.mp3"
+    ],
+    "changes": [
+      "full physically recorded sword-swish Foley",
+      "resampled to 48kHz stereo 24-bit PCM for editing; lost source fidelity is not restored",
+      "short edge fades",
+      "sample peak normalized to -6.02 dBFS"
+    ],
+    "duration_s": 0.522458,
+    "bytes": 150570,
+    "sha256": "53a17f529ba5db775171750d70abadc6cdbd2863e41aa063e3def7707500a50d",
+    "full_decode_ok": true,
+    "license": "CC0-1.0",
+    "selection": "automatic waveform/energy selection, not final listening approval"
+  }
+]

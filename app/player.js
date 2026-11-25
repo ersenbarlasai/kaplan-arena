@@ -187,9 +187,17 @@ function plBody(){
       return card('wait', 'Süre doldu', `Cevaplar kilitlendi. ${acc ? `Geçerli cevabınız: <b>${esc(fmtV(acc.v))}</b>` : 'Bu soruda cevabınız yok.'} Doğru cevap sahnede açıklanacak.`, shield('wait', '⌛'));
     }
     if (st.phase === 'revealed'){
-      const acc = myAccepted(), q = st.q;
+      const acc = myAccepted(), q = st.q, jk = plMyJoker();
       const ans = q.type === 'ders' ? `${st.answer} · ${esc(q.options[LETTERS.indexOf(st.answer)] || '')}` : `${fmt(st.answer)} ${esc(q.unit || '')}`;
-      return card('', 'Doğru cevap açıklandı', `Doğru cevap: <b>${ans}</b><br>${acc ? `Sizin cevabınız: <b>${esc(fmtV(acc.v))}</b>` : 'Bu soruda cevap göndermediniz.'}<br>Puanlar sahnede gösterilecek.`);
+      const mine = acc ? `Sizin cevabınız: <b>${esc(fmtV(acc.v))}</b>` : 'Bu soruda cevap göndermediniz.';
+      // Doğruluk gösterimi: puan değişimi "Puanları Göster"e kadar açıklanmaz.
+      if (Array.isArray(st.correct)){
+        const ok = st.correct.includes(i);
+        if (ok) return card('good', q.type === 'tahmin' ? 'EN YAKIN TAHMİN!' : 'DOĞRU BİLDİNİZ!', `Doğru cevap: <b>${ans}</b><br>${mine}${jk === 'double' ? '<br>İki seçiminizden biri doğru.' : ''}${jk === 'x2' ? '<br>Çifte Puan mührünüz parlıyor.' : ''}<br>Puanlar sahnede açıklanacak.`, shield(jk === 'x2' ? 'gold' : 'good', jk === 'x2' ? '×2' : '✓'));
+        if (!st.correct.length) return card('', 'Bu soruda doğru cevap gelmedi', `Doğru cevap: <b>${ans}</b><br>${mine}<br>Puanlar sahnede açıklanacak.`, shield('wait', '–'));
+        return card('', q.type === 'tahmin' ? 'En yakın tahmin sizden gelmedi' : 'Bu kez olmadı', `Doğru cevap: <b>${ans}</b><br>${mine}<br>Puanlar sahnede açıklanacak.`, shield('wait', '–'));
+      }
+      return card('', 'Doğru cevap açıklandı', `Doğru cevap: <b>${ans}</b><br>${mine}<br>Puanlar sahnede gösterilecek.`);
     }
     return plQuestion();
   }

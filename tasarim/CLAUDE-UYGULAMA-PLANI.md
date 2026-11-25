@@ -8,7 +8,7 @@
 
 **Tech Stack:** HTML, CSS, JavaScript, Web Audio, mevcut Node/Vercel API ve PowerShell yerel sunucusu.
 
-**Spec:** `CLAUDE-UYGULAMA-PROMPTU.md`; karar dayanağı `claude-hazirlik-incelemesi.md` 1–19.
+**Spec:** `CLAUDE-UYGULAMA-PROMPTU.md`; karar dayanağı `claude-hazirlik-incelemesi.md` 1–20.
 
 ## Global Constraints
 
@@ -60,6 +60,7 @@
 - [ ] Verilen raster/SVG'lerle tasarımı uygula; yerel font/lisans ve sahne ses kontrolünü ekle.
 - [ ] 4:3, 16:9 ve iki telefon boyutunda uzun metin/11+ sınıf/künye kontrolü yap; görüntüleri kaydet.
 - [ ] Yeniden bağlantıda eski ses çalmaması ve telefon/admin sessizliği testlerini geçir.
+- [ ] Doğru bilenlerin tek tek arma girişi ve birlikte sonuç görünümünü uygula; tek/çok/hiç kazanan, çift cevap, ×2, azaltılmış hareket ve tahmin kazananlarını doğrula. Açıklama aşamasında puan değişmediğini, “Puanları Göster” ile yalnız bir kez güncellendiğini ve yeniden bağlantıda giriş sesinin tekrarlanmadığını test et; sahne görüntüsünü kaydet.
 
 ## Görev 5 — Çalışma kipleri ve teslim
 

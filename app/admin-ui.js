@@ -26,6 +26,7 @@ function topBar(){
       <button class="btn small gold" data-act="openStage">Sahne Ekranını Aç</button>
       <button class="btn small" data-act="toggleSound" aria-pressed="${S.settings.sound}">${S.settings.sound ? 'Ses açık' : 'Ses kapalı'}</button>
       <button class="btn small" data-act="welcome">Karşılama</button>
+      <button class="btn small" data-act="cineLoop" title="Sahnede sakin ara döngüsü; aktif soru duraklatılır">Ara Döngüsü</button>
       ${ui.screen !== 'menu' ? '<button class="btn small" data-act="menu">Ana Menü</button>' : ''}
       ${ui.screen === 'game' ? '' : (active ? '<button class="btn small" data-act="start">Yarışma</button>' : '')}
       <button class="btn small" data-act="manage">Soru Yönetimi</button>
@@ -38,6 +39,7 @@ function paintPreview(){
   const h = StageView.html(ui.model);
   if (el.dataset.h !== h){ el.dataset.h = h; el.innerHTML = h; paintQR(el); }
   StageClock.paint(el, ui.model);
+  RevealFX.apply(el, ui.model, null);   // önizleme sessizdir
 }
 function paintClocks(){
   const el = document.getElementById('adm-clock');
@@ -49,11 +51,20 @@ function paintClocks(){
 function vWelcome(){
   const g = G(), active = g.started && !g.finished;
   const m = { screen:'welcome', credits:CREDITS, resume:active, motion:reducedMotion() };
+  const c = cineState(), playing = c && !c.ended;
   return `<div class="adm-welcome"><div class="stage-root">${StageView.html(m)}</div>
+    ${playing ? `<span class="adm-cine-tag" aria-hidden="true">${c.mode === 'loop' ? 'Ara döngüsü' : 'Açılış filmi'} · yalnız sahnede, önizleme sessiz</span>` : ''}
     <div class="adm-welcome-ctl">
       <button class="btn primary big" data-act="begin">${active ? 'Yarışmaya Devam Et' : 'Yolculuğa Başla'}</button>
       <button class="btn big" data-act="openStage">Sahne Ekranını Aç</button>
       ${active ? '<span class="adm-note">Yarışma duraklatıldı; kayıtlar korunuyor.</span>' : ''}
+    </div>
+    <div class="adm-cine" role="group" aria-label="Sinematik kontrolleri">
+      <button class="btn gold" data-act="cineOpening" ${playing && c.mode === 'opening' ? 'aria-pressed="true"' : ''}>Açılış Filmini Oynat</button>
+      <button class="btn" data-act="cineLoop" ${playing && c.mode === 'loop' ? 'aria-pressed="true"' : ''}>Ara Döngüsü</button>
+      ${playing && c.mode === 'opening' ? '<button class="btn" data-act="cineSkip">Atla</button>' : ''}
+      <button class="btn" data-act="cineStop" ${c ? '' : 'disabled'}>Durdur / Karşılamaya Dön</button>
+      <span class="adm-note" id="cine-st" role="status">${esc(cineStatus())}</span>
     </div></div>`;
 }
 
@@ -351,7 +362,11 @@ function hostInit(){
   ui = { screen:'welcome', present:'welcome', tab:'s1', edit:null, confirm:null, backup:'', importText:'', msg:'', sel:[], guesses:{}, scoreEdit:false, tieAns:'', drawShown:null, showKey:false };
   const g = G();
   if (g.started && !g.finished){ g.brk = true; if (inQ() && g.phase === 'open'){ C.pause(g, 'break', nowS()); C.pause(g, 'admin', nowS()); } }
-  if (inQ() && g.phase === 'revealed'){ const f = g.frozen[currentQk()]; if (f) prefillFrom(f); }
+  if (inQ() && g.phase === 'revealed'){
+    // Yenilemede açıklama görünümü (elle düzeltmeler dahil) geri gelir; giriş animasyonu ve sesleri tekrar çalmaz.
+    if (g.rv && g.rv.qk === currentQk()){ ui.sel = [...(g.rv.sel || [])]; ui.guesses = Object.assign({}, g.rv.guesses || {}); ui.touched = true; }
+    else { const f = g.frozen[currentQk()]; if (f) prefillFrom(f); }
+  }
   StageHost.init(onStageLink);
   netInit().then(async ok => { if (!ok) return render(); await lockSync(true); render(); sync(); });
   document.addEventListener('click', e => {
@@ -362,7 +377,7 @@ function hostInit(){
   });
   document.addEventListener('input', e => {
     const t = e.target;
-    if (t.dataset && t.dataset.guess != null){ ui.guesses[t.dataset.guess] = t.value; ui.touched = true; }
+    if (t.dataset && t.dataset.guess != null){ ui.guesses[t.dataset.guess] = t.value; ui.touched = true; rvSync(); clearTimeout(ui.guessT); ui.guessT = setTimeout(() => { save(); }, 400); }
     if (t.id === 'imp-text') ui.importText = t.value;
     if (t.id === 'tie-ans') ui.tieAns = t.value;
   });

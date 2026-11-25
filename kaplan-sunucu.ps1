@@ -11,10 +11,10 @@ $sid = [guid]::NewGuid().ToString('N').Substring(0, 8)
 $utf8 = New-Object System.Text.UTF8Encoding($false)
 $pathRe = '^[A-Za-z0-9_\-]+(/[A-Za-z0-9_\-]+)*$'
 $db = New-Object 'System.Collections.Generic.Dictionary[string,string]'
-# Statik dosyalar: yalnız app/*.js|css ve assets/ altındaki görsel/font/lisans dosyaları; gizli dosya ve '..' kabul edilmez.
-$staticRe = '^/(app/[A-Za-z0-9_\-]+\.(js|css)|assets/([A-Za-z0-9_\-]+/)*[A-Za-z0-9_\-]+(\.[A-Za-z0-9_\-]+)*\.(webp|png|svg|woff2|css|txt))$'
+# Statik dosyalar: yalnız app/*.js|css ve assets/ altındaki görsel/font/lisans/video dosyaları; gizli dosya ve '..' kabul edilmez.
+$staticRe = '^/(app/[A-Za-z0-9_\-]+\.(js|css)|assets/([A-Za-z0-9_\-]+/)*[A-Za-z0-9_\-]+(\.[A-Za-z0-9_\-]+)*\.(webp|png|svg|woff2|css|txt|mp4))$'
 $rootFull = [System.IO.Path]::GetFullPath($root).TrimEnd([System.IO.Path]::DirectorySeparatorChar) + [System.IO.Path]::DirectorySeparatorChar
-$mime = @{ '.js'='text/javascript; charset=utf-8'; '.css'='text/css; charset=utf-8'; '.webp'='image/webp'; '.png'='image/png'; '.svg'='image/svg+xml'; '.woff2'='font/woff2'; '.txt'='text/plain; charset=utf-8' }
+$mime = @{ '.js'='text/javascript; charset=utf-8'; '.css'='text/css; charset=utf-8'; '.webp'='image/webp'; '.png'='image/png'; '.svg'='image/svg+xml'; '.woff2'='font/woff2'; '.txt'='text/plain; charset=utf-8'; '.mp4'='video/mp4' }
 $rev = 0
 
 function Get-LanIPs {
@@ -178,6 +178,49 @@ while ($listener.IsListening) {
       $ext = [System.IO.Path]::GetExtension($full).ToLowerInvariant()
       if (-not $full.StartsWith($rootFull, [System.StringComparison]::OrdinalIgnoreCase) -or -not $mime.ContainsKey($ext) -or -not [System.IO.File]::Exists($full)) {
         Send-Text $res 'Bulunamadi' 'text/plain; charset=utf-8' 404
+        continue
+      }
+      if ($ext -eq '.mp4') {
+        # Video: byte-range (206). Sunucu tek iş parçacıklı olduğundan her yanıt en çok 1 MB'tır;
+        # tarayıcı kalan aralıkları ayrı isteklerle alır, telefon istekleri video yüzünden bekletilmez.
+        $fs = [System.IO.File]::Open($full, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::Read)
+        try {
+          $total = $fs.Length
+          $res.ContentType = 'video/mp4'
+          $res.Headers['Accept-Ranges'] = 'bytes'
+          $res.Headers['Cache-Control'] = 'no-cache'
+          $res.Headers['X-Content-Type-Options'] = 'nosniff'
+          $rangeHdr = $req.Headers['Range']
+          $start = [int64]0; $end = $total - 1
+          if ($rangeHdr) {
+            $rm = [regex]::Match($rangeHdr, '^bytes=(\d*)-(\d*)$')
+            if (-not $rm.Success -or ($rm.Groups[1].Value -eq '' -and $rm.Groups[2].Value -eq '')) {
+              $res.StatusCode = 416; $res.Headers['Content-Range'] = "bytes */$total"; $res.ContentLength64 = 0; $res.OutputStream.Close(); continue
+            }
+            if ($rm.Groups[1].Value -eq '') { $start = [math]::Max([int64]0, $total - [int64]$rm.Groups[2].Value) }
+            else {
+              $start = [int64]$rm.Groups[1].Value
+              if ($rm.Groups[2].Value -ne '') { $end = [math]::Min($total - 1, [int64]$rm.Groups[2].Value) }
+            }
+            if ($start -ge $total -or $start -gt $end) {
+              $res.StatusCode = 416; $res.Headers['Content-Range'] = "bytes */$total"; $res.ContentLength64 = 0; $res.OutputStream.Close(); continue
+            }
+            $end = [math]::Min($end, $start + 1048575)
+            $res.StatusCode = 206
+            $res.Headers['Content-Range'] = "bytes $start-$end/$total"
+          } else { $res.StatusCode = 200 }
+          $len = $end - $start + 1
+          $res.ContentLength64 = $len
+          [void]$fs.Seek($start, [System.IO.SeekOrigin]::Begin)
+          $buf = New-Object byte[] 65536
+          $left = $len
+          while ($left -gt 0) {
+            $n = $fs.Read($buf, 0, [int][math]::Min($buf.Length, $left))
+            if ($n -le 0) { break }
+            $res.OutputStream.Write($buf, 0, $n); $left -= $n
+          }
+          $res.OutputStream.Close()
+        } finally { $fs.Dispose() }
         continue
       }
       $bytes = [System.IO.File]::ReadAllBytes($full)

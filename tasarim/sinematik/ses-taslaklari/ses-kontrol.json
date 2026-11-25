@@ -1,0 +1,50 @@
+[
+  {
+    "file": "kilic-metal-01.wav",
+    "duration": 1.6,
+    "sample_rate": 48000,
+    "channels": 2,
+    "peak_dbfs": -8.87,
+    "origin": "procedural synthesized draft, not field recording"
+  },
+  {
+    "file": "kalkan-vurus-01.wav",
+    "duration": 1.5,
+    "sample_rate": 48000,
+    "channels": 2,
+    "peak_dbfs": -8.87,
+    "origin": "procedural synthesized draft, not field recording"
+  },
+  {
+    "file": "gecis-whoosh-01.wav",
+    "duration": 1.2,
+    "sample_rate": 48000,
+    "channels": 2,
+    "peak_dbfs": -8.87,
+    "origin": "procedural synthesized draft, not field recording"
+  },
+  {
+    "file": "kapi-gurultu-01.wav",
+    "duration": 3.5,
+    "sample_rate": 48000,
+    "channels": 2,
+    "peak_dbfs": -8.87,
+    "origin": "procedural synthesized draft, not field recording"
+  },
+  {
+    "file": "baslik-vurgusu-01.wav",
+    "duration": 3.0,
+    "sample_rate": 48000,
+    "channels": 2,
+    "peak_dbfs": -8.87,
+    "origin": "procedural synthesized draft, not field recording"
+  },
+  {
+    "file": "kaplan-kukreme-STILIZE-TASLAK.wav",
+    "duration": 2.8,
+    "sample_rate": 48000,
+    "channels": 2,
+    "peak_dbfs": -8.87,
+    "origin": "procedural synthesized draft, not field recording"
+  }
+]

@@ -52,6 +52,8 @@
 
 19. Kullanıcı onayı: Claude uygulamayı yerelde tamamlayacak; admin, sahne ve telefon ekranlarını birlikte test edecek. Jokerler, duraklatma, yeniden bağlanma ve soru iptalini doğrulayacak; ekran görüntüleriyle teslim edecek. Canlı siteye yayınlama bu teslimin kapsamında değildir. Gerçek Redis/Vercel veya fiziksel projeksiyonla doğrulanmayan davranışlar doğrulanmış gibi raporlanmayacak.
 
+20. Kullanıcı onayı: “Cevabı Açıkla” önce doğru şıkkı altın ışıkla vurgular; doğru cevaplayan sınıfların armaları kısa aralıklarla tek tek gelir, sonunda birlikte görünür. Girişlerde kısa ses/ışık izi olabilir; Çifte Puanla doğru bilen sınıfta ×2 mührü parlar. Bu aşamada puan eklenmez veya puan farkı gösterilmez; admin “Puanları Göster” dediğinde gerçek puanlar animasyonla güncellenir. Kimse doğru bilmediyse “Bu soruda doğru cevap gelmedi” görünür. Azaltılmış harekette armalar doğrudan birlikte gösterilir. Sahneye özgü ses ve manuel ilerleme kuralları geçerlidir. Güncel prompt bu gösterimin test ve yeniden bağlantı davranışını da tanımlar.
+
 ## İnceleme başlıkları (geçmiş kontrol listesi)
  
 

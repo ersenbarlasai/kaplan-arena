@@ -1,0 +1,219 @@
+{
+  "version": 1,
+  "status": "prepared stills, SVG layers, synthesized SFX drafts and downloaded Suno music; video creation is Claude task",
+  "opening": {
+    "duration_s": 60,
+    "fps": 30,
+    "width": 1920,
+    "height": 1080,
+    "shots": [
+      {
+        "id": "01",
+        "start_s": 0,
+        "end_s": 6,
+        "duration_s": 6,
+        "start_frame_30fps": 0,
+        "end_frame_exclusive_30fps": 180,
+        "image": "sahneler/01-dunya-kesfi.png",
+        "title": "Dunya / orman vadisi",
+        "motion_2_5d": "Slow push 1.00 to 1.05; light fog",
+        "image_to_video_prompt": "A world of ancient teal forests, warm dawn and a distant castle and arena. Very slow dolly forward, mist drifts gently, stable architecture. No new people, text or abrupt zoom.",
+        "text_baked_into_image": false
+      },
+      {
+        "id": "02",
+        "start_s": 6,
+        "end_s": 12,
+        "duration_s": 6,
+        "start_frame_30fps": 180,
+        "end_frame_exclusive_30fps": 360,
+        "image": "sahneler/02-kaplan-yolculuk.png",
+        "title": "Kaplanin yolculugu",
+        "motion_2_5d": "Slow right pan; cloak subtle",
+        "image_to_video_prompt": "Keep the same orange tiger guide, teal gold leaf-trim cloak and anatomy. Camera slowly advances from behind, cloak and leaves move softly, tiger makes one small deliberate step. Preserve valley geometry; no face morph, no weapons.",
+        "text_baked_into_image": false
+      },
+      {
+        "id": "03",
+        "start_s": 12,
+        "end_s": 18,
+        "duration_s": 6,
+        "start_frame_30fps": 360,
+        "end_frame_exclusive_30fps": 540,
+        "image": "sahneler/03-kale-kapisi.png",
+        "title": "Kale kapisi",
+        "motion_2_5d": "Push in; light seam, then cut",
+        "image_to_video_prompt": "Monumental double wooden gates slowly open inward by a small angle, warm light through the seam, soft low fog, slight camera push. Preserve arch and both door leaves, no melting hinges or new text. If geometry cannot be preserved do not force opening; use light seam and cut.",
+        "text_baked_into_image": false
+      },
+      {
+        "id": "04",
+        "start_s": 18,
+        "end_s": 24,
+        "duration_s": 6,
+        "start_frame_30fps": 540,
+        "end_frame_exclusive_30fps": 720,
+        "image": "sahneler/04-turnuva-karsilasma.png",
+        "title": "Turnuva karsilasmasi",
+        "motion_2_5d": "Short 4 percent push, one clear action",
+        "image_to_video_prompt": "Two adult armored sentinels in ceremonial sparring exchange one controlled blade contact and recover stance. Preserve armor, two bodies and one sword/shield each; no extra limbs, no injuries or blood. Slow camera arc less than 5 degrees, warm courtyard light. No repeated frantic combat.",
+        "text_baked_into_image": false
+      },
+      {
+        "id": "05",
+        "start_s": 24,
+        "end_s": 27,
+        "duration_s": 3,
+        "start_frame_30fps": 720,
+        "end_frame_exclusive_30fps": 810,
+        "image": "sahneler/05-kilic-temasi.png",
+        "title": "Kilic temasi",
+        "motion_2_5d": "Brief impact pulse on contact",
+        "image_to_video_prompt": "Close shot of two gauntleted hands and two crossed steel blades. One short contact with tiny sparks and slight recoil; locked camera, coherent blades and grips, no extra hands. No explosion or flashing white screen.",
+        "text_baked_into_image": false
+      },
+      {
+        "id": "06",
+        "start_s": 27,
+        "end_s": 31,
+        "duration_s": 4,
+        "start_frame_30fps": 810,
+        "end_frame_exclusive_30fps": 930,
+        "image": "sahneler/06-kalkan-temasi.png",
+        "title": "Kalkan temasi",
+        "motion_2_5d": "Short lateral move; one contact",
+        "image_to_video_prompt": "A staged ceremonial sword strike meets the gold shield once and recoils; keep foreground armored observer stationary and background two sparring sentinels coherent. No injury, blood, additional people or weapons, no shield penetration. Small sparks at contact only.",
+        "text_baked_into_image": false
+      },
+      {
+        "id": "07",
+        "start_s": 31,
+        "end_s": 38,
+        "duration_s": 7,
+        "start_frame_30fps": 930,
+        "end_frame_exclusive_30fps": 1140,
+        "image": "sahneler/07-arenaya-giris.png",
+        "title": "Arenaya giris",
+        "motion_2_5d": "Gentle camera forward toward center",
+        "image_to_video_prompt": "Rear view of the same small cloaked tiger guide approaching the sunlit arena. One or two calm steps, gentle forward dolly, warm dust, preserve tiger stripe/cloak identity and architectural arches. No running, no new crowd or characters.",
+        "text_baked_into_image": false
+      },
+      {
+        "id": "08",
+        "start_s": 38,
+        "end_s": 44,
+        "duration_s": 6,
+        "start_frame_30fps": 1140,
+        "end_frame_exclusive_30fps": 1320,
+        "image": "sahneler/08-arena-ihtisam.png",
+        "title": "Arenanin ihtisami",
+        "motion_2_5d": "Slow upward reveal, gold particles",
+        "image_to_video_prompt": "Empty grand ancient arena in warm sunrise, very slow camera rise and forward drift, gentle blank banner movement and floating dust. Keep architecture stable. No battle, text, podium or new subjects.",
+        "text_baked_into_image": false
+      },
+      {
+        "id": "09",
+        "start_s": 44,
+        "end_s": 48,
+        "duration_s": 4,
+        "start_frame_30fps": 1320,
+        "end_frame_exclusive_30fps": 1440,
+        "image": "sahneler/09-kaplan-kukreme.png",
+        "title": "Kaplan kukremesi",
+        "motion_2_5d": "Subtle push, title cue at 44.5",
+        "image_to_video_prompt": "Same tiger portrait on right, proud brief natural roar then relax jaw, preserve teeth, jaw and stripe anatomy, slight cloak motion, camera almost locked. Leave left negative space clean. No attack or horror, no text. If mouth animation fails keep still portrait and use sound cue rather than deform face.",
+        "text_baked_into_image": false
+      },
+      {
+        "id": "10",
+        "start_s": 48,
+        "end_s": 60,
+        "duration_s": 12,
+        "start_frame_30fps": 1440,
+        "end_frame_exclusive_30fps": 1800,
+        "image": "sahneler/10-final-kunye.png",
+        "title": "Baslik ve kulup kunyesi",
+        "motion_2_5d": "Settle into readable final card",
+        "image_to_video_prompt": "Calm illustrated valley background, almost locked camera and minimal mist; no new objects, no text, no tiger. All title and credits will be added as real composited typography outside this clip.",
+        "text_baked_into_image": false
+      }
+    ]
+  },
+  "intermission": {
+    "duration_s": 30,
+    "fps": 30,
+    "image": "sahneler/ara-arena-sakin.png",
+    "motion": "Periodic subtle fog/banner/dust; camera locked or exactly periodic; no combat or roar",
+    "image_to_video_prompt": "A locked-off empty ancient arena at blue hour, very subtle blank banner and mist motion, steady lanterns. No people, roar, blade action, text, flash or camera drift. Match first and final motion phase for a loop. Verify loop after rendering; a still image does not ensure a seamless clip."
+  },
+  "credits": {
+    "organizer": "Kaplan Okulları Yapayzeka Kulübü",
+    "mentors": [
+      "Ersen BARLAS",
+      "Alp Han KOÇDEMİR"
+    ],
+    "students": [
+      "Emre Burak Tölegen",
+      "Burak Yoğurtçu",
+      "Halil Mert ACAR",
+      "Yekta Efe Konuk",
+      "Çınar Arda",
+      "Yusuf Emir Kuş",
+      "Ömer Araf Boncuk",
+      "Emir Karatay"
+    ]
+  },
+  "audio_cues": [
+    {
+      "at_s": 13,
+      "asset": "ses-gercek/hazir/kapi-acilis-kayit-foley.wav",
+      "previous_draft": "ses-taslaklari/kapi-gurultu-01.wav",
+      "note": "Recorded source / recorded-object Foley; see ses-gercek/CLAUDE-EFEKT-TESLIMI.md. Align cue to actual video contact; final listening required."
+    },
+    {
+      "at_s": 22,
+      "asset": "ses-gercek/hazir/kilic-temas-kayit-foley.wav",
+      "previous_draft": "ses-taslaklari/kilic-metal-01.wav",
+      "note": "Recorded source / recorded-object Foley; see ses-gercek/CLAUDE-EFEKT-TESLIMI.md. Align cue to actual video contact; final listening required."
+    },
+    {
+      "at_s": 24.2,
+      "asset": "ses-gercek/hazir/kilic-temas-kayit-foley.wav",
+      "previous_draft": "ses-taslaklari/kilic-metal-01.wav",
+      "note": "Recorded source / recorded-object Foley; see ses-gercek/CLAUDE-EFEKT-TESLIMI.md. Align cue to actual video contact; final listening required."
+    },
+    {
+      "at_s": 28,
+      "asset": "ses-gercek/hazir/kalkan-vurus-kayit-foley.wav",
+      "previous_draft": "ses-taslaklari/kalkan-vurus-01.wav",
+      "note": "Recorded source / recorded-object Foley; see ses-gercek/CLAUDE-EFEKT-TESLIMI.md. Align cue to actual video contact; final listening required."
+    },
+    {
+      "at_s": 31,
+      "asset": "ses-gercek/hazir/savurma-gercek.wav",
+      "previous_draft": "ses-taslaklari/gecis-whoosh-01.wav",
+      "note": "Recorded source / recorded-object Foley; see ses-gercek/CLAUDE-EFEKT-TESLIMI.md. Align cue to actual video contact; final listening required."
+    },
+    {
+      "at_s": 44.3,
+      "asset": "ses-gercek/hazir/kukreme-kullanici.wav",
+      "note": "User-selected roar; see ses-gercek/KUKREME-KULLANICI-NOTU.md. Keep tiger visuals; no duplicate roar playback.",
+      "previous_draft": "ses-taslaklari/kaplan-kukreme-STILIZE-TASLAK.wav",
+      "previous_recording": "ses-gercek/hazir/kaplan-kukreme-gercek.wav"
+    },
+    {
+      "at_s": 48,
+      "asset": "ses-taslaklari/baslik-vurgusu-01.wav"
+    }
+  ],
+  "music": {
+    "opening": "girdiler/acilis-muzik.wav",
+    "opening_duration_s": 58.8,
+    "intermission": "girdiler/ara-muzik.wav",
+    "intermission_duration_s": 74.96,
+    "handoff": "girdiler/MUZIK-TESLIMI.md",
+    "source_inventory": "girdiler/muzik-envanter.json",
+    "loop_ready": false
+  },
+  "recorded_sfx_handoff": "ses-gercek/CLAUDE-EFEKT-TESLIMI.md"
+}

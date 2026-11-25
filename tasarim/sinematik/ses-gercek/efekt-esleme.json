@@ -1,0 +1,8 @@
+{
+  "ses-taslaklari/kaplan-kukreme-STILIZE-TASLAK.wav": "ses-gercek/hazir/kukreme-kullanici.wav",
+  "ses-taslaklari/kilic-metal-01.wav": "ses-gercek/hazir/kilic-temas-kayit-foley.wav",
+  "ses-taslaklari/kalkan-vurus-01.wav": "ses-gercek/hazir/kalkan-vurus-kayit-foley.wav",
+  "ses-taslaklari/kapi-gurultu-01.wav": "ses-gercek/hazir/kapi-acilis-kayit-foley.wav",
+  "ses-taslaklari/gecis-whoosh-01.wav": "ses-gercek/hazir/savurma-gercek.wav",
+  "ses-gercek/hazir/kaplan-kukreme-gercek.wav": "ses-gercek/hazir/kukreme-kullanici.wav"
+}
