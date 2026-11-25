@@ -1,0 +1,9 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "redirects": [
+    { "source": "/katil", "destination": "/kaplan-arena.html?katil", "permanent": false }
+  ],
+  "headers": [
+    { "source": "/(.*).html", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] }
+  ]
+}

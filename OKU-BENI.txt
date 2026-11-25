@@ -1,39 +1,39 @@
 ﻿KAPLAN ARENA - NASIL BAŞLATILIR?
 
-1) Bilgisayar ve öğrencilerin telefonları AYNI Wi-Fi ağına bağlı olsun.
-2) BASLAT.bat dosyasına çift tıklayın. İzin sorulursa EVET deyin.
-   ("Windows bilgisayarınızı korudu" çıkarsa: Ek bilgi > Yine de çalıştır)
-3) Yarışma ekranı tarayıcıda kendiliğinden açılır. Siyah pencereyi KAPATMAYIN.
-4) Her etabın Katılım ekranında QR kod ve 6 haneli şifre çıkar.
+Yarışma ekranını iki yoldan biriyle açın (ikisi de aynı şekilde çalışır):
+  A) Tarayıcıda https://kaplan-arena.vercel.app adresine girin, ya da
+  B) Bu klasördeki kaplan-arena.html dosyasına çift tıklayın.
+Kurulum, yönetici izni ya da BASLAT gerekmez. Bilgisayarın internete bağlı
+olması yeterlidir.
+
+1) "Yarışmayı Başlat" deyin. Her etabın Katılım ekranında QR kod ve
+   6 haneli şifre çıkar.
+2) Kaptanlar telefonla katılır (Wi-Fi ya da mobil veri, aynı ağ gerekmez):
    - QR kodu telefon kamerasıyla okutun, ya da
-   - Telefon tarayıcısına ekrandaki adresi yazıp şifreyi girin.
-5) Her sınıfın kaptanı kendi sınıfını seçer ve cevapları telefondan verir.
+   - Telefon tarayıcısına kaplan-arena.vercel.app/katil yazıp şifreyi girin.
+3) Her sınıfın kaptanı kendi sınıfını seçer ve cevapları telefondan verir.
 
-İNTERNET ÜZERİNDEN (WEB) KULLANIM
-- Adres: https://ersenbarlasai.github.io/kaplan-arena/
-- Bilgisayar internete bağlıysa telefonlar Wi-Fi ya da mobil veriyle,
-  ekrandaki QR kod veya ersenbarlasai.github.io/kaplan-arena/katil adresi
-  ve şifreyle katılır. Aynı ağda olmak gerekmez.
-- Bunun için Supabase kurulumu gerekir (bir kez): supabase-kurulum.sql
-  dosyası Supabase SQL Editor'de çalıştırılır, Project URL ve anon/publishable
-  anahtar kaplan-arena.html içindeki SUPA ayarına yazılır.
-  Kurulum yapılmadıysa sayfa telefonsuz modda açılır.
-- Ücretsiz Supabase projesi 1 hafta kullanılmazsa duraklatılır. Yarışmadan
-  bir gün önce Supabase panelinden projenin açık olduğunu kontrol edin.
-- Bilgisayar BASLAT ile açıldığında her zaman yerel Wi-Fi modu kullanılır.
-
-PORT HAKKINDA
-- Sunucu önce 8080 portunu dener. Bilgisayarda bu portu başka bir program
-  kullanıyorsa (ör. Postgres/PEM, Apache) kendiliğinden 8090-8099 arasından
-  boş olanı seçer. Doğru adres siyah pencerede ve Katılım ekranında yazar.
-- Sorular tarayıcıda adrese (porta) göre saklanır. Port değişirse sorularınız
-  görünmeyebilir: Soru Yönetimi > Yedekleme ile dışa aktarıp yeni adreste
-  içe aktarın. Soruları yarışmayı yapacağınız bilgisayarda girmeniz en iyisi.
+SORULAR NEREDE SAKLANIR?
+- Sorular ve ayarlar tarayıcıda, açılan adrese göre saklanır. Vercel adresi
+  ile bilgisayardaki dosya ayrı yerlerdir. Birinden diğerine geçerken
+  Soru Yönetimi > Yedekleme ile dışa aktarıp öbüründe içe aktarın.
+  Soruları yarışmayı yapacağınız bilgisayar ve adreste girmeniz en iyisi.
 
 TELEFONLAR BAĞLANAMAZSA
-- Okul Wi-Fi'si cihazların birbirini görmesini engelliyor olabilir.
-  Çözüm: Bir telefonda "Kişisel erişim noktası" açın; bilgisayarı ve
-  kaptanların telefonlarını bu ağa bağlayıp BASLAT.bat'ı yeniden açın.
-- Katılım ekranında birden fazla ağ adresi varsa diğerini seçip deneyin.
-- Kaplan Arena'yı internetsiz, tek ekran olarak da oynayabilirsiniz:
-  kaplan-arena.html dosyasına çift tıklayın, puanları siz girersiniz.
+- Bilgisayarın ve telefonların internete eriştiğini kontrol edip sayfayı
+  yenileyin. Okul Wi-Fi'si engelliyorsa telefonlar mobil veriyle katılabilir.
+- İnternet hiç yoksa Kaplan Arena tek ekran olarak da oynanır (telefonsuz
+  mod): puanları siz girersiniz.
+
+İNTERNETSİZ YEREL AĞ MODU (isteğe bağlı, eski yöntem)
+- İnternet yok ama herkes aynı Wi-Fi'deyse BASLAT.bat'a çift tıklayın,
+  izin sorusuna EVET deyin. Bilgisayarda küçük bir sunucu açılır, telefonlar
+  ekrandaki yerel adres (ör. 192.168.1.25:8090) ve şifreyle katılır.
+  Siyah pencereyi yarışma bitene kadar KAPATMAYIN.
+
+YÖNETİCİ İÇİN (Vercel kurulumu, bir kez)
+- Proje Vercel'e yüklenir. Vercel panelinde proje > Storage > "Upstash for
+  Redis" eklenip projeye bağlanır (ücretsiz). Telefon senkronu bu veri
+  deposunu kullanır (api/ka.js). Bağlı değilse sayfa telefonsuz modda açılır.
+- Vercel adresi değişirse kaplan-arena.html içindeki VERCEL_URL satırını
+  yeni adresle güncelleyin (dosyadan açınca bu adres kullanılır).

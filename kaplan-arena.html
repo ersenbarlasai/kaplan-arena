@@ -1555,8 +1555,9 @@ return module.exports;})();
 return {QRCode:__m['index'],ECL:__m['QRErrorCorrectLevel']};})();
 </script>
 <script>
-/* Kaplan Arena: telefonlar, aynı Wi-Fi ağındaki bilgisayarda çalışan küçük sunucuya (BASLAT.bat) bağlanır.
-   Dosyaya doğrudan çift tıklanırsa program telefonsuz modda çalışır. */
+/* Kaplan Arena: yarışma ekranı ve telefonlar internet üzerinden Vercel'deki /api/ka adresiyle eşleşir.
+   Ekran Vercel adresinden ya da bilgisayardaki dosyaya çift tıklanarak açılabilir; telefonlar /katil adresinden katılır.
+   İsteğe bağlı: BASLAT.bat ile internetsiz, aynı Wi-Fi üzerinden yerel sunucu modu. İnternet yoksa telefonsuz mod. */
 
 document.documentElement.lang = 'tr';
 const KEY = 'kaplan-arena-v1';
@@ -1643,12 +1644,14 @@ const LDB = (()=>{
   return { ref, start:poll };
 })();
 
-/* ---------- online (Supabase, internet üzerinden) ----------
-   Supabase > Project Settings > API (Data API) sayfasındaki "Project URL" ve
-   "anon / publishable" anahtarı. Bu anahtar gizli değildir; veritabanına yalnızca
-   supabase-kurulum.sql içindeki ka_set / ka_get fonksiyonlarıyla erişilebilir. */
-const SUPA = { url:'', key:'' };
-const WEB_URL = 'https://ersenbarlasai.github.io/kaplan-arena/';
+/* ---------- online (Vercel, internet üzerinden) ----------
+   VERCEL_URL: projenin Vercel adresi. Sayfa bilgisayardan dosya olarak açıldığında
+   telefon bağlantısı ve QR kod bu adres üzerinden çalışır. Sayfa Vercel'den (ya da
+   kendi alan adınızdan) açıldığında o adres kullanılır. */
+const VERCEL_URL = 'https://kaplan-arena.vercel.app/';
+const IS_LAN_HOST = /^\d+\.\d+\.\d+\.\d+$/.test(location.hostname) && !location.hostname.startsWith('127.');
+const WEB_URL = location.protocol.startsWith('http') && !/\.github\.io$/i.test(location.hostname) ? location.origin + '/' : VERCEL_URL;
+const API_URL = WEB_URL + 'api/ka';
 const SDB = (()=>{
   const pins = new Map();            // pin -> Promise (ilk tam yükleme)
   const rows = {};                   // 'pin/yol' -> {r, v}
@@ -1694,19 +1697,15 @@ const SDB = (()=>{
     if (ch) rebuild();
   }
   function setConn(c){ if (NET.connected !== c){ NET.connected = c; const p = document.getElementById('netpill'); if (p) p.outerHTML = netPill(); } }
-  function hdr(){
-    const h = {'Content-Type':'application/json', apikey:SUPA.key};
-    if (SUPA.key.startsWith('eyJ')) h.Authorization = 'Bearer ' + SUPA.key;
-    return h;
-  }
-  async function rpc(fn, body){
-    const r = await fetch(SUPA.url.replace(/\/+$/,'') + '/rest/v1/rpc/' + fn, {method:'POST', headers:hdr(), body:JSON.stringify(body), cache:'no-store'});
-    if (!r.ok) throw new Error(fn + ' ' + r.status);
+  // text/plain: dosyadan (file://) açıldığında tarayıcı ön kontrol (OPTIONS) isteği atmasın.
+  async function rpc(body){
+    const r = await fetch(API_URL, {method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(body), cache:'no-store'});
+    if (!r.ok) throw new Error(body.fn + ' ' + r.status);
     return r.json();
   }
   async function fetchRows(pinList, from){
     const t0 = Date.now();
-    const j = await rpc('ka_get', {p_pins:pinList, p_since:from});
+    const j = await rpc({fn:'get', pins:pinList, since:from});
     NET.offset = j.t - (t0 + Date.now())/2;
     setConn(true);
     apply(j.rows);
@@ -1722,8 +1721,8 @@ const SDB = (()=>{
   async function poll(){
     clearTimeout(pollT);
     if (pins.size){
-      // Aynı anda gelen yazımlar sırasız işlenebildiği için birkaç sürüm geriden okunur; tekrarlar elenir.
-      try{ await fetchRows([...pins.keys()], Math.max(0, since - 40)); }catch(e){ setConn(false); }
+      // Sunucu yazımları atomik ve sıralı işler; yalnızca son görülen sürümden yenileri istenir.
+      try{ await fetchRows([...pins.keys()], since); }catch(e){ setConn(false); }
     }
     pollT = setTimeout(poll, document.hidden ? 3000 : 700);
   }
@@ -1738,7 +1737,7 @@ const SDB = (()=>{
         const k = sp.pin + '/' + sp.rel, id = ++seq;
         pend[k] = {id, v}; rebuild();
         const done = () => { if (pend[k] && pend[k].id === id) delete pend[k]; };
-        return rpc('ka_set', {p_pin:sp.pin, p_path:sp.rel, p_value:v}).then(r=>{
+        return rpc({fn:'set', pin:sp.pin, path:sp.rel, value:v}).then(j=>{ const r = j.r;
           for (const d in rows) if (d.startsWith(k + '/') && rows[d].r < r) rows[d] = {r, v:null};
           if (!rows[k] || rows[k].r < r) rows[k] = {r, v};
           done(); rebuild(); setConn(true);
@@ -1753,14 +1752,14 @@ const SDB = (()=>{
       off(ev, fn){ for (let i=listeners.length-1;i>=0;i--) if (listeners[i].path === path && (!fn || listeners[i].fn === fn)) listeners.splice(i,1); }
     };
   }
-  async function ping(){ const t0 = Date.now(); const j = await rpc('ka_get', {p_pins:[], p_since:0}); NET.offset = j.t - (t0 + Date.now())/2; }
+  async function ping(){ const t0 = Date.now(); const j = await rpc({fn:'get', pins:[], since:0}); NET.offset = j.t - (t0 + Date.now())/2; }
   return { ref, start:poll, ping };
 })();
 
 async function netInit(){
   if (NET.ok) return true;
   // 1) BASLAT ile açıldıysa: yerel sunucu (aynı Wi-Fi, internet gerekmez)
-  if (location.protocol !== 'file:'){
+  if (location.protocol.startsWith('http') && (IS_LAN_HOST || ['localhost','127.0.0.1','[::1]','::1'].includes(location.hostname))){
     try{
       const r = await fetch('/api/info', {cache:'no-store'});
       const j = r.ok ? await r.json() : null;
@@ -1771,14 +1770,12 @@ async function netInit(){
       }
     }catch(e){}
   }
-  // 2) Aksi halde: internet üzerinden Supabase
-  if (SUPA.url && SUPA.key){
-    try{
-      await SDB.ping();
-      NET.db = SDB; NET.mode = 'web'; NET.ok = true; NET.connected = true; SDB.start();
-      return true;
-    }catch(e){ console.warn('Supabase bağlantısı kurulamadı', e); }
-  }
+  // 2) Aksi halde: internet üzerinden Vercel (bilgisayardan dosya olarak açılınca da)
+  try{
+    await SDB.ping();
+    NET.db = SDB; NET.mode = 'web'; NET.ok = true; NET.connected = true; SDB.start();
+    return true;
+  }catch(e){ console.warn('İnternet bağlantısı kurulamadı', e); }
   return false;
 }
 const nowS = () => Date.now() + NET.offset;
@@ -1792,9 +1789,9 @@ const IS_PLAYER = (()=>{
   const q = new URLSearchParams(location.search);
   if (q.has('sunucu')) return false;
   if (q.has('pin') || q.has('katil')) return true;
-  // GitHub Pages'te yerel sunucu yok: sayfa telefonsuz yarisma ekrani olarak acilir.
-  if (/\.github\.io$/i.test(location.hostname)) return false;
-  return location.protocol.startsWith('http') && !['localhost','127.0.0.1','[::1]','::1'].includes(location.hostname);
+  // Yerel sunucuya (BASLAT) telefondan ağ adresiyle girilirse katılım ekranı açılır.
+  // Vercel / dosya / localhost: yarışma ekranı. Telefonlar /katil adresini kullanır.
+  return location.protocol.startsWith('http') && IS_LAN_HOST;
 })();
 
 /* =====================================================================
@@ -2131,7 +2128,7 @@ function vMenu(){
     ${netPill()}
     ${status}
     ${inProgress && NET.ok ? `<div style="display:flex;flex-direction:column;align-items:center;gap:8px">${joinCard(220, false)}</div>` : ''}
-    ${!NET.ok ? `<div class="notice" style="max-width:640px">Telefonla katılım için bilgisayarın internete bağlı olması ya da programın klasördeki <b>BASLAT</b> dosyasıyla açılması gerekir. Şu an telefonsuz moddasınız.</div>` : ''}
+    ${!NET.ok ? `<div class="notice" style="max-width:640px">Telefonla katılım için bilgisayarın internete bağlı olması gerekir. Şu an telefonsuz moddasınız; bağlantıyı kontrol edip sayfayı yenileyin.</div>` : ''}
     <div class="menu-actions">
       ${inProgress ? `<button class="btn primary big" data-act="start">Devam Et</button><button class="btn big" data-act="newGameAsk">Yeni Yarışma</button><button class="btn big danger" data-act="endAsk">Yarışmayı Bitir</button>`
                    : `<button class="btn primary big" data-act="newGameYes">Yarışmayı Başlat</button>`}
@@ -2204,7 +2201,7 @@ function vDraw(){
 
 function joinCard(size, withIpSel){
   const g = G(), base = joinBase();
-  if (!NET.ok) return `<div class="notice">QR kod ve şifre şu an kapalı, çünkü telefon bağlantısı kurulamadı. Bilgisayarın internete bağlı olduğundan emin olup sayfayı yenileyin ya da klasördeki <b>BASLAT</b> dosyasıyla açın.</div>`;
+  if (!NET.ok) return `<div class="notice">QR kod ve şifre şu an kapalı, çünkü telefon bağlantısı kurulamadı. Bilgisayarın internete bağlı olduğundan emin olup sayfayı yenileyin.</div>`;
   if (!base) return `<div class="notice">Bilgisayarın ağ adresi bulunamadı. Bilgisayarı Wi-Fi'ye bağlayın ya da bir telefondan kişisel erişim noktası açıp ona bağlayın, sonra sayfayı yenileyin.</div>`;
   const web = NET.mode === 'web', ips = NET.ips || [];
   const link = web ? base + 'kaplan-arena.html?pin=' + g.pin : base + '?pin=' + g.pin;
@@ -2480,7 +2477,7 @@ function vSettings(){
     </div>
     <div class="section">
       <h3>Telefon bağlantısı</h3>
-      <p>${!NET.ok ? 'Telefon bağlantısı yok: internet bağlantısı bulunamadı ve program BASLAT dosyasıyla açılmadı. Telefonsuz modda çalışıyor.'
+      <p>${!NET.ok ? 'Telefon bağlantısı yok: internet bağlantısı kurulamadı. Telefonsuz modda çalışıyor.'
         : NET.mode === 'web' ? `İnternet üzerinden bağlı. Telefonlar herhangi bir ağdan (Wi-Fi veya mobil veri) QR kod veya şifre ile katılabilir. Adres: <b>${esc(WEB_URL.replace(/^https?:\/\//,'') + 'katil')}</b>`
         : `Yerel sunucu çalışıyor. Telefonlar aynı Wi-Fi ağından QR kod veya şifre ile katılabilir.${joinBase()?` Adres: <b>${esc(joinBase())}</b>`:''}`}</p>
     </div>
@@ -2874,7 +2871,7 @@ function plSend(v, raw){
   if (!plCanAnswer()) return;
   const i = myIdx();
   NET.db.ref(`games/${P.pin}/answers/${P.st.qk}/${i}`).set({v, raw:raw==null?String(v):raw, dev:P.dev, t:TS()})
-    .catch(()=>{ P.err = 'Cevap gönderilemedi. Wi-Fi bağlantınızı kontrol edin.'; plRender(); });
+    .catch(()=>{ P.err = 'Cevap gönderilemedi. İnternet bağlantınızı kontrol edin.'; plRender(); });
 }
 function plTop(){
   const st = P.st, i = myIdx();
@@ -2885,7 +2882,7 @@ function plRender(){
   const app = document.getElementById('app');
   let h = '';
   if (P.view === 'nonet'){
-    h = `<div class="pl"><div class="pl-hero"><h1>Kaplan Arena</h1></div><div class="pl-card big bad"><h2>Bağlanılamıyor</h2><p>${/\.github\.io$/i.test(location.hostname) ? 'İnternet bağlantınızı kontrol edip sayfayı yenileyin.' : 'Telefonunuzun, yarışma bilgisayarıyla aynı Wi-Fi ağına bağlı olduğundan emin olup sayfayı yenileyin.'}</p></div></div>`;
+    h = `<div class="pl"><div class="pl-hero"><h1>Kaplan Arena</h1></div><div class="pl-card big bad"><h2>Bağlanılamıyor</h2><p>${!IS_LAN_HOST ? 'İnternet bağlantınızı kontrol edip sayfayı yenileyin.' : 'Telefonunuzun, yarışma bilgisayarıyla aynı Wi-Fi ağına bağlı olduğundan emin olup sayfayı yenileyin.'}</p></div></div>`;
   } else if (P.view === 'pin' || P.view === 'loading'){
     h = `<div class="pl"><div class="pl-hero"><h1>Kaplan Arena</h1><p>Ekrandaki 6 haneli şifreyi yazın</p>
       <input class="pinput" id="pl-pin" inputmode="numeric" autocomplete="off" maxlength="6" value="${esc(P.pin)}" placeholder="••••••">
