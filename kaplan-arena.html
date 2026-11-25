@@ -1642,16 +1642,144 @@ const LDB = (()=>{
   }; }
   return { ref, start:poll };
 })();
+
+/* ---------- online (Supabase, internet üzerinden) ----------
+   Supabase > Project Settings > API (Data API) sayfasındaki "Project URL" ve
+   "anon / publishable" anahtarı. Bu anahtar gizli değildir; veritabanına yalnızca
+   supabase-kurulum.sql içindeki ka_set / ka_get fonksiyonlarıyla erişilebilir. */
+const SUPA = { url:'', key:'' };
+const WEB_URL = 'https://ersenbarlasai.github.io/kaplan-arena/';
+const SDB = (()=>{
+  const pins = new Map();            // pin -> Promise (ilk tam yükleme)
+  const rows = {};                   // 'pin/yol' -> {r, v}
+  const pend = {};                   // 'pin/yol' -> {id, v}  (henüz kaydedilmemiş yerel yazımlar)
+  const listeners = [];
+  let since = 0, tree = {}, pollT = null, seq = 0;
+  const parts = p => String(p).split('/').filter(Boolean);
+  function get(path){ let c = tree; for (const k of parts(path)){ if (c == null || typeof c !== 'object') return null; c = c[k]; } return c === undefined ? null : c; }
+  function setp(obj, path, v){
+    const ks = parts(path); let c = obj;
+    for (let i=0;i<ks.length-1;i++){ if (c[ks[i]] == null || typeof c[ks[i]] !== 'object') c[ks[i]] = {}; c = c[ks[i]]; }
+    const last = ks[ks.length-1];
+    if (v == null) delete c[last]; else c[last] = v;
+  }
+  function resolveTS(v){
+    if (v && typeof v === 'object' && !Array.isArray(v)){
+      if (v['.sv'] === 'timestamp') return Math.round(Date.now() + NET.offset);
+      const o = {}; for (const k in v) o[k] = resolveTS(v[k]); return o;
+    }
+    return v;
+  }
+  const snap = v => ({ val:() => v == null ? null : JSON.parse(JSON.stringify(v)), exists:() => v != null });
+  function fire(){
+    listeners.slice().forEach(l=>{ const v = get(l.path), js = JSON.stringify(v);
+      if (js !== l.last){ l.last = js; try{ l.fn(snap(v)); }catch(e){ console.error(e); } } });
+  }
+  function rebuild(){
+    const all = {};
+    for (const k in rows) all[k] = rows[k].v;
+    for (const k in pend){ all[k] = pend[k].v; for (const d in all) if (d.startsWith(k + '/')) all[d] = null; }
+    const t = {};
+    Object.keys(all).sort((a,b)=>parts(a).length - parts(b).length).forEach(k=>{ if (all[k] != null) setp(t, 'games/' + k, all[k]); });
+    tree = t; fire();
+  }
+  function apply(list){
+    let ch = false;
+    for (const x of list || []){
+      const k = x.pin + '/' + x.p, old = rows[k];
+      if (x.r > since) since = x.r;
+      if (old && old.r >= x.r) continue;
+      rows[k] = {r:x.r, v:x.v}; ch = true;
+    }
+    if (ch) rebuild();
+  }
+  function setConn(c){ if (NET.connected !== c){ NET.connected = c; const p = document.getElementById('netpill'); if (p) p.outerHTML = netPill(); } }
+  function hdr(){
+    const h = {'Content-Type':'application/json', apikey:SUPA.key};
+    if (SUPA.key.startsWith('eyJ')) h.Authorization = 'Bearer ' + SUPA.key;
+    return h;
+  }
+  async function rpc(fn, body){
+    const r = await fetch(SUPA.url.replace(/\/+$/,'') + '/rest/v1/rpc/' + fn, {method:'POST', headers:hdr(), body:JSON.stringify(body), cache:'no-store'});
+    if (!r.ok) throw new Error(fn + ' ' + r.status);
+    return r.json();
+  }
+  async function fetchRows(pinList, from){
+    const t0 = Date.now();
+    const j = await rpc('ka_get', {p_pins:pinList, p_since:from});
+    NET.offset = j.t - (t0 + Date.now())/2;
+    setConn(true);
+    apply(j.rows);
+  }
+  function watch(pin){
+    if (!/^\d{6}$/.test(pin)) return Promise.resolve();
+    if (!pins.has(pin)){
+      const p = fetchRows([pin], 0).catch(e=>{ pins.delete(pin); setConn(false); throw e; });
+      pins.set(pin, p);
+    }
+    return pins.get(pin);
+  }
+  async function poll(){
+    clearTimeout(pollT);
+    if (pins.size){
+      // Aynı anda gelen yazımlar sırasız işlenebildiği için birkaç sürüm geriden okunur; tekrarlar elenir.
+      try{ await fetchRows([...pins.keys()], Math.max(0, since - 40)); }catch(e){ setConn(false); }
+    }
+    pollT = setTimeout(poll, document.hidden ? 3000 : 700);
+  }
+  function split(path){ const ks = parts(path); return ks[0] === 'games' && ks.length > 2 ? {pin:ks[1], rel:ks.slice(2).join('/')} : null; }
+  function ref(path){
+    const sp = split(path);
+    if (sp) watch(sp.pin).catch(()=>{});
+    return {
+      set(v){
+        if (!sp) return Promise.reject(new Error('gecersiz yol'));
+        v = resolveTS(v); if (v === undefined) v = null;
+        const k = sp.pin + '/' + sp.rel, id = ++seq;
+        pend[k] = {id, v}; rebuild();
+        const done = () => { if (pend[k] && pend[k].id === id) delete pend[k]; };
+        return rpc('ka_set', {p_pin:sp.pin, p_path:sp.rel, p_value:v}).then(r=>{
+          for (const d in rows) if (d.startsWith(k + '/') && rows[d].r < r) rows[d] = {r, v:null};
+          if (!rows[k] || rows[k].r < r) rows[k] = {r, v};
+          done(); rebuild(); setConn(true);
+        }, e=>{ done(); rebuild(); setConn(false); throw e; });
+      },
+      once(){ return (sp ? watch(sp.pin) : Promise.resolve()).then(()=>snap(get(path))); },
+      on(ev, fn){ const l = {path, fn, last:undefined}; listeners.push(l);
+        l.last = JSON.stringify(get(path));
+        // İlk bildirim o anki güncel değerle yapılır (arada gelen değişiklik eski değerle ezilmesin).
+        setTimeout(()=>{ if (!listeners.includes(l)) return; const v = get(path); l.last = JSON.stringify(v); try{ fn(snap(v)); }catch(e){ console.error(e); } }, 0);
+        return fn; },
+      off(ev, fn){ for (let i=listeners.length-1;i>=0;i--) if (listeners[i].path === path && (!fn || listeners[i].fn === fn)) listeners.splice(i,1); }
+    };
+  }
+  async function ping(){ const t0 = Date.now(); const j = await rpc('ka_get', {p_pins:[], p_since:0}); NET.offset = j.t - (t0 + Date.now())/2; }
+  return { ref, start:poll, ping };
+})();
+
 async function netInit(){
   if (NET.ok) return true;
-  if (location.protocol === 'file:') return false;
-  try{
-    const r = await fetch('/api/info', {cache:'no-store'}); if (!r.ok) return false;
-    const j = await r.json(); if (!j || j.app !== 'kaplan-arena') return false;
-    NET.ips = j.ips || []; NET.port = String(j.port || location.port || '');
-    NET.db = LDB; NET.ok = true; NET.connected = true; LDB.start();
-  }catch(e){ return false; }
-  return true;
+  // 1) BASLAT ile açıldıysa: yerel sunucu (aynı Wi-Fi, internet gerekmez)
+  if (location.protocol !== 'file:'){
+    try{
+      const r = await fetch('/api/info', {cache:'no-store'});
+      const j = r.ok ? await r.json() : null;
+      if (j && j.app === 'kaplan-arena'){
+        NET.ips = j.ips || []; NET.port = String(j.port || location.port || '');
+        NET.db = LDB; NET.mode = 'lan'; NET.ok = true; NET.connected = true; LDB.start();
+        return true;
+      }
+    }catch(e){}
+  }
+  // 2) Aksi halde: internet üzerinden Supabase
+  if (SUPA.url && SUPA.key){
+    try{
+      await SDB.ping();
+      NET.db = SDB; NET.mode = 'web'; NET.ok = true; NET.connected = true; SDB.start();
+      return true;
+    }catch(e){ console.warn('Supabase bağlantısı kurulamadı', e); }
+  }
+  return false;
 }
 const nowS = () => Date.now() + NET.offset;
 const TS = () => ({'.sv':'timestamp'});
@@ -1876,6 +2004,7 @@ function cutoff(scores, slots){
 function lanIp(){ const ips = NET.ips || []; return ips.includes(S.settings.lanIp) ? S.settings.lanIp : (ips[0] || null); }
 function joinBase(){
   if (!NET.ok) return null;
+  if (NET.mode === 'web') return WEB_URL;
   const ip = lanIp(), port = NET.port && NET.port !== '80' ? ':' + NET.port : '';
   if (ip) return `http://${ip}${port}/`;
   if (!['localhost','127.0.0.1'].includes(location.hostname)) return location.origin + '/';
@@ -2002,7 +2131,7 @@ function vMenu(){
     ${netPill()}
     ${status}
     ${inProgress && NET.ok ? `<div style="display:flex;flex-direction:column;align-items:center;gap:8px">${joinCard(220, false)}</div>` : ''}
-    ${!NET.ok ? `<div class="notice" style="max-width:640px">Telefonla QR kod ve şifreyle katılım için programı klasördeki <b>BASLAT</b> dosyasıyla açın. Şu an telefonsuz moddasınız.</div>` : ''}
+    ${!NET.ok ? `<div class="notice" style="max-width:640px">Telefonla katılım için bilgisayarın internete bağlı olması ya da programın klasördeki <b>BASLAT</b> dosyasıyla açılması gerekir. Şu an telefonsuz moddasınız.</div>` : ''}
     <div class="menu-actions">
       ${inProgress ? `<button class="btn primary big" data-act="start">Devam Et</button><button class="btn big" data-act="newGameAsk">Yeni Yarışma</button><button class="btn big danger" data-act="endAsk">Yarışmayı Bitir</button>`
                    : `<button class="btn primary big" data-act="newGameYes">Yarışmayı Başlat</button>`}
@@ -2075,10 +2204,12 @@ function vDraw(){
 
 function joinCard(size, withIpSel){
   const g = G(), base = joinBase();
-  if (!NET.ok) return `<div class="notice">QR kod ve şifre şu an kapalı, çünkü program doğrudan açıldı. Kapatın ve klasördeki <b>BASLAT</b> dosyasına çift tıklayarak açın; QR kod ve şifre burada görünecek.</div>`;
+  if (!NET.ok) return `<div class="notice">QR kod ve şifre şu an kapalı, çünkü telefon bağlantısı kurulamadı. Bilgisayarın internete bağlı olduğundan emin olup sayfayı yenileyin ya da klasördeki <b>BASLAT</b> dosyasıyla açın.</div>`;
   if (!base) return `<div class="notice">Bilgisayarın ağ adresi bulunamadı. Bilgisayarı Wi-Fi'ye bağlayın ya da bir telefondan kişisel erişim noktası açıp ona bağlayın, sonra sayfayı yenileyin.</div>`;
-  const ips = NET.ips || [], addr = base.replace(/^https?:\/\//,'').replace(/\/$/,'');
-  return `<div class="joinbox"><small>1. YOL · Telefon kamerasıyla okut</small><div class="qr" data-size="${size}" data-url="${esc(base+'?pin='+g.pin)}" style="width:${size}px;height:${size}px"></div>
+  const web = NET.mode === 'web', ips = NET.ips || [];
+  const link = web ? base + 'kaplan-arena.html?pin=' + g.pin : base + '?pin=' + g.pin;
+  const addr = (web ? base + 'katil' : base).replace(/^https?:\/\//,'').replace(/\/$/,'');
+  return `<div class="joinbox"><small>1. YOL · Telefon kamerasıyla okut</small><div class="qr" data-size="${size}" data-url="${esc(link)}" style="width:${size}px;height:${size}px"></div>
     <small>2. YOL · Tarayıcıya bu adresi yaz</small><div class="url" style="font-weight:800;font-size:1.25rem;color:#111">${esc(addr)}</div>
     <small>sonra şifreyi gir</small><div class="pin">${g.pin}</div></div>
     ${withIpSel && ips.length > 1 ? `<div class="fld" style="margin-top:10px"><label for="ip-sel">Ağ adresi (telefonlar bağlanamazsa diğerini deneyin)</label><select class="field" id="ip-sel">${ips.map(ip=>`<option ${ip===lanIp()?'selected':''}>${ip}</option>`).join('')}</select></div>` : ''}`;
@@ -2349,7 +2480,9 @@ function vSettings(){
     </div>
     <div class="section">
       <h3>Telefon bağlantısı</h3>
-      <p>${NET.ok ? `Sunucu çalışıyor. Telefonlar aynı Wi-Fi ağından QR kod veya şifre ile katılabilir.${joinBase()?` Adres: <b>${esc(joinBase())}</b>`:''}` : 'Program BASLAT dosyasıyla açılmadığı için telefonsuz modda çalışıyor.'}</p>
+      <p>${!NET.ok ? 'Telefon bağlantısı yok: internet bağlantısı bulunamadı ve program BASLAT dosyasıyla açılmadı. Telefonsuz modda çalışıyor.'
+        : NET.mode === 'web' ? `İnternet üzerinden bağlı. Telefonlar herhangi bir ağdan (Wi-Fi veya mobil veri) QR kod veya şifre ile katılabilir. Adres: <b>${esc(WEB_URL.replace(/^https?:\/\//,'') + 'katil')}</b>`
+        : `Yerel sunucu çalışıyor. Telefonlar aynı Wi-Fi ağından QR kod veya şifre ile katılabilir.${joinBase()?` Adres: <b>${esc(joinBase())}</b>`:''}`}</p>
     </div>
     <div class="section">
       <h3>Sıfırlama</h3>
@@ -2704,7 +2837,7 @@ function plJoin(pin){
     if (P.stateRef) P.stateRef.off();
     P.stateRef = NET.db.ref('games/'+pin+'/state');
     P.stateRef.on('value', snap=>{ P.st = snap.val(); plOnState(); });
-  }).catch(()=>{ P.err = 'Bağlantı kurulamadı. Aynı Wi-Fi ağında olduğunuzu kontrol edip tekrar deneyin.'; P.view = 'pin'; plRender(); });
+  }).catch(()=>{ P.err = NET.mode === 'web' ? 'Bağlantı kurulamadı. İnternet bağlantınızı kontrol edip tekrar deneyin.' : 'Bağlantı kurulamadı. Aynı Wi-Fi ağında olduğunuzu kontrol edip tekrar deneyin.'; P.view = 'pin'; plRender(); });
 }
 function plOnState(){
   const st = P.st; if (!st) return plRender();
@@ -2752,7 +2885,7 @@ function plRender(){
   const app = document.getElementById('app');
   let h = '';
   if (P.view === 'nonet'){
-    h = `<div class="pl"><div class="pl-hero"><h1>Kaplan Arena</h1></div><div class="pl-card big bad"><h2>Bağlanılamıyor</h2><p>Telefonunuzun, yarışma bilgisayarıyla aynı Wi-Fi ağına bağlı olduğundan emin olup sayfayı yenileyin.</p></div></div>`;
+    h = `<div class="pl"><div class="pl-hero"><h1>Kaplan Arena</h1></div><div class="pl-card big bad"><h2>Bağlanılamıyor</h2><p>${/\.github\.io$/i.test(location.hostname) ? 'İnternet bağlantınızı kontrol edip sayfayı yenileyin.' : 'Telefonunuzun, yarışma bilgisayarıyla aynı Wi-Fi ağına bağlı olduğundan emin olup sayfayı yenileyin.'}</p></div></div>`;
   } else if (P.view === 'pin' || P.view === 'loading'){
     h = `<div class="pl"><div class="pl-hero"><h1>Kaplan Arena</h1><p>Ekrandaki 6 haneli şifreyi yazın</p>
       <input class="pinput" id="pl-pin" inputmode="numeric" autocomplete="off" maxlength="6" value="${esc(P.pin)}" placeholder="••••••">

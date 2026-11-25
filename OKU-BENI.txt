@@ -9,6 +9,19 @@
    - Telefon tarayıcısına ekrandaki adresi yazıp şifreyi girin.
 5) Her sınıfın kaptanı kendi sınıfını seçer ve cevapları telefondan verir.
 
+İNTERNET ÜZERİNDEN (WEB) KULLANIM
+- Adres: https://ersenbarlasai.github.io/kaplan-arena/
+- Bilgisayar internete bağlıysa telefonlar Wi-Fi ya da mobil veriyle,
+  ekrandaki QR kod veya ersenbarlasai.github.io/kaplan-arena/katil adresi
+  ve şifreyle katılır. Aynı ağda olmak gerekmez.
+- Bunun için Supabase kurulumu gerekir (bir kez): supabase-kurulum.sql
+  dosyası Supabase SQL Editor'de çalıştırılır, Project URL ve anon/publishable
+  anahtar kaplan-arena.html içindeki SUPA ayarına yazılır.
+  Kurulum yapılmadıysa sayfa telefonsuz modda açılır.
+- Ücretsiz Supabase projesi 1 hafta kullanılmazsa duraklatılır. Yarışmadan
+  bir gün önce Supabase panelinden projenin açık olduğunu kontrol edin.
+- Bilgisayar BASLAT ile açıldığında her zaman yerel Wi-Fi modu kullanılır.
+
 PORT HAKKINDA
 - Sunucu önce 8080 portunu dener. Bilgisayarda bu portu başka bir program
   kullanıyorsa (ör. Postgres/PEM, Apache) kendiliğinden 8090-8099 arasından
