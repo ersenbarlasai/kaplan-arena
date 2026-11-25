@@ -1,0 +1,26 @@
+﻿KAPLAN ARENA - NASIL BAŞLATILIR?
+
+1) Bilgisayar ve öğrencilerin telefonları AYNI Wi-Fi ağına bağlı olsun.
+2) BASLAT.bat dosyasına çift tıklayın. İzin sorulursa EVET deyin.
+   ("Windows bilgisayarınızı korudu" çıkarsa: Ek bilgi > Yine de çalıştır)
+3) Yarışma ekranı tarayıcıda kendiliğinden açılır. Siyah pencereyi KAPATMAYIN.
+4) Her etabın Katılım ekranında QR kod ve 6 haneli şifre çıkar.
+   - QR kodu telefon kamerasıyla okutun, ya da
+   - Telefon tarayıcısına ekrandaki adresi yazıp şifreyi girin.
+5) Her sınıfın kaptanı kendi sınıfını seçer ve cevapları telefondan verir.
+
+PORT HAKKINDA
+- Sunucu önce 8080 portunu dener. Bilgisayarda bu portu başka bir program
+  kullanıyorsa (ör. Postgres/PEM, Apache) kendiliğinden 8090-8099 arasından
+  boş olanı seçer. Doğru adres siyah pencerede ve Katılım ekranında yazar.
+- Sorular tarayıcıda adrese (porta) göre saklanır. Port değişirse sorularınız
+  görünmeyebilir: Soru Yönetimi > Yedekleme ile dışa aktarıp yeni adreste
+  içe aktarın. Soruları yarışmayı yapacağınız bilgisayarda girmeniz en iyisi.
+
+TELEFONLAR BAĞLANAMAZSA
+- Okul Wi-Fi'si cihazların birbirini görmesini engelliyor olabilir.
+  Çözüm: Bir telefonda "Kişisel erişim noktası" açın; bilgisayarı ve
+  kaptanların telefonlarını bu ağa bağlayıp BASLAT.bat'ı yeniden açın.
+- Katılım ekranında birden fazla ağ adresi varsa diğerini seçip deneyin.
+- Kaplan Arena'yı internetsiz, tek ekran olarak da oynayabilirsiniz:
+  kaplan-arena.html dosyasına çift tıklayın, puanları siz girersiniz.
