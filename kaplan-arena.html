@@ -1785,6 +1785,81 @@ function netPill(){
   return `<span class="netpill ${NET.connected?'on':''}" id="netpill"><i></i>${NET.connected?'Telefon bağlantısı açık':'Bağlanıyor…'}</span>`;
 }
 
+/* ---------- tek yarışma kuralı (internet modu) ----------
+   Aynı anda yalnızca bir yarışma ekranı yarışma yürütebilir. Aktif ekran sunucudaki kilidi
+   20 sn'de bir yeniler; 5 dk haber alınmazsa kilit düşer. Başka bir ekran (Vercel adresi ya da
+   bilgisayardaki dosya, başka cihaz) girmeye çalışırsa engellenir, aktif ekrana uyarı gider. */
+const HOST_ID = (()=>{
+  const ok = h => /^[A-Za-z0-9]{8,40}$/.test(h || '');
+  try{
+    let h = localStorage.getItem('ka-host-id');
+    if (!ok(h)){ h = Array.from(crypto.getRandomValues(new Uint8Array(12)), b=>b.toString(36).padStart(2,'0')).join('').slice(0,20); localStorage.setItem('ka-host-id', h); }
+    return h;
+  }catch(e){ return 'h' + Math.random().toString(36).slice(2,14).padEnd(10,'0'); }
+})();
+const WHERE = location.protocol === 'file:' ? 'bilgisayardaki dosya' : location.host;
+const LOCK = { state:'unknown', info:null, timer:null, busy:false, alertSeen:0, alertPin:null, alertRef:null, alertFn:null };
+const lockOn = () => NET.ok && NET.mode === 'web';
+const gameActive = () => !!(S && S.game.started && !S.game.finished);
+async function lockReq(op, notify, g){
+  g = g || S.game;
+  if (!g.since) g.since = Math.round(nowS());
+  const r = await fetch(API_URL, {method:'POST', headers:{'Content-Type':'text/plain'}, cache:'no-store',
+    body:JSON.stringify({fn:'lock', op, host:HOST_ID, pin:g.pin, title:S.settings.title, where:WHERE, since:g.since || Math.round(nowS()), notify:!!notify})});
+  if (!r.ok) throw new Error('lock ' + r.status);
+  return r.json();
+}
+async function lockSync(notify){
+  if (!lockOn()) return true;
+  clearTimeout(LOCK.timer); LOCK.timer = setTimeout(()=>lockSync(false), 20000);
+  if (LOCK.busy) return LOCK.state !== 'other';
+  LOCK.busy = true;
+  const prev = LOCK.state;
+  try{
+    if (gameActive()){
+      const j = await lockReq('acquire', notify);
+      LOCK.state = j.state === 'mine' ? 'mine' : 'other'; LOCK.info = j.info || null;
+    } else {
+      const j = await lockReq('check', notify);
+      if (j.state === 'mine'){ await lockReq('release'); LOCK.state = 'free'; }
+      else { LOCK.state = j.state; LOCK.info = j.info || null; }
+    }
+  }catch(e){ /* bağlantı yoksa durum değişmez, sonraki denemede yenilenir */ }
+  LOCK.busy = false;
+  alertWatch();
+  if (LOCK.state !== prev && (ui.screen === 'menu' || ui.screen === 'game')) render();
+  return LOCK.state !== 'other';
+}
+function alertWatch(){
+  const pin = LOCK.state === 'mine' && gameActive() ? S.game.pin : null;
+  if (LOCK.alertPin === pin) return;
+  if (LOCK.alertRef) LOCK.alertRef.off('value', LOCK.alertFn);
+  LOCK.alertPin = pin; LOCK.alertRef = null;
+  if (!pin) return;
+  const t0 = nowS();
+  LOCK.alertRef = NET.db.ref(`games/${pin}/alert`);
+  LOCK.alertFn = s=>{
+    const v = s.val(); if (!v || !(v.t > Math.max(t0, LOCK.alertSeen))) return;
+    LOCK.alertSeen = v.t;
+    toast(`Uyarı: ${v.where || 'başka bir cihaz'} üzerinden yarışma ekranı açılmaya çalışıldı ve engellendi.`, 9000);
+  };
+  LOCK.alertRef.on('value', LOCK.alertFn);
+}
+function lockAgo(ms){ const s = Math.max(0, Math.round(ms/1000)); return s < 60 ? `${s} sn önce` : `${Math.round(s/60)} dk önce`; }
+function lockCard(){
+  const i = LOCK.info || {};
+  const t = i.since ? new Date(i.since).toLocaleTimeString('tr-TR', {hour:'2-digit', minute:'2-digit'}) : '';
+  return `<div class="notice" role="alert" style="max-width:680px;text-align:left">
+    <b style="font-size:1.15rem">Şu anda başka bir yerde açık bir yarışma var.</b><br>
+    Aynı anda yalnızca bir yarışma yapılabilir; bu ekrandan yarışma başlatılamaz ve açık ekrana uyarı gönderildi.<br>
+    Açık yarışma: <b>${esc(i.title || 'Kaplan Arena')}</b>${i.where ? ` · ${esc(i.where)}` : ''}${t ? ` · başlama ${t}` : ''}${i.seen ? ` · son bağlantı ${lockAgo(nowS() - i.seen)}` : ''}<br>
+    O yarışma bitirildiğinde ya da o ekran 5 dakika boyunca kapalı kaldığında buradan başlatabilirsiniz.
+    <div class="row" style="margin-top:10px"><button class="btn" data-act="lockRetry">Tekrar Kontrol Et</button>
+    ${gameActive() ? `<button class="btn danger" data-act="localEndAsk">Bu cihazdaki eski yarışmayı kapat</button>` : ''}</div>
+    ${confirmBox('localend','Bu cihazda yarım kalmış eski yarışma kapatılacak (puanları silinmez, yarışma bitti olarak işaretlenir). Açık olan diğer yarışma etkilenmez.','localEndYes','Eski Yarışmayı Kapat')}
+  </div>`;
+}
+
 const IS_PLAYER = (()=>{
   const q = new URLSearchParams(location.search);
   if (q.has('sunucu')) return false;
@@ -1977,7 +2052,7 @@ function dialHTML(){
 /* helpers */
 const G = () => S.game;
 const stageKey = () => STAGES[G().stage].key;
-function toast(m){ ui.msg = m; render(); clearTimeout(toast.h); toast.h = setTimeout(()=>{ ui.msg=''; render(); }, 3200); }
+function toast(m, ms){ ui.msg = m; render(); clearTimeout(toast.h); toast.h = setTimeout(()=>{ ui.msg=''; render(); }, ms || 3200); }
 function pushHistory(){ const g = G(); const snap = Object.assign({}, g, {history:[]}); g.history.push(JSON.stringify(snap)); if (g.history.length > 40) g.history.shift(); }
 function teamChips(teams, idxs){
   const list = idxs ? idxs.map(i=>({t:teams[i], i})) : teams.map((t,i)=>({t,i}));
@@ -2019,7 +2094,7 @@ function pubQ(q){ if (!q) return null; return q.type === 'ders' ? {type:'ders', 
 /* ---------- host <-> Firebase ---------- */
 let syncTimer = null;
 function sync(){
-  if (!NET.ok || !S.game.started || !S.game.pin) return;
+  if (!NET.ok || !S.game.started || !S.game.pin || LOCK.state === 'other') return;
   clearTimeout(syncTimer);
   syncTimer = setTimeout(()=>{ try{ NET.db.ref('games/'+S.game.pin+'/state').set(buildState()); }catch(e){ console.error(e); } }, 60);
 }
@@ -2123,14 +2198,15 @@ function vMenu(){
     status = `<div class="status">Son yarışma ${g.view==='ended'?'erken bitirildi':'tamamlandı'}.</div>`;
   }
   const c = k => S.questions[k].length, nc = S.settings.classes.length;
+  const blocked = LOCK.state === 'other';
   return `<div class="menu">
     <div class="marquee"><h1>${esc(S.settings.title)}</h1><p>${nc} sınıf · kura · 3 etap · her soru 10 puan</p></div>
     ${netPill()}
-    ${status}
-    ${inProgress && NET.ok ? `<div style="display:flex;flex-direction:column;align-items:center;gap:8px">${joinCard(220, false)}</div>` : ''}
+    ${blocked ? lockCard() : status}
+    ${inProgress && NET.ok && !blocked ? `<div style="display:flex;flex-direction:column;align-items:center;gap:8px">${joinCard(220, false)}</div>` : ''}
     ${!NET.ok ? `<div class="notice" style="max-width:640px">Telefonla katılım için bilgisayarın internete bağlı olması gerekir. Şu an telefonsuz moddasınız; bağlantıyı kontrol edip sayfayı yenileyin.</div>` : ''}
     <div class="menu-actions">
-      ${inProgress ? `<button class="btn primary big" data-act="start">Devam Et</button><button class="btn big" data-act="newGameAsk">Yeni Yarışma</button><button class="btn big danger" data-act="endAsk">Yarışmayı Bitir</button>`
+      ${blocked ? '' : inProgress ? `<button class="btn primary big" data-act="start">Devam Et</button><button class="btn big" data-act="newGameAsk">Yeni Yarışma</button><button class="btn big danger" data-act="endAsk">Yarışmayı Bitir</button>`
                    : `<button class="btn primary big" data-act="newGameYes">Yarışmayı Başlat</button>`}
       <button class="btn big" data-act="manage">Soru Yönetimi</button>
       <button class="btn big" data-act="settings">Ayarlar</button>
@@ -2494,6 +2570,7 @@ function vSettings(){
 /* ---------- render (host) ---------- */
 const $app = document.getElementById('app');
 function render(){
+  if (ui.screen === 'game' && LOCK.state === 'other'){ stopTimer(); nextCancel(); autoCancel(); ui.screen = 'menu'; ui.joinOpen = false; }
   const s = ui.screen;
   $app.innerHTML = (s==='menu' ? vMenu() : s==='manage' ? vManage() : s==='settings' ? vSettings() : vGame())
     + (ui.msg ? `<div class="toast" role="status">${esc(ui.msg)}</div>` : '');
@@ -2553,12 +2630,20 @@ const ACT = {
   manage(){ stopTimer(); sync(); ui.screen='manage'; ui.confirm=null; render(); },
   settings(){ ui.screen='settings'; ui.confirm=null; render(); },
   fs(){ try{ if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(()=>toast('Tam ekran bu ortamda açılamadı.')); }catch(e){ toast('Tam ekran bu ortamda açılamadı.'); } },
-  start(){ ui.screen='game'; render(); },
+  start(){ if (LOCK.state === 'other') return render(); ui.screen='game'; render(); },
   newGameAsk(){ ui.confirm='newgame'; render(); },
-  newGameYes(){
-    S.game = newGame(); S.game.started = true; ui.confirm=null; ui.screen='game'; ui.drawShown = null; resetTimer();
+  async newGameYes(){
+    const g = newGame(); g.started = true; g.since = Math.round(nowS());
+    if (lockOn()){
+      let j;
+      try{ j = await lockReq('acquire', true, g); }catch(e){ return toast('Bağlantı kurulamadı, tekrar deneyin.'); }
+      LOCK.info = j.info || null;
+      if (j.state !== 'mine'){ LOCK.state = 'other'; ui.confirm = null; ui.screen = 'menu'; render(); return; }
+      LOCK.state = 'mine';
+    }
+    S.game = g; ui.confirm=null; ui.screen='game'; ui.drawShown = null; resetTimer();
     if (NET.ok){ try{ NET.db.ref('games/'+S.game.pin+'/meta').set({created:TS(), title:S.settings.title}); }catch(e){} }
-    save(); render();
+    save(); render(); lockSync(false);
   },
   drawGo(){
     const g = G(), sh = shuffle(S.settings.classes), n1 = Math.ceil(sh.length/2);
@@ -2656,7 +2741,7 @@ const ACT = {
       if (g.stage === 2) g.teams.final = [...g.qualified.s1, ...g.qualified.s2].map(t=>({name:t.name, from:t.from, score:0}));
       save(); render();
     } else {
-      g.view = 'champion'; g.finished = true; save(); render(); beep(523,.15); setTimeout(()=>beep(659,.15),160); setTimeout(()=>beep(784,.4),320); confetti();
+      g.view = 'champion'; g.finished = true; save(); render(); lockSync(false); beep(523,.15); setTimeout(()=>beep(659,.15),160); setTimeout(()=>beep(784,.4),320); confetti();
     }
   },
   confetti(){ confetti(); },
@@ -2666,7 +2751,14 @@ const ACT = {
   joinOpen(){ ui.joinOpen = true; render(); },
   joinClose(d, el, e){ if (e.target === el){ ui.joinOpen = false; render(); } },
   joinClose2(){ ui.joinOpen = false; render(); },
-  endYes(){ const g = G(); stopTimer(); ui.confirm = null; g.started = true; g.view = 'ended'; g.finished = true; ui.screen = 'game'; save(); render(); },
+  endYes(){ const g = G(); stopTimer(); ui.confirm = null; g.started = true; g.view = 'ended'; g.finished = true; ui.screen = 'game'; save(); render(); lockSync(false); },
+  async lockRetry(){ const ok = await lockSync(true); render(); toast(ok ? 'Açık başka yarışma yok, başlatabilirsiniz.' : 'Diğer yarışma hâlâ açık.'); },
+  localEndAsk(){ ui.confirm = 'localend'; render(); },
+  localEndYes(){
+    const g = G(); stopTimer(); ui.confirm = null; g.view = 'ended'; g.finished = true; save();
+    if (NET.ok && g.pin){ try{ NET.db.ref('games/'+g.pin+'/state').set(buildState()); }catch(e){} }
+    render(); toast('Bu cihazdaki eski yarışma kapatıldı.');
+  },
 
   tab(d){ ui.tab = d.k; ui.confirm = null; render(); },
   addQ(d){ ui.edit = d.t === 'ders' ? {id:null, type:'ders', subject:SUBJECTS[0], text:'', options:['','','',''], answer:'A'} : {id:null, type:'tahmin', text:'', answer:'', unit:''}; render(); document.getElementById('e-text')?.focus(); },
@@ -2734,7 +2826,7 @@ const ACT = {
   samplesAsk(){ ui.confirm = 'samples'; render(); },
   samplesYes(){ S.questions = sampleQuestions(); ui.confirm = null; save(); render(); toast('Örnek sorular yüklendi.'); },
   resetAllAsk(){ ui.confirm = 'resetall'; render(); },
-  resetAllYes(){ S = defaultState(); ui.confirm = null; TM.left = S.settings.seconds; save(); render(); toast('Tüm veriler sıfırlandı.'); },
+  resetAllYes(){ S = defaultState(); ui.confirm = null; TM.left = S.settings.seconds; save(); render(); lockSync(false); toast('Tüm veriler sıfırlandı.'); },
 };
 
 function validateImport(o){
@@ -2767,7 +2859,7 @@ function hostInit(){
   S = load() || defaultState();
   ui = { screen:'menu', tab:'s1', edit:null, confirm:null, backup:'', importText:'', msg:'', sel:[], guesses:{}, scoreEdit:false, tieAns:'', touched:false, drawShown:null };
   TM = { left:S.settings.seconds, running:false, h:null, end:0, endServer:0 };
-  netInit().then(ok=>{ if (ok){ render(); sync(); } });
+  netInit().then(async ok=>{ if (!ok) return; await lockSync(true); render(); sync(); });
   document.addEventListener('click', e=>{
     const b = e.target.closest('[data-act]'); if (!b || b.disabled) return;
     const fn = ACT[b.dataset.act]; if (!fn) return;

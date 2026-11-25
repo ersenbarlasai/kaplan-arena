@@ -3,6 +3,11 @@
 // Yarisma ekrani ve telefonlar bu adrese POST atar:
 //   {"fn":"get","pins":["123456"],"since":0}          -> {"t":<ms>,"rows":[{pin,p,v,r}]}
 //   {"fn":"set","pin":"123456","path":"state","value":{...}}  -> {"r":<rev>}
+//   {"fn":"lock","op":"check|acquire|release","host":"<id>",...} -> {"t","state":"free|mine|other","info"}
+//
+// Tek yarisma kurali: ayni anda yalnizca bir yarisma ekrani (host) aktif yarisma yurutebilir.
+// Aktif ekran kilidi 20 sn'de bir yeniler; 5 dk haber alinmazsa kilit kendiliginden duser.
+// Baska bir ekran girmeye calisirsa engellenir ve aktif ekrana uyari (games/<pin>/alert) yazilir.
 //
 // Veri Upstash Redis'te tutulur (Vercel > Storage > Upstash for Redis).
 // Ortam degiskenleri: KV_REST_API_URL + KV_REST_API_TOKEN
@@ -65,6 +70,23 @@ for i = 1, n do
 end
 return out`;
 
+// Kilit degeri: "<host>\n<json bilgi>". ARGV: op, host, yeni deger, sure(sn).
+const LOCK_LUA = `
+local cur = redis.call('GET', KEYS[1])
+local mine = cur and string.sub(cur, 1, #ARGV[2] + 1) == ARGV[2] .. '\\n'
+if ARGV[1] == 'release' then
+  if mine then redis.call('DEL', KEYS[1]) end
+  return ''
+end
+if ARGV[1] == 'acquire' and ((not cur) or mine) then
+  redis.call('SET', KEYS[1], ARGV[3], 'EX', ARGV[4])
+  return ARGV[3]
+end
+return cur or ''`;
+const LOCK_TTL = 300;
+const HOST_RE = /^[A-Za-z0-9]{8,40}$/;
+
+const kLock = () => 'ka:active';
 const kRev = () => 'ka:rev';
 const kHash = pin => 'ka:p:' + pin;
 const kPinRev = pin => 'ka:r:' + pin;
@@ -81,7 +103,15 @@ async function redis(cmd) {
 }
 
 // ---- bellek deposu (yalnizca yerel deneme) ----
-const mem = { rev: 0, games: new Map() }; // pin -> {rev, rows: Map(path -> {r, v})}
+const mem = { rev: 0, games: new Map(), lock: null }; // games: pin -> {rev, rows: Map(path -> {r, v})}
+function memLock(op, host, value) {
+  if (mem.lock && mem.lock.exp < Date.now()) mem.lock = null;
+  const cur = mem.lock && mem.lock.v;
+  const mine = !!cur && cur.startsWith(host + '\n');
+  if (op === 'release') { if (mine) mem.lock = null; return ''; }
+  if (op === 'acquire' && (!cur || mine)) { mem.lock = { v: value, exp: Date.now() + LOCK_TTL * 1000 }; return value; }
+  return cur || '';
+}
 function memSet(pin, path, json) {
   const r = ++mem.rev;
   let g = mem.games.get(pin);
@@ -140,6 +170,35 @@ async function doSet(pin, path, json) {
   return r;
 }
 
+const clip = (s, n) => String(s == null ? '' : s).replace(/[\u0000-\u001f]/g, ' ').slice(0, n);
+
+async function doLock(b) {
+  const op = String(b.op || ''), host = String(b.host || '');
+  if (!['check', 'acquire', 'release'].includes(op) || !HOST_RE.test(host)) return null;
+  const now = Date.now();
+  let value = '';
+  if (op === 'acquire') {
+    const pin = String(b.pin || '');
+    if (!PIN_RE.test(pin)) return null;
+    value = host + '\n' + JSON.stringify({
+      pin, title: clip(b.title, 80), where: clip(b.where, 80),
+      since: Number.isFinite(+b.since) ? Math.floor(+b.since) : now, seen: now,
+    });
+  }
+  const cur = USE_MEMORY
+    ? memLock(op, host, value)
+    : String(await redis(['EVAL', LOCK_LUA, '1', kLock(), op, host, value, String(LOCK_TTL)]) || '');
+  if (op === 'release' || !cur) return { state: 'free' };
+  if (cur.startsWith(host + '\n')) return { state: 'mine' };
+  let info = {};
+  try { info = JSON.parse(cur.slice(cur.indexOf('\n') + 1)); } catch (e) {}
+  // Engellenen giris denemesini aktif yarisma ekranina bildir (sifre disariya verilmez).
+  if (b.notify && PIN_RE.test(String(info.pin || ''))) {
+    try { await doSet(info.pin, 'alert', JSON.stringify({ t: now, where: clip(b.where, 80) })); } catch (e) { console.error(e); }
+  }
+  return { state: 'other', info: { title: info.title || '', where: info.where || '', since: info.since || 0, seen: info.seen || 0 } };
+}
+
 async function readBody(req) {
   if (req.body != null && req.body !== '') {
     if (typeof req.body === 'string') return JSON.parse(req.body);
@@ -191,6 +250,11 @@ module.exports = async function handler(req, res) {
       if (json.length > MAX_VALUE) return send(res, 413, { error: 'veri cok buyuk' });
       const r = await doSet(pin, path, json);
       return send(res, 200, { r });
+    }
+    if (b.fn === 'lock') {
+      const out = await doLock(b);
+      if (!out) return send(res, 400, { error: 'gecersiz istek' });
+      return send(res, 200, Object.assign({ t: Date.now() }, out));
     }
     return send(res, 400, { error: 'bilinmeyen islem' });
   } catch (e) {

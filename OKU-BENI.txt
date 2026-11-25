@@ -13,6 +13,18 @@ olması yeterlidir.
    - Telefon tarayıcısına kaplan-arena.vercel.app/katil yazıp şifreyi girin.
 3) Her sınıfın kaptanı kendi sınıfını seçer ve cevapları telefondan verir.
 
+AYNI ANDA TEK YARIŞMA
+- Aynı anda yalnızca bir yarışma yapılabilir. Bir yerde (Vercel adresi ya da
+  bilgisayardaki dosya, herhangi bir cihaz) yarışma açıkken başka bir yerden
+  yarışma ekranı açılırsa "Şu anda başka bir yerde açık bir yarışma var"
+  uyarısı çıkar, yarışma başlatılamaz; açık olan ekrana da "açılmaya
+  çalışıldı ve engellendi" bildirimi gider.
+- Açık yarışma "Yarışmayı Bitir" ile ya da final tamamlanınca serbest kalır.
+  Açık ekran 5 dakika boyunca kapalı kalırsa (tarayıcı kapandı, internet
+  gitti) kilit kendiliğinden düşer.
+- Aynı bilgisayarda aynı adresten yeniden açarsanız yarışmaya kaldığınız
+  yerden devam edersiniz.
+
 SORULAR NEREDE SAKLANIR?
 - Sorular ve ayarlar tarayıcıda, açılan adrese göre saklanır. Vercel adresi
   ile bilgisayardaki dosya ayrı yerlerdir. Birinden diğerine geçerken
