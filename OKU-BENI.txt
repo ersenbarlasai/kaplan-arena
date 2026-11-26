@@ -154,9 +154,37 @@ panel 5 dakika kapalı kalırsa kilit kalkar. Sahne penceresi kilit almaz.
 ========================================================================
 7) SORULAR VE YEDEK
 ========================================================================
-- Sorular, ayarlar ve sınıf armaları tarayıcıda, açılan adrese göre saklanır
-  (Vercel adresi ile dosyadan açma ayrı yerlerdir). Birinden diğerine
-  geçerken Soru Yönetimi > Yedekleme ile dışa aktarıp öbüründe içe aktarın.
+- Sorular, ayarlar ve sınıf armaları BU BİLGİSAYARIN BU TARAYICISINDA, açılan
+  adrese göre saklanır. Başka bilgisayara, başka tarayıcıya ya da başka
+  açılış yoluna (Vercel adresi / kaplan-arena.html dosyası / BASLAT.bat ayrı
+  yerlerdir) kendiliğinden gitmez. Tarayıcı verisi silinirse de kaybolur.
+
+YEDEK ALMA (soruları hazırladığınız bilgisayarda):
+  1. Üst çubuktan "Soru Yönetimi"ni açın.
+  2. Aşağıdaki "Yedekleme ve Aktarma" bölümünde "Yedek Oluştur" deyin.
+  3. "Dosya Olarak İndir" deyin: "kaplan-arena-yedek.json" dosyası İndirilenler
+     klasörüne kaydedilir. İndirme çalışmazsa "Kopyala" deyip metni bir metin
+     dosyasına yapıştırarak .json ya da .txt olarak kaydedin.
+  4. Dosyayı USB belleğe, e-postaya ya da Drive'a koyun.
+  Yedekte bütün sorular (1. Etap, 2. Etap, Final, Eşitlik) ve ayarlar
+  (yarışma adı, soru süresi, takım/sınıf listesi) vardır. Açık yarışmanın
+  puanları ve jokerleri yedeğe girmez.
+
+YEDEĞİ YÜKLEME (yarışmayı yöneteceğiniz bilgisayarda):
+  1. Yarışmayı yöneteceğiniz adresi açın (okulda: https://kaplan-arena.vercel.app).
+  2. "Soru Yönetimi" > "İçe Aktar" bölümünde yedek dosyasını seçin (ya da yedek
+     metnini kutuya yapıştırın) ve "İçe Aktar" deyin; onaylayın.
+  3. DİKKAT: bu bilgisayardaki mevcut sorular silinir, yedektekiler yüklenir.
+  4. Kontrol edin: dört sekmedeki soru sayıları, Ayarlar'daki takım listesi ve
+     Ana Menü'deki mod kartı (3 takım = "Üç Kampüs — Ortak Yarışma").
+  Takım listesi hatalı bir yedek (2 ya da daha az takım, aynı ad iki kez)
+  bütünüyle reddedilir; mevcut veriler değişmez. Yarışma sürerken yedek
+  yüklemek o yarışmanın takımlarını değiştirmez.
+
+ÖNERİ: Soruları değiştirdikçe yeni yedek alın; yarışma günü yedek dosyasını
+yanınızda bulundurun (yönetim bilgisayarı değişirse ya da tarayıcı verisi
+silinirse 1 dakikada geri yüklenir).
+
 - Her sınıfın arması kalıcıdır; yeni sınıf eklemek mevcut armaları değiştirmez.
 - Eski sürümden gelen kayıt ilk açılışta otomatik güncellenir; eski kaydın bir
   kopyası "kaplan-arena-v1-yedek-sema1" adıyla tarayıcıda saklanır.
