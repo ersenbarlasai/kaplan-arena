@@ -14,8 +14,7 @@ const SIN = path.posix.dirname(HERE);                   // .../tasarim/sinematik
 const T = 254016000000;                                 // FilmCraft tick / saniye
 const FPS = 30;
 const FT = T / FPS;                                     // tick / kare
-const F = 1920 / 1672 * 100;                            // 1672 px kaynağı 1920 genişliğe doldurma ölçeği
-const SRC_W = 1672, SRC_H = 941;
+// (Eski sabit görsel kurgusundaki 1672 px ölçek sabitleri kaldırıldı; kaynaklar artık video klipleri.)
 const fr = s => Math.round(s * FPS);                    // saniye → kare
 const tk = s => fr(s) * FT;                             // saniye → kare hizalı tick
 const tks = s => Math.round(s * T);                     // saniye → tick (kare hizasız; ses otomasyonu)
@@ -62,46 +61,58 @@ async function addFx(clip, effectId, params) {
 }
 const gain = (clip, db) => run('clip.audioGain', { clips: [clip], mode: 'set', db });
 
-// ---- AÇILIŞ -------------------------------------------------------------
-// Her plan: k = doldurma ölçeğine göre çarpan, d = merkezden kaydırma (px). Değerler [start-0.5, end+0.5]
-// aralığında doğrusal; geçişlerde hareket donmasın diye anahtar kareler klip sınırının yarım saniye dışına konur.
+// ---- AÇILIŞ (OpenArt hareketli video klipleri) ----------------------------------
+// Kaynaklar: ../videolar-openart/secilen/*.mp4 — 1920×1072, 24 fps, sessiz (yapay zekâ üretimi).
+// Sekans 1920×1080 / 30 fps. Uyarlama: %100,75 ölçek (1072 → 1080; yanlardan ~7 px kırpılır), kare
+// örnekleme (frame sampling; ara kare üretilmez). Bu dönüşüm kaliteyi artırmaz, yalnız kadrajı uyarlar.
+// src = kaynak giriş noktası (24 fps kare ızgarasında), speed = hız yüzdesi (yalnız 03'te %85).
+const CLIPS = 'videolar-openart/secilen/';
+const FIT = 100.75;
 const SHOTS = [
-  { id: '01', img: 'sahneler/01-dunya-kesfi.png', s: 0, e: 6, k: [1.01, 1.06], d0: [0, 0], d1: [0, -10] },
-  { id: '02', img: 'sahneler/02-kaplan-yolculuk.png', s: 6, e: 12, k: [1.09, 1.09], d0: [70, 0], d1: [-70, 0] },
-  { id: '03', img: 'sahneler/03-kale-kapisi.png', s: 12, e: 18, k: [1.01, 1.075], d0: [0, 0], d1: [0, 0] },
-  { id: '04', img: 'sahneler/04-turnuva-karsilasma.png', s: 18, e: 24, k: [1.03, 1.075], d0: [0, 0], d1: [0, 0] },
-  { id: '05', img: 'sahneler/05-kilic-temasi.png', s: 24, e: 27, k: [1.04, 1.06], d0: [10, 0], d1: [-10, 0] },
-  { id: '06', img: 'sahneler/06-kalkan-temasi.png', s: 27, e: 31, k: [1.08, 1.08], d0: [55, 0], d1: [-55, 0] },
-  { id: '07', img: 'sahneler/07-arenaya-giris.png', s: 31, e: 38, k: [1.01, 1.09], d0: [0, 0], d1: [0, 0] },
-  { id: '08', img: 'sahneler/08-arena-ihtisam.png', s: 38, e: 44, k: [1.10, 1.10], d0: [0, -50], d1: [0, 50] },
-  { id: '09', img: 'sahneler/09-kaplan-kukreme.png', s: 44, e: 48, k: [1.01, 1.04], d0: [0, 0], d1: [0, 0] },
-  { id: '10', img: 'sahneler/10-final-kunye.png', s: 48, e: 60, k: [1.03, 1.01], d0: [0, 0], d1: [0, 0] },
+  { id: '01', f: '01-dunya-kesfi.mp4', s: 0, e: 6, src: 0.5 },
+  { id: '02', f: '02-kaplan-yolculuk.mp4', s: 6, e: 12, src: 0.5 },
+  { id: '03', f: '03-kale-kapisi.mp4', s: 12, e: 18, src: 0.0, speed: 85 },   // kapı yalnız aralanır; kapanmadan (kaynak 5,1 s) kesilir
+  { id: '04', f: '04-turnuva-karsilasma.mp4', s: 18, e: 24, src: 0.5 },
+  { id: '05', f: '05-kilic-temasi.mp4', s: 24, e: 27, src: 0.25 },             // v02; temas halinde basınç/kıvılcım, kesme temas anında
+  { id: '06', f: '06-kalkan-temasi.mp4', s: 27, e: 31, src: 1.0 },
+  { id: '07', f: '07-arenaya-giris.mp4', s: 31, e: 38, src: 0.5 },
+  { id: '08', f: '08-arena-ihtisam.mp4', s: 38, e: 44, src: 0.5 },
+  { id: '09', f: '09-kaplan-kukreme.mp4', s: 44, e: 48, src: 0.875 },
+  { id: '10', f: '10-final-kunye.mp4', s: 48, e: 60, src: 0.5 },
 ];
-// Temas anları: plan, zaman (s), kaynak görüntüde temas noktası (oran), darbe büyüklüğü, kıvılcım dönüşü
-const CONTACTS = [
-  { shot: '04', t: 22.0, u: 0.505, v: 0.43, kick: 0.018, rot: 0 },
-  { shot: '05', t: 24.2, u: 0.500, v: 0.405, kick: 0.022, rot: 20 },
-  { shot: '06', t: 28.0, u: 0.720, v: 0.47, kick: 0.016, rot: -12 },
-];
-function base(sh, t) {
-  const t0 = sh.s - 0.5, t1 = sh.e + 0.5, u = Math.min(1, Math.max(0, (t - t0) / (t1 - t0)));
-  return { k: lerp(sh.k[0], sh.k[1], u), dx: lerp(sh.d0[0], sh.d1[0], u), dy: lerp(sh.d0[1], sh.d1[1], u) };
-}
-function mapPoint(sh, t, uu, vv) {
-  const b = base(sh, t), S = F * b.k / 100;
-  return [960 + b.dx + (uu * SRC_W - SRC_W / 2) * S, 540 + b.dy + (vv * SRC_H - SRC_H / 2) * S];
+// Kare kare incelemeyle bulunan kaynak olay zamanları (24 fps kare / 24) → final zaman
+const srcToFinal = (id, srcSec) => { const sh = SHOTS.find(x => x.id === id); return sh.s + (srcSec - sh.src) / ((sh.speed || 100) / 100); };
+const EV = {
+  kapiAralanir: srcToFinal('03', 1.5),        // ışık çizgisi genişlemeye başlar
+  kapiEnGenis: srcToFinal('03', 4.25),        // en geniş aralık
+  turnuvaTemas: srcToFinal('04', 65 / 24),    // kılıçlar kesişir (kare 65)
+  kilicTemas: 24.0,                           // 05: kesme temas anında; parlama kaynak 1,90 s'de tepe
+  kilicParlama: srcToFinal('05', 1.90),
+  kalkanTemas: srcToFinal('06', 48 / 24),     // kılıç kalkana değer (kare 48)
+  kilicCarpisma2: srcToFinal('06', 114 / 24), // kılıçlar kesişir, kıvılcım (kare 114)
+  kukreme: 44.0 + 1 / FPS,                    // 09: çene açık başlar; kükreme kesmeden bir kare sonra
+  cenekapanir: srcToFinal('09', 3.75),        // çene kapanmaya başlar
+};
+
+async function placeShot(item, sh) {
+  const sp = (sh.speed || 100) / 100;
+  const srcDurFrames = Math.round((sh.e - sh.s) * FPS * sp);
+  const cl = (await run('timeline.place', { item, track: 'V1', time: tk(sh.s), sourceIn: { seconds: sh.src }, duration: { frame: srcDurFrames }, insert: false, audio: false })).clips[0];
+  if (sh.speed) await run('clip.speedDuration', { clips: [cl], speed: sh.speed, ripple: false });
+  await setp(cl, 'motion', 'scale', FIT);
+  return cl;
 }
 
 async function buildOpening(outPath) {
   await open();
   await run('file.newProject', { name: 'kaplan-arena-acilis' });
-  const seqId = (await run('file.newSequence', { name: 'Acilis 60sn', width: 1920, height: 1080, fps: 30, sampleRate: 48000, video: 7, audio: 7 })).sequence;
+  const seqId = (await run('file.newSequence', { name: 'Acilis 60sn', width: 1920, height: 1080, fps: 30, sampleRate: 48000, video: 6, audio: 7 })).sequence;
   await run('sequence.settings', { maxRenderQuality: true });
   const bin = async name => { const r = await run('file.newBin', { name }); return r ? (r.bin ?? r.item ?? r.id ?? null) : null; };
-  const bins = { sah: await bin('Sahneler'), kat: await bin('Katmanlar'), muz: await bin('Muzik'), sfx: await bin('SFX') };
+  const bins = { vid: await bin('OpenArt klipleri'), kat: await bin('Grafik'), muz: await bin('Muzik'), sfx: await bin('SFX') };
   const imp = async (paths, b) => (await run('file.import', { paths: paths.map(p => SIN + '/' + p), ...(b != null ? { bin: b } : {}) })).items;
-  const shotItems = await imp(SHOTS.map(s => s.img), bins.sah);
-  const [fog, rays, dust, spark] = await imp(['filmcraft/katmanlar-png/sis-seridi.png', 'filmcraft/katmanlar-png/isik-huzmeleri.png', 'filmcraft/katmanlar-png/altin-toz.png', 'filmcraft/katmanlar-png/temas-kivilcim.png'], bins.kat);
+  const shotItems = await imp(SHOTS.map(s => CLIPS + s.f), bins.vid);
+  const [logo] = await imp(['filmcraft/katmanlar-png/logo-dark.png'], bins.kat);
   const [music] = await imp(['girdiler/acilis-muzik.wav'], bins.muz);
   const SFX = {};
   const sfxNames = ['kilic-temas-kayit-foley', 'kalkan-vurus-kayit-foley', 'savurma-gercek', 'kilic-suruntu-gercek', 'zincir-gercek', 'kapi-acilis-kayit-foley', 'kapi-gicirti-gercek', 'kukreme-kullanici'];
@@ -109,118 +120,46 @@ async function buildOpening(outPath) {
   sfxNames.forEach((n, i) => SFX[n] = sfxIds[i]);
   [SFX['baslik-vurgusu']] = await imp(['ses-taslaklari/baslik-vurgusu-01.wav'], bins.sfx);
 
-  const VN = ['Sahneler', 'Atmosfer', 'Kivilcim-Isik', 'Kapi isigi', 'Baslik', 'Kunye', 'Vinyet'];
+  const VN = ['OpenArt planlar', 'Vinyet', 'Baslik zemini', 'Baslik', 'Kunye', 'Logo'];
   for (let i = 0; i < VN.length; i++) await run('timeline.setTrack', { track: 'V' + (i + 1), name: VN[i] });
   const AN = ['Muzik', 'SFX Temas', 'SFX Savurma', 'SFX Surtunme-Zincir', 'SFX Kapi', 'SFX Kapi gicirti', 'SFX Kukreme-Baslik'];
   for (let i = 0; i < AN.length; i++) await run('timeline.setTrack', { track: 'A' + (i + 1), name: AN[i] });
 
-  // --- V1: planlar ve 2.5D kamera hareketi
+  // --- V1: gerçek hareketli planlar
   const shotClip = {};
-  for (let i = 0; i < SHOTS.length; i++) {
-    const sh = SHOTS[i];
-    const cl = await place(shotItems[i], 'V1', sh.s, sh.e - sh.s);
-    shotClip[sh.id] = cl;
-    const t0 = sh.s - 0.5, t1 = sh.e + 0.5;
-    const pts = [t0, t1];
-    const pulses = CONTACTS.filter(x => x.shot === sh.id);
-    // ölçek ve konum anahtar kareleri (doğrusal taban + temas darbesi)
-    const sKeys = new Map(), pKeys = new Map();
-    for (const t of pts) { const b = base(sh, t); sKeys.set(fr(t), F * b.k); pKeys.set(fr(t), [960 + b.dx, 540 + b.dy]); }
-    for (const p of pulses) {
-      const cf = fr(p.t);
-      const kick = [[-1, 0], [0, 0], [1, p.kick], [3, p.kick * 0.45], [7, 0]];
-      for (const [o, kk] of kick) { const b = base(sh, (cf + o) / FPS); sKeys.set(cf + o, F * b.k * (1 + kk)); }
-      const shake = [[-1, 0, 0], [0, 0, 0], [1, 7, -5], [2, -6, 4], [3, 4, -2], [5, -2, 1], [7, 0, 0]];
-      for (const [o, sx, sy] of shake) { const b = base(sh, (cf + o) / FPS); pKeys.set(cf + o, [960 + b.dx + sx, 540 + b.dy + sy]); }
-    }
-    for (const [f, v] of [...sKeys].sort((a, b) => a[0] - b[0])) await kf(cl, 'motion', 'scale', +v.toFixed(3), f / FPS);
-    const static_ = sh.d0[0] === sh.d1[0] && sh.d0[1] === sh.d1[1] && !pulses.length;
-    if (static_) await setp(cl, 'motion', 'position', [960 + sh.d0[0], 540 + sh.d0[1]]);
-    else for (const [f, v] of [...pKeys].sort((a, b) => a[0] - b[0])) await kf(cl, 'motion', 'position', [+v[0].toFixed(2), +v[1].toFixed(2)], f / FPS);
-  }
+  for (let i = 0; i < SHOTS.length; i++) shotClip[SHOTS[i].id] = await placeShot(shotItems[i], SHOTS[i]);
   // siyahtan açılış
   await kf(shotClip['01'], 'opacity', 'opacity', 0, 0);
   await kf(shotClip['01'], 'opacity', 'opacity', 100, 0.9);
-  // geçişler (kesmeler bilinçli: 18 kapı → turnuva, 24/27 temas planları, 44 kükreme)
-  const dissolve = async (inShot, frames) => run('sequence.applyVideoTransition', { clip: shotClip[inShot], effect: 'cross_dissolve', frames, edge: 'in', align: 'center' });
-  await dissolve('02', 20); await dissolve('03', 16); await dissolve('07', 10); await dissolve('08', 24); await dissolve('10', 20);
+  // Geçişler: çapraz geçiş yalnız sakin planlar arasında; temas planları (04→05→06) ve kükreme kesmeyle.
+  // Hizalama, klip tutamağına göre: 'center' iki yanda, 'start' çıkan klipte, 'end' giren klipte tutamak ister.
+  const dissolve = (inShot, frames, align) => run('sequence.applyVideoTransition', { clip: shotClip[inShot], effect: 'cross_dissolve', frames, edge: 'in', align });
+  await dissolve('02', 20, 'center');
+  await dissolve('03', 16, 'start');   // 03 kaynağı 0'dan başlar (ön tutamak yok)
+  // 06 → 07 kesme: ikinci kılıç çarpışması (30,75 s) geçiş altında kalmasın; kesmede savurma sesi
+  await dissolve('08', 24, 'center');
+  await dissolve('10', 14, 'end');     // 09'un son tutamağı yok; 10'un ön tutamağı 15 kare
 
-  // --- V2: atmosfer (sis, ışık huzmeleri) Screen karışımıyla
-  const fogA = await place(fog, 'V2', 0, 18);
-  await setp(fogA, 'opacity', 'blend', 'Screen');
-  await setp(fogA, 'motion', 'scale', 106);
-  await kf(fogA, 'motion', 'position', [1010, 548], 0); await kf(fogA, 'motion', 'position', [910, 548], 18);
-  await kf(fogA, 'opacity', 'opacity', 0, 0); await kf(fogA, 'opacity', 'opacity', 100, 1.5);
-  await kf(fogA, 'opacity', 'opacity', 100, 17.3); await kf(fogA, 'opacity', 'opacity', 0, 18);
-  const raysA = await place(rays, 'V2', 31, 13);
-  await setp(raysA, 'opacity', 'blend', 'Screen');
-  await setp(raysA, 'motion', 'scale', 108);
-  await kf(raysA, 'motion', 'position', [940, 540], 31); await kf(raysA, 'motion', 'position', [990, 540], 44);
-  for (const [t, o] of [[31, 0], [32, 40], [35.5, 58], [38, 42], [41, 60], [43.4, 50], [44, 0]]) await kf(raysA, 'opacity', 'opacity', o, t);
-  await addFx(raysA, 'gaussian_blur', { blurriness: 38 });
-  const fogB = await place(fog, 'V2', 48, 12);
-  await setp(fogB, 'opacity', 'blend', 'Screen');
-  await setp(fogB, 'motion', 'scale', 106);
-  await kf(fogB, 'motion', 'position', [1000, 552], 48); await kf(fogB, 'motion', 'position', [930, 552], 60);
-  await kf(fogB, 'opacity', 'opacity', 0, 48); await kf(fogB, 'opacity', 'opacity', 85, 49.5);
+  // --- V2: hafif vinyet (metnin altında)
+  const adjItem = (await run('file.newAdjustmentLayer', { seconds: 60, ...(bins.kat != null ? { bin: bins.kat } : {}) })).item;
+  const adj = await place(adjItem, 'V2', 0, 60);
+  await addFx(adj, 'vignette', { amount: -24, midpoint: 60, roundness: 0, feather: 80 });
 
-  // --- V3: temas kıvılcımları ve arena tozu
-  for (const p of CONTACTS) {
-    const sh = SHOTS.find(s => s.id === p.shot);
-    const [x, y] = mapPoint(sh, p.t, p.u, p.v);
-    const sc = await place(spark, 'V3', p.t, 14 / FPS);
-    await setp(sc, 'opacity', 'blend', 'Linear Dodge (Add)');
-    await setp(sc, 'motion', 'position', [+x.toFixed(1), +y.toFixed(1)]);
-    await setp(sc, 'motion', 'rotation', p.rot);
-    await kf(sc, 'motion', 'scale', 36, p.t); await kf(sc, 'motion', 'scale', 64, p.t + 13 / FPS);
-    await kf(sc, 'opacity', 'opacity', 100, p.t); await kf(sc, 'opacity', 'opacity', 85, p.t + 3 / FPS); await kf(sc, 'opacity', 'opacity', 0, p.t + 13 / FPS);
-  }
-  const dustA = await place(dust, 'V3', 31, 17);
-  await setp(dustA, 'opacity', 'blend', 'Screen');
-  await setp(dustA, 'motion', 'scale', 110);
-  await kf(dustA, 'motion', 'position', [960, 600], 31); await kf(dustA, 'motion', 'position', [975, 470], 48);
-  for (const [t, o] of [[31, 0], [32.5, 80], [43.5, 90], [47.4, 70], [48, 0]]) await kf(dustA, 'opacity', 'opacity', o, t);
-
-  // --- V3/V4: kapı aralığından sızan ışık (kapıyı bozmadan "ışık aralığı ve kes")
-  const sh03 = SHOTS.find(s => s.id === '03');
-  const seam = async (track, w, h, color, blur, opac, widen) => {
-    const g = await run('graphics.newRectangle', { position: [960, 529], size: [w, h], seconds: 5.1, track, time: tk(12.9) });
-    await run('graphics.set', { clip: g.clip, layer: 0, props: { fill_color: color } });
-    await setp(g.clip, 'opacity', 'blend', 'Screen');
-    await addFx(g.clip, 'gaussian_blur', { blurriness: blur });
-    await setp(g.clip, 'motion', 'uniform_scale', false);
-    for (const [t, o, wd] of [[12.9, 0, 1], [13.0, 0, 1], [13.5, opac * 0.55, 1.15], [16.8, opac * 0.8, widen * 0.9], [17.07, opac, widen], [18.0, opac, widen * 1.05]]) {
-      const k = base(sh03, t).k / sh03.k[0];
-      await kf(g.clip, 'opacity', 'opacity', +o.toFixed(1), t);
-      await kf(g.clip, 'motion', 'scale', +(100 * k).toFixed(2), t);
-      await kf(g.clip, 'motion', 'scale_width', +(100 * k * wd).toFixed(2), t);
-    }
-    return g.clip;
-  };
-  await seam(2, 8, 800, '#ffe4a6', 5, 85, 3.2);     // V3 çekirdek ışık
-  await seam(3, 70, 830, '#ffc964', 45, 55, 2.4);   // V4 parıltı
-
-  // --- V5: başlık (09'da sol boşlukta doğar, 48'de üst-orta güvenli alana taşınır)
-  const title = await run('graphics.newText', { text: 'KAPLAN ARENA', position: [960, 250], size: 124, font: 'Cinzel', fontStyle: 'Black', seconds: 60 - 44.9, track: 4, time: tk(44.9) });
-  await run('graphics.set', { clip: title.clip, layer: 0, props: { align: 'center', tracking: 40, fill_kind: 'Linear Gradient', gradient_start: '#fbe7b0', gradient_end: '#c8933c', gradient_angle: 90, shadow: true, shadow_color: '#06191b', shadow_opacity: 85, shadow_distance: 6, shadow_blur: 24 } });
-  await run('graphics.newText', { clip: title.clip, text: 'Efsaneye Yolculuk', position: [960, 336], size: 62, font: 'Marcellus SC', fontStyle: 'Regular' });
-  await run('graphics.set', { clip: title.clip, layer: 1, props: { align: 'center', tracking: 60, fill_color: '#f4e8c8', shadow: true, shadow_color: '#06191b', shadow_opacity: 85, shadow_distance: 4, shadow_blur: 18 } });
-  await run('graphics.set', { clip: title.clip, layer: 0, props: { stroke: true, stroke_color: '#2b1a06', stroke_width: 3, stroke_type: 'Outer' } });
-  await run('graphics.set', { clip: title.clip, layer: 1, props: { stroke: true, stroke_color: '#10282a', stroke_width: 2, stroke_type: 'Outer' } });
-  // açık gökyüzünde okunurluk için başlığın arkasına yumuşak koyu zemin (V4)
-  const back = await run('graphics.newEllipse', { position: [960, 268], size: [1500, 330], seconds: 12.5, track: 3, time: tk(47.5) });
+  // --- V3/V4: başlık (10'un gökyüzünde, üst-orta güvenli alan)
+  const back = await run('graphics.newEllipse', { position: [960, 268], size: [1500, 330], seconds: 60 - 47.6, track: 2, time: tk(47.6) });
   await run('graphics.set', { clip: back.clip, layer: 0, props: { fill_color: '#03141a' } });
   await addFx(back.clip, 'gaussian_blur', { blurriness: 90 });
-  await kf(back.clip, 'opacity', 'opacity', 0, 47.5); await kf(back.clip, 'opacity', 'opacity', 64, 48.6);
-  const tc = title.clip;
-  await kf(tc, 'motion', 'position', [560, 687.5], 44.9); await kf(tc, 'motion', 'position', [560, 687.5], 47.5); await kf(tc, 'motion', 'position', [960, 540], 48.6);
-  await kf(tc, 'motion', 'scale', 75, 44.9); await kf(tc, 'motion', 'scale', 75, 47.5); await kf(tc, 'motion', 'scale', 100, 48.6);
-  await kf(tc, 'opacity', 'opacity', 0, 44.9); await kf(tc, 'opacity', 'opacity', 100, 45.7);
-  await run('sequence.applyVideoTransition', { clip: tc, effect: 'light_sweep', frames: 30, edge: 'in', align: 'start' });
+  await kf(back.clip, 'opacity', 'opacity', 0, 47.6); await kf(back.clip, 'opacity', 'opacity', 66, 48.5);
+  const title = await run('graphics.newText', { text: 'KAPLAN ARENA', position: [960, 250], size: 124, font: 'Cinzel', fontStyle: 'Black', seconds: 60 - 47.9, track: 3, time: tk(47.9) });
+  await run('graphics.set', { clip: title.clip, layer: 0, props: { align: 'center', tracking: 40, fill_kind: 'Linear Gradient', gradient_start: '#fbe7b0', gradient_end: '#c8933c', gradient_angle: 90, shadow: true, shadow_color: '#06191b', shadow_opacity: 85, shadow_distance: 6, shadow_blur: 24, stroke: true, stroke_color: '#2b1a06', stroke_width: 3, stroke_type: 'Outer' } });
+  await run('graphics.newText', { clip: title.clip, text: 'Efsaneye Yolculuk', position: [960, 336], size: 62, font: 'Marcellus SC', fontStyle: 'Regular' });
+  await run('graphics.set', { clip: title.clip, layer: 1, props: { align: 'center', tracking: 60, fill_color: '#f4e8c8', shadow: true, shadow_color: '#06191b', shadow_opacity: 85, shadow_distance: 4, shadow_blur: 18, stroke: true, stroke_color: '#10282a', stroke_width: 2, stroke_type: 'Outer' } });
+  await kf(title.clip, 'opacity', 'opacity', 0, 47.9); await kf(title.clip, 'opacity', 'opacity', 100, 48.6);
+  await kf(title.clip, 'motion', 'scale', 92, 47.9); await kf(title.clip, 'motion', 'scale', 100, 48.9);
 
-  // --- V6: künye paneli (en geç 49,4 s'de tamamen yerleşir; 60 s'ye kadar ~10,6 s okunur)
-  const cr = await run('graphics.newRectangle', { position: [960, 752], size: [1560, 404], seconds: 60 - 48.3, track: 5, time: tk(48.3) });
-  await run('graphics.set', { clip: cr.clip, layer: 0, props: { fill_color: '#0a2a2d', opacity: 86, corner_radius: 22, stroke: true, stroke_color: '#c9a45a', stroke_width: 2, stroke_type: 'Inner' } });
+  // --- V5: künye paneli (49,4 s'den 60 s'ye kadar tam okunur: 10,6 s)
+  const cr = await run('graphics.newRectangle', { position: [960, 752], size: [1560, 404], seconds: 60 - 48.3, track: 4, time: tk(48.3) });
+  await run('graphics.set', { clip: cr.clip, layer: 0, props: { fill_color: '#0a2a2d', opacity: 88, corner_radius: 22, stroke: true, stroke_color: '#c9a45a', stroke_width: 2, stroke_type: 'Inner' } });
   const line = async (text, y, size, font, style, color, extra = {}) => {
     const r = await run('graphics.newText', { clip: cr.clip, text, position: [960, y], size, font, fontStyle: style });
     await run('graphics.set', { clip: cr.clip, layer: r.layer, props: { align: 'center', fill_color: color, ...extra } });
@@ -228,55 +167,65 @@ async function buildOpening(outPath) {
   await line('Düzenleyen: Kaplan Okulları Yapayzeka Kulübü', 628, 46, 'Segoe UI', 'Semibold', '#f6ecd2');
   await line('MENTÖRLER', 702, 30, 'Marcellus SC', 'Regular', '#e2bd6c', { tracking: 220 });
   await line('Ersen BARLAS    ·    Alp Han KOÇDEMİR', 754, 42, 'Segoe UI', 'Semibold', '#f6ecd2');
-  await line('ÖĞRENCİLER', 824, 30, 'Marcellus SC', 'Regular', '#e2bd6c', { tracking: 220 });
+  await line('KULÜP ÖĞRENCİLERİ', 824, 30, 'Marcellus SC', 'Regular', '#e2bd6c', { tracking: 200 });
   await line('Emre Burak Tölegen   ·   Burak Yoğurtçu   ·   Halil Mert ACAR   ·   Yekta Efe Konuk', 876, 36, 'Segoe UI', 'Regular', '#f6ecd2');
   await line('Çınar Arda   ·   Yusuf Emir Kuş   ·   Ömer Araf Boncuk   ·   Emir Karatay', 926, 36, 'Segoe UI', 'Regular', '#f6ecd2');
   await kf(cr.clip, 'opacity', 'opacity', 0, 48.3); await kf(cr.clip, 'opacity', 'opacity', 100, 49.4);
   await kf(cr.clip, 'motion', 'position', [960, 556], 48.3); await kf(cr.clip, 'motion', 'position', [960, 540], 49.4);
 
-  // --- V7: vinyet ayar katmanı
-  const adjItem = (await run('file.newAdjustmentLayer', { seconds: 60, ...(bins.kat != null ? { bin: bins.kat } : {}) })).item;
-  const adj = await place(adjItem, 'V7', 0, 60);
-  await addFx(adj, 'vignette', { amount: -32, midpoint: 58, roundness: 0, feather: 75 });
+  // --- V6: resmî Kaplan Okulları logosu (app/logo.js 'dark' sürümü; koyu zemin için açık yazılı)
+  const lg = await place(logo, 'V6', 48.6, 60 - 48.6);
+  await setp(lg, 'motion', 'position', [960, 456]);
+  await setp(lg, 'motion', 'scale', 40);
+  await kf(lg, 'opacity', 'opacity', 0, 48.6); await kf(lg, 'opacity', 'opacity', 100, 49.5);
 
-  // --- SES: A1 müzik, A2–A7 kayıt temelli efektler (transient tam temas karesine)
+  // --- SES: A1 müzik, A2–A7 kayıt temelli efektler (zamanlar gerçek video karelerinden)
   const mus = await place(music, 'A1', 0, null);
   await gain(mus, -2);
   const sfx = async (name, track, eventSec, sourceIn, db) => {
-    const extra = sourceIn ? { sourceIn: { seconds: sourceIn } } : {};
-    const cl = (await run('timeline.place', { item: SFX[name], track, time: tks(eventSec), insert: false, ...extra })).clips[0];
+    // FilmCraft sesi sekans karesinin başına (1/30 s) yerleştirir. Kare sınırına göre fark (d) kaynak girişinden
+    // düşülerek telafi edilir; böylece transient olay zamanına oturur (kaynak girişi yeterliyse).
+    let t = eventSec, si = sourceIn || 0;
+    const f0 = Math.floor(eventSec * FPS + 1e-6) / FPS, d = eventSec - f0;
+    if (d > 1e-6 && si >= d) { t = f0; si -= d; }
+    const extra = si > 0 ? { sourceIn: { seconds: si } } : {};
+    const cl = (await run('timeline.place', { item: SFX[name], track, time: tks(t), insert: false, ...extra })).clips[0];
     if (db) await gain(cl, db);
     return cl;
   };
-  // Temas (transient 46 ms'de; 40 ms kırpılarak darbe 22,000 / 24,200 / 28,000 s karesine oturur)
-  await sfx('kilic-temas-kayit-foley', 'A2', 22.0, 0.040, 8);
-  await sfx('kilic-temas-kayit-foley', 'A2', 24.2, 0.040, 8);
-  await sfx('kalkan-vurus-kayit-foley', 'A2', 28.0, 0.040, 11);
-  // Savurma: tepe (155 ms) temastan ~120 ms önce; 31 s geçişinde tepe kesmeye
-  await sfx('savurma-gercek', 'A3', 21.88 - 0.155, 0, 6);
-  await sfx('savurma-gercek', 'A3', 27.88 - 0.155, 0, 6);
-  await sfx('savurma-gercek', 'A3', 31.0 - 0.155, 0, 3);
-  // Kılıç sürtünmesi temas sonrası, zincir kapı açılmadan önce
-  await sfx('kilic-suruntu-gercek', 'A4', 22.12 - 0.158, 0, 3);
-  await sfx('kilic-suruntu-gercek', 'A4', 24.32 - 0.158, 0, 3);
-  await sfx('zincir-gercek', 'A4', 11.6, 0, -2);
-  // Kapı: hareket 13,0 s'de başlar, ana darbe (4,07 s) 17,07 s'deki ışık parlamasına denk gelir
-  await sfx('kapi-acilis-kayit-foley', 'A5', 13.0, 0, 5);
-  await sfx('kapi-gicirti-gercek', 'A6', 13.0 - 0.045, 0, 2);
-  // Kükreme (kullanıcı seçimi): başlangıç transient'i 44,3 s'de; başlık vurgusu 48,0 s
-  await sfx('kukreme-kullanici', 'A7', 44.3 - 0.161, 0, 4);
+  // Kapı: zincir gerilmesi aralanmadan önce; gıcırtı aralanmayla; ahşap/metal foley tepesi (3,26 s) en geniş aralığa
+  await sfx('zincir-gercek', 'A4', EV.kapiAralanir - 2.28 + 0.1, 0, -2);
+  await sfx('kapi-gicirti-gercek', 'A6', EV.kapiAralanir + 0.1 - 0.045, 0, 2);
+  await sfx('kapi-acilis-kayit-foley', 'A5', EV.kapiEnGenis - 3.26, 0, 5);
+  // Temaslar (kayıt transient'i 46 ms; 40 ms kırpılınca darbe olay karesine oturur). Savurma tepesi (155 ms) temastan 120 ms önce.
+  await sfx('savurma-gercek', 'A3', EV.turnuvaTemas - 0.12 - 0.155, 0, 3);
+  await sfx('kilic-temas-kayit-foley', 'A2', EV.turnuvaTemas, 0.040, 6);
+  await sfx('savurma-gercek', 'A3', EV.kilicTemas - 0.12 - 0.155, 0, 6);
+  await sfx('kilic-temas-kayit-foley', 'A2', EV.kilicTemas, 0.040, 8);
+  await sfx('kilic-suruntu-gercek', 'A4', EV.kilicTemas + 0.12 - 0.158, 0, 3);
+  await sfx('kilic-suruntu-gercek', 'A4', EV.kilicParlama - 0.30 - 0.158, 0, 4);   // parlama büyürken basınç sürtünmesi
+  await sfx('savurma-gercek', 'A3', EV.kalkanTemas - 0.12 - 0.155, 0, 6);
+  await sfx('kalkan-vurus-kayit-foley', 'A2', EV.kalkanTemas, 0.040, 11);
+  await sfx('savurma-gercek', 'A3', EV.kilicCarpisma2 - 0.12 - 0.155, 0, 4);
+  await sfx('kilic-temas-kayit-foley', 'A2', EV.kilicCarpisma2, 0.040, 7);
+  await sfx('savurma-gercek', 'A3', 31.0 - 0.155, 0, 2);                      // 06 → 07 kesmesi
+  // Kükreme (kullanıcı kaydı kukreme-kullanici.wav): transient 161 ms; yüksek bölüm 0,26–1,94 s, kayıt 2,46 s →
+  // çene açıkken (44,0–46,9 s) biter; kuyruk arena yankısıyla. Başlık vurgusu 48,0 s.
+  await sfx('kukreme-kullanici', 'A7', EV.kukreme - 0.161, 0, 4);
   await sfx('baslik-vurgusu', 'A7', 48.0 - 0.008, 0, 1);
 
-  // Müzik ducking (A1 hacim otomasyonu; yumuşak rampalar)
+  // Müzik ducking (A1 hacim otomasyonu; yumuşak rampalar, 3–6 dB)
+  const k = EV.kapiAralanir, tt = EV.turnuvaTemas, ka = EV.kalkanTemas, k2 = EV.kilicCarpisma2;
   const duck = [[0, 0],
-    [12.6, 0], [12.95, -5], [14.4, -5], [15.2, -1.5], [16.8, -1.5], [17.02, -5], [17.6, -5], [18.3, 0],
-    [21.5, 0], [21.8, -6], [22.8, -6], [23.3, -3], [23.95, -6], [25.0, -6], [25.6, 0],
-    [27.45, 0], [27.75, -6], [28.8, -6], [29.4, 0],
-    [30.65, 0], [30.9, -4], [31.5, -4], [32.0, 0],
-    [43.3, 0], [44.15, -6], [45.9, -6], [46.9, -1.5],
+    [k - 2.2, 0], [k - 1.8, -3], [k - 0.2, -3], [k + 0.1, -5], [EV.kapiEnGenis + 0.6, -5], [18.4, 0],
+    [tt - 0.45, 0], [tt - 0.2, -4], [tt + 0.6, -4], [tt + 1.1, 0],
+    [23.55, 0], [23.8, -6], [EV.kilicParlama + 0.3, -6], [26.6, -2],
+    [ka - 0.45, -2], [ka - 0.2, -6], [ka + 0.8, -6], [ka + 1.4, -1],
+    [k2 - 0.45, -1], [k2 - 0.2, -5], [31.3, -5], [31.9, 0],
+    [43.4, 0], [43.85, -6], [EV.cenekapanir - 0.6, -6], [EV.cenekapanir + 0.3, -1.5],
     [47.7, -1.5], [47.95, -4], [48.7, -4], [49.4, 0], [60, 0]];
   await run('mixer.writeAutomation', { strip: 'A1', lane: 'volume', points: duck.map(([t, v]) => [tks(t), v]) });
-  // Arena yankısı (ambiyans) submix: efektlerden ve müzikten küçük gönderim; müzik bittikten sonra doğal kuyruk
+  // Arena yankısı (ambiyans) submix: efektlerden ve müzikten küçük gönderim
   const s1 = await run('mixer.addSubmix', { name: 'Arena yankisi (ambiyans)', channels: 'Stereo' });
   await run('mixer.addInsert', { strip: s1.ref, effect: 'convolution_reverb' });
   await run('mixer.setInsert', { strip: s1.ref, slot: 0, params: { impulse: 2, mix: 100, predelay: 18, damping_hf: 7000, damping_lf: 120 } });
@@ -286,57 +235,54 @@ async function buildOpening(outPath) {
   await run('mixer.addInsert', { strip: 'Mix', effect: 'hard_limiter' });
   await run('mixer.setInsert', { strip: 'Mix', slot: 0, params: { max: -2.0, lookahead: 7, release: 120 } });
 
-  await run('project.setNotes', { text: 'Kaplan Arena açılış filmi (60 s, 1920x1080, 30 fps). FilmCraft 0.20.1 ile kurgulandı (kur.js). V1 planlar + 2.5D kamera; V2 sis/ışık; V3 kıvılcım/toz/kapı ışığı; V5 başlık; V6 künye; V7 vinyet. A1 müzik (ducking otomasyonu), A2–A7 kayıt temelli SFX, S1 arena yankısı/ambiyans, Mix hard limiter. Dışa aktarım: loudness -16 LUFS, true peak -1 dBTP.' });
+  await run('project.setNotes', { text: 'Kaplan Arena açılış filmi (60 s, 1920x1080, 30 fps). FilmCraft ile kurgulandı (kur.js). V1: OpenArt video klipleri (1920x1072/24 fps kaynak; %100,75 ölçek, kare örnekleme; 03 %85 hız). V2 vinyet; V3/V4 başlık; V5 künye; V6 resmi logo. A1 müzik (ducking), A2–A7 kayıt temelli SFX (gerçek temas karelerine), S1 arena yankısı, Mix hard limiter. Dışa aktarım: loudness -16 LUFS, true peak -1,5 dBTP.' });
   const seq = await seqInspect();
-  fs.writeFileSync(path.join(HERE, 'acilis-zaman-cizelgesi.json'), JSON.stringify(summarize(seq), null, 1));
-  if (PREVIEW_DIR) for (const s of [0.5, 2, 13.4, 15, 17.1, 21.9, 22.033, 24.233, 25, 28.033, 31.0, 35, 41, 44.5, 46, 47.9, 48.6, 49.5, 55, 59.96]) await frame(s, path.join(PREVIEW_DIR, 'acilis-' + s.toFixed(3) + '.png'));
+  const sum = summarize(seq); sum.olaylar = EV; sum.planlar = SHOTS;
+  fs.writeFileSync(path.join(HERE, 'acilis-zaman-cizelgesi.json'), JSON.stringify(sum, null, 1));
+  if (PREVIEW_DIR) for (const s of [0.5, 3, 9, 13.8, 17.0, 20.2, 24.0, 25.6, 28.0, 30.75, 34, 41, 44.5, 46.2, 47.2, 48.2, 49.5, 55, 59.96]) await frame(s, path.join(PREVIEW_DIR, 'acilis-' + s.toFixed(3) + '.png'));
   await run('file.saveAs', { path: outPath });
   c.close();
-  console.log('açılış kaydedildi', outPath, 'sekans', seqId);
+  console.log('açılış kaydedildi', outPath, 'sekans', seqId, JSON.stringify(EV));
 }
 
 // ---- ARA (30 s kesintisiz döngü) ------------------------------------------
+// ara-arena-sakin.mp4 (15,04 s) %90 hızda: kaynak 1,5–15,0 s → 15,000 s ekran (450 kare), iki tur = 30 s.
+// Her turun son 50 karesinde (1,667 s) V2'de kaynak 0–1,5 s, opaklık 0→100 ile üstten açılır; tur sınırında
+// görüntü kaynak 1,5 s'den kesintisiz sürer (sınırdaki iki kare arasında kaynak adımı 0,03 s, normal oynatımla aynı).
+// Geri oynatma (reverse) kullanılmaz.
 async function buildIntermission(outPath) {
   await open();
   await run('file.newProject', { name: 'kaplan-arena-ara' });
-  await run('file.newSequence', { name: 'Ara 30sn dongu', width: 1920, height: 1080, fps: 30, sampleRate: 48000, video: 6, audio: 2 });
+  await run('file.newSequence', { name: 'Ara 30sn dongu', width: 1920, height: 1080, fps: 30, sampleRate: 48000, video: 4, audio: 2 });
   await run('sequence.settings', { maxRenderQuality: true });
   const imp = async paths => (await run('file.import', { paths: paths.map(p => SIN + '/' + p) })).items;
-  const [bg, fogLoop, dust, rays, music] = await imp(['sahneler/ara-arena-sakin.png', 'filmcraft/katmanlar-png/sis-dongu-3840.png', 'filmcraft/katmanlar-png/altin-toz.png', 'filmcraft/katmanlar-png/isik-huzmeleri.png', 'girdiler/ara-muzik.wav']);
-  const VN = ['Arena', 'Sis A', 'Sis B', 'Isik tozu', 'Yazilar', 'Vinyet'];
+  const [vid, music] = await imp([CLIPS + 'ara-arena-sakin.mp4', 'girdiler/ara-muzik.wav']);
+  const VN = ['Arena', 'Arena dongu gecisi', 'Yazilar', 'Vinyet'];
   for (let i = 0; i < VN.length; i++) await run('timeline.setTrack', { track: 'V' + (i + 1), name: VN[i] });
   await run('timeline.setTrack', { track: 'A1', name: 'Ara muzik' });
   await run('timeline.setTrack', { track: 'A2', name: 'Ara muzik sarma' });
-  const L = 30;
-  // Sabit kamera
-  const b = await place(bg, 'V1', 0, L);
-  await setp(b, 'motion', 'scale', +F.toFixed(4));
-  // Sis A: 3840 px bant, 30 s'de tam 1920 px (bir periyot) sabit hızla sola → konum ve hız döngüde süreklidir
-  const fa = await place(fogLoop, 'V2', 0, L);
-  await setp(fa, 'opacity', 'blend', 'Screen');
-  await kf(fa, 'motion', 'position', [1920, 540], 0); await kf(fa, 'motion', 'position', [0, 540], L);
-  // Sis B: aynı bant, ters yönde, biraz yukarıda ve daha saydam
-  const fb = await place(fogLoop, 'V3', 0, L);
-  await setp(fb, 'opacity', 'blend', 'Screen');
-  await setp(fb, 'opacity', 'opacity', 70);
-  await kf(fb, 'motion', 'position', [0, 470], 0); await kf(fb, 'motion', 'position', [1920, 470], L);
-  // Işık tozu: uçlarda sıfır hızlı periyodik salınım (0 ve 30 s aynı konum/opaklık)
-  const d = await place(dust, 'V4', 0, L);
-  await setp(d, 'opacity', 'blend', 'Screen');
-  await setp(d, 'motion', 'scale', 110);
-  for (const [t, x, y, o] of [[0, 960, 540, 55], [15, 978, 512, 80], [L, 960, 540, 55]]) { await kf(d, 'motion', 'position', [x, y], t); await kf(d, 'opacity', 'opacity', o, t); }
-  for (const [t, it] of [[0, 'easeOut'], [15, 'bezier'], [L, 'easeIn']]) {
-    for (const p of ['position']) await run('effects.setInterpolation', { clip: d, effect: 'motion', param: p, mediaTime: tks(t), interpolation: it }).catch(() => {});
+  const L = 30, SPEED = 90, D = 1.5, CYC = 15;
+  const sp = SPEED / 100;
+  for (let k = 0; k < 2; k++) {
+    const t0 = k * CYC;
+    const a = (await run('timeline.place', { item: vid, track: 'V1', time: tk(t0), sourceIn: { seconds: D }, duration: { frame: Math.round(CYC * FPS * sp) }, insert: false, audio: false })).clips[0];
+    await run('clip.speedDuration', { clips: [a], speed: SPEED, ripple: false });
+    await setp(a, 'motion', 'scale', FIT);
+    const xs = t0 + CYC - D / sp;   // 13,333 s / 28,333 s
+    const b = (await run('timeline.place', { item: vid, track: 'V2', time: tk(xs), sourceIn: { seconds: 0 }, duration: { frame: Math.round(D * FPS) }, insert: false, audio: false })).clips[0];
+    await run('clip.speedDuration', { clips: [b], speed: SPEED, ripple: false });
+    await setp(b, 'motion', 'scale', FIT);
+    await kf(b, 'opacity', 'opacity', 0, xs); await kf(b, 'opacity', 'opacity', 100, t0 + CYC - 1 / FPS);
   }
   // Yazılar (sabit; döngüde atlama yaratmaz)
-  const tx = await run('graphics.newText', { text: 'KAPLAN ARENA', position: [960, 478], size: 132, font: 'Cinzel', fontStyle: 'Black', seconds: L, track: 4, time: 0 });
-  await run('graphics.set', { clip: tx.clip, layer: 0, props: { align: 'center', tracking: 40, fill_kind: 'Linear Gradient', gradient_start: '#fbe7b0', gradient_end: '#c8933c', gradient_angle: 90, shadow: true, shadow_color: '#06191b', shadow_opacity: 85, shadow_distance: 6, shadow_blur: 26 } });
+  const tx = await run('graphics.newText', { text: 'KAPLAN ARENA', position: [960, 478], size: 132, font: 'Cinzel', fontStyle: 'Black', seconds: L, track: 2, time: 0 });
+  await run('graphics.set', { clip: tx.clip, layer: 0, props: { align: 'center', tracking: 40, fill_kind: 'Linear Gradient', gradient_start: '#fbe7b0', gradient_end: '#c8933c', gradient_angle: 90, shadow: true, shadow_color: '#06191b', shadow_opacity: 85, shadow_distance: 6, shadow_blur: 26, stroke: true, stroke_color: '#2b1a06', stroke_width: 3, stroke_type: 'Outer' } });
   await run('graphics.newText', { clip: tx.clip, text: 'Efsaneye Yolculuk', position: [960, 566], size: 64, font: 'Marcellus SC', fontStyle: 'Regular' });
   await run('graphics.set', { clip: tx.clip, layer: 1, props: { align: 'center', tracking: 60, fill_color: '#f4e8c8', shadow: true, shadow_color: '#06191b', shadow_opacity: 85, shadow_distance: 4, shadow_blur: 18 } });
   await run('graphics.newText', { clip: tx.clip, text: 'Birazdan devam ediyoruz', position: [960, 912], size: 42, font: 'Segoe UI', fontStyle: 'Semibold' });
   await run('graphics.set', { clip: tx.clip, layer: 2, props: { align: 'center', fill_color: '#f6ecd2', background: true, background_color: '#0a2a2d', background_opacity: 72, background_size: 22, background_radius: 30 } });
   const adjItem = (await run('file.newAdjustmentLayer', { seconds: L })).item;
-  const adj = await place(adjItem, 'V6', 0, L);
+  const adj = await place(adjItem, 'V4', 0, L);
   await addFx(adj, 'vignette', { amount: -30, midpoint: 58, roundness: 0, feather: 75 });
 
   // Ses: kaynak 14,9–44,9 s; son 2 s'de kuyruk eşit güçle kısılırken kaynak 12,9–14,9 s açılır → 30 s'de
@@ -354,10 +300,10 @@ async function buildIntermission(outPath) {
   }
   await run('mixer.addInsert', { strip: 'Mix', effect: 'hard_limiter' });
   await run('mixer.setInsert', { strip: 'Mix', slot: 0, params: { max: -1.5, lookahead: 7, release: 150 } });
-  await run('project.setNotes', { text: 'Kaplan Arena ara döngüsü (30 s). Kamera sabit; sis bantları 30 s\'de tam bir periyot kayar; toz/ışık periyodik. Müzik: ara-muzik.wav 14,9–44,9 s + 2 s eşit güçlü sarma geçişi (A2). Dışa aktarım: loudness -20 LUFS, true peak -1 dBTP.' });
+  await run('project.setNotes', { text: 'Kaplan Arena ara döngüsü (30 s). V1: ara-arena-sakin.mp4 (OpenArt) %90 hızda iki tur (kaynak 1,5–15,0 s); her tur sonunda V2 kaynak 0–1,5 s üstten açılır (kesintisiz sarma, geri oynatma yok). Müzik: ara-muzik.wav 14,9–44,9 s + 2 s eşit güçlü sarma geçişi (A2). Dışa aktarım: loudness -20 LUFS, true peak -1 dBTP, 44,1 kHz.' });
   const seq = await seqInspect();
   fs.writeFileSync(path.join(HERE, 'ara-zaman-cizelgesi.json'), JSON.stringify(summarize(seq), null, 1));
-  if (PREVIEW_DIR) for (const s of [0, 7.5, 15, 22.5, 29.967]) await frame(s, path.join(PREVIEW_DIR, 'ara-' + s.toFixed(3) + '.png'));
+  if (PREVIEW_DIR) for (const s of [0, 7.5, 13.4, 14.967, 15, 22.5, 29.967]) await frame(s, path.join(PREVIEW_DIR, 'ara-' + s.toFixed(3) + '.png'));
   await run('file.saveAs', { path: outPath });
   c.close();
   console.log('ara kaydedildi', outPath);

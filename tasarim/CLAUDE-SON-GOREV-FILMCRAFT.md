@@ -1,5 +1,7 @@
 # Claude için tek parça son görev
 
+GÜNCEL HAREKETLİ VİDEO TESLİMİ: OpenArt klipleri artık hazır. Önce `E:\PROJELER\KaplanArena\tasarim\sinematik\videolar-openart\CLAUDE-VIDEO-TESLIMI.md` dosyasını oku ve `secilen/` altındaki 11 gerçek video klibini kullan. Aşağıdaki statik görselleri hareketlendirme tarifi bu kliplerin üretiminden önce yazılmıştır; video kaynak seçiminde güncel teslim belgesi önceliklidir. FilmCraft montajı, ses miksajı, uygulama entegrasyonu, test, commit/push ve rapor kapsamı aynen devam eder. Kaynaklar 1920×1072 / 24 fps'dir; nihai sekansa uyarla. 05-kilic-temasi seçilen kopyası düzeltilmiş v02'dir.
+
 Kaplan Arena projesinde aşağıdaki işi şimdi başlat ve doğrulanmış teslimata kadar tamamla. Proje: `E:\PROJELER\KaplanArena`. Kurgu ve montaj uygulaması: `C:\Program Files\FilmCraft\`. Bu mesaj son kullanıcı talimatıdır; eski belgelerdeki commit/push yapmama talimatını geçersiz kılar. İlgili değişiklikleri tamamlayıp test ettikten sonra commit ve normal push yapman açıkça yetkilidir. Yeniden başlangıç onayı isteme. Gereksiz kapsam genişletme; mevcut kullanıcı çalışmalarını koru.
 
 ## 1. Önce mevcut durumu incele

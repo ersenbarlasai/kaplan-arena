@@ -1,0 +1,26 @@
+{
+ "tarih": "2026-11-26T03:44:12.918Z",
+ "not": "Yalnız A2 temas izi (müzik/yankı kapalı); kare = 33,3 ms",
+ "sonuc": {
+  "turnuvaTemas": {
+   "olay_s": 20.2083,
+   "transient_s": 20.2143,
+   "sapma_ms": 6
+  },
+  "kilicTemas": {
+   "olay_s": 24,
+   "transient_s": 24.006,
+   "sapma_ms": 6
+  },
+  "kalkanTemas": {
+   "olay_s": 28,
+   "transient_s": 28.006,
+   "sapma_ms": 6
+  },
+  "kilicCarpisma2": {
+   "olay_s": 30.75,
+   "transient_s": 30.756,
+   "sapma_ms": 6
+  }
+ }
+}

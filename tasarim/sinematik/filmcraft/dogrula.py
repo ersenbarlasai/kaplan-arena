@@ -52,13 +52,14 @@ def wav(f, name):
 def sample_peak_db(x):
     return round(20 * np.log10(np.abs(x).max() + 1e-12), 2)
 
-EVENTS = [('Kapı / zincir başlangıcı', 13.0, 'kapi-acilis-kayit-foley + kapi-gicirti-gercek + zincir-gercek'),
-          ('Kapı ana darbe (ışık parlaması)', 17.07, 'kapi-acilis-kayit-foley (kaynak 4,07 s)'),
-          ('Kılıç teması 1', 22.0, 'kilic-temas-kayit-foley (+ savurma-gercek öncesi, kilic-suruntu-gercek sonrası)'),
-          ('Kılıç teması 2', 24.2, 'kilic-temas-kayit-foley (+ kilic-suruntu-gercek)'),
-          ('Kalkan teması', 28.0, 'kalkan-vurus-kayit-foley (+ savurma-gercek öncesi)'),
-          ('Geçiş savurması', 31.0, 'savurma-gercek'),
-          ('Kükreme', 44.3, 'kukreme-kullanici'),
+# Olay zamanları: OpenArt kliplerinde kare kare bulunan temas/kükreme anları (acilis-zaman-cizelgesi.json "olaylar").
+EVENTS = [('Kapı aralanması (zincir + gıcırtı)', 13.76, 'zincir-gercek + kapi-gicirti-gercek (03 kaynak 1,5 s, %85 hız)'),
+          ('Kapı en geniş aralık', 17.0, 'kapi-acilis-kayit-foley tepesi (03 kaynak 4,25 s)'),
+          ('Turnuva kılıç kesişmesi', 20.208, 'kilic-temas-kayit-foley (04 kaynak kare 65)'),
+          ('Kılıç teması (yakın plan, kesme)', 24.0, 'kilic-temas-kayit-foley + savurma-gercek + kilic-suruntu-gercek (05 v02)'),
+          ('Kalkan teması', 28.0, 'kalkan-vurus-kayit-foley (06 kaynak kare 48)'),
+          ('İkinci kılıç çarpışması', 30.75, 'kilic-temas-kayit-foley (06 kaynak kare 114)'),
+          ('Kükreme', 44.033, 'kukreme-kullanici (09; çene açık 44,0–46,9 s)'),
           ('Başlık vurgusu', 48.0, 'ses-taslaklari/baslik-vurgusu-01 (sentetik tasarım sesi)')]
 
 def sfx(sr, x):
@@ -132,7 +133,7 @@ def main():
             times = [2, 15, 25, 35, 46, 55]
             ps = frames(f, times, 'acilis')
             for p, t in zip(ps, times): Image.open(p).convert('RGB').resize((1280, 720)).save(os.path.join(PRE, f'acilis-{t:02d}sn.jpg'), quality=84)
-            extra = [13.4, 17.1, 22.033, 24.233, 28.033, 44.5, 49.5, 59.9]
+            extra = [13.8, 17.0, 20.2, 24.0, 28.0, 30.75, 44.5, 46.2, 49.5, 59.9]
             pe = frames(f, extra, 'acilis-x')
             sheet(ps + pe, [f'{t:g} s' for t in times + extra], os.path.join(PRE, 'acilis-kareler.jpg'))
         else:

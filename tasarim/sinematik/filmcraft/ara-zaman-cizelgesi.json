@@ -6,47 +6,35 @@
    "track": "Arena",
    "clips": [
     {
-     "name": "ara-arena-sakin.png",
+     "name": "ara-arena-sakin.mp4",
      "startS": 0,
+     "endS": 15,
+     "sourceInS": 1.5,
+     "gainDb": 0
+    },
+    {
+     "name": "ara-arena-sakin.mp4",
+     "startS": 15,
      "endS": 30,
-     "sourceInS": 0,
+     "sourceInS": 1.5,
      "gainDb": 0
     }
    ],
    "transitions": 0
   },
   {
-   "track": "Sis A",
+   "track": "Arena dongu gecisi",
    "clips": [
     {
-     "name": "sis-dongu-3840.png",
-     "startS": 0,
-     "endS": 30,
+     "name": "ara-arena-sakin.mp4",
+     "startS": 13.333,
+     "endS": 15,
      "sourceInS": 0,
      "gainDb": 0
-    }
-   ],
-   "transitions": 0
-  },
-  {
-   "track": "Sis B",
-   "clips": [
+    },
     {
-     "name": "sis-dongu-3840.png",
-     "startS": 0,
-     "endS": 30,
-     "sourceInS": 0,
-     "gainDb": 0
-    }
-   ],
-   "transitions": 0
-  },
-  {
-   "track": "Isik tozu",
-   "clips": [
-    {
-     "name": "altin-toz.png",
-     "startS": 0,
+     "name": "ara-arena-sakin.mp4",
+     "startS": 28.333,
      "endS": 30,
      "sourceInS": 0,
      "gainDb": 0

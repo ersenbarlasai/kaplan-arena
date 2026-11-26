@@ -1,25 +1,23 @@
 # Claude devam durumu — FilmCraft sinematik görevi
 
-Son güncelleme: 26 Kasım 2026
+Son güncelleme: 26 Kasım 2026 (hareketli video sürümü)
 
 ## Tamamlanan
 
-- [x] Belgeler okundu; FilmCraft 0.20.1 CLI/MCP keşfi; plan: `FILMCRAFT-UYGULAMA-PLANI.md`.
-- [x] SVG katmanları → `filmcraft/katmanlar-png/` (FilmCraft SVG okumuyor).
-- [x] `filmcraft/kur.js` ile `kaplan-arena-acilis.fcproj` ve `kaplan-arena-ara.fcproj`; göreli yollar, yeniden açıldı, bütün medya `online`.
-- [x] Miks yinelemesi (yalnız ses dışa aktarımıyla ölçüm): efektler müziğin 8–14 dB üstünde; A2 kompresörü kaldırıldı; limiter −2 dB.
-- [x] Nihai export (CRF 20): `ciktilar/acilis-60sn.mp4` (−16,1 LUFS, −1,2 dBTP, 1800 kare), `ciktilar/ara-30sn-loop.mp4` (−20 LUFS, 900 kare, ses tam 30,000 s @44,1 kHz). Doğrulama: `filmcraft/dogrula.py` → `filmcraft/dogrulama-sonuclari.json`, `onizleme/`.
-- [x] Uygulama entegrasyonu (CINE, admin kontrolleri, StageCine, CSS, PS sunucusu byte-range, test sunucusu Range, OKU-BENI).
-- [x] Testler: birim 17/17, run 65/65, modes 30/30, correct 39/39, media 43/43.
+- [x] İlk teslim (sabit görsel / 2.5D kurgu): commit `67748b4`, `244674b`.
+- [x] Hareketli video teslimi (`videolar-openart/CLAUDE-VIDEO-TESLIMI.md`): 11 seçilmiş OpenArt klibi kare kare incelendi (temas, kapı, çene); `filmcraft/kur.js` video kliplerle yeniden yazıldı.
+- [x] `kaplan-arena-acilis.fcproj` ve `kaplan-arena-ara.fcproj`; göreli yollar, yeniden açıldı, bütün medya `online`.
+- [x] Nihai export: açılış CRF 22 (48,2 MB, −16,1 LUFS, −1,4 dBTP, 1800 kare), ara CRF 20 (11,3 MB, −20 LUFS, 900 kare, ses 30,000 s). `--allow-offline` kullanılmadı.
+- [x] Doğrulama: `dogrula.py`, `sfx-senkron.js` (4 temas +6 ms), `dongu-oynat.js` (Chrome 3 tur, sarma 33,3 ms).
+- [x] `assets/sinematik/` kopyaları + `ara-poster.webp` (FilmCraft 0 s karesi). Uygulama kodu değişmedi.
+- [x] Testler: birim 22/22, media 43/43, modes 30/30, uckampus 63/63.
 - [x] Rapor: `FILMCRAFT-TESLIM-RAPORU.md`.
 
-## Sıradaki
+## Kalan
 
-- [x] Commit `67748b4` + normal push (main → origin); Vercel otomatik dağıtımı videoları 200/206 ile sunuyor.
-
-Görev tamamlandı; kalan tek adım kullanıcının salonda dinleme/izleme onayı.
+- Kullanıcının salonda gözle/kulakla onayı: 00:12–00:31, 00:44–00:48 ve ara döngüsü 3 tur. Kulakla dinleme yapılmadı (yapılamaz).
 
 ## Notlar
 
-- Nihai renderda `--allow-offline` kullanılmadı.
-- Kulakla dinleme yapılmadı (yapılamaz); kullanıcı 00:12–00:31 ve 00:44–00:48 aralıklarını ve ara döngüsünü 3 tur dinlemeli.
+- Ek OpenArt üretimi yapılmadı (kalan 530 kredi kullanılmadı).
+- `ham/05-kilic-temasi.mp4` (bozuk ilk sürüm) kullanılmadı; `secilen/05-kilic-temasi.mp4` = v02.

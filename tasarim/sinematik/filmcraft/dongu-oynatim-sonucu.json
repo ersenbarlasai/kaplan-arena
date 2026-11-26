@@ -1,0 +1,33 @@
+{
+ "tarih": "2026-11-26T03:43:07.633Z",
+ "wraps": [
+  {
+   "before": 29.9667,
+   "after": 0,
+   "gapMs": 33.3
+  },
+  {
+   "before": 29.9667,
+   "after": 0,
+   "gapMs": 33.3
+  },
+  {
+   "before": 29.9667,
+   "after": 0,
+   "gapMs": 33.4
+  }
+ ],
+ "ev": {
+  "waiting": 4,
+  "stalled": 0
+ },
+ "dropped": 0,
+ "frames": 2701,
+ "duration": 30,
+ "normalGapMs": {
+  "median": 33.4,
+  "p99": 50.1,
+  "max": 183.5
+ },
+ "ok": true
+}

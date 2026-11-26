@@ -1,0 +1,845 @@
+{
+  "version": 1,
+  "date": "2026-11-26",
+  "projectId": "6Nv0Uci7x7aq6gkrCHc9",
+  "accountBalanceBefore": 3200,
+  "totalQuotedCredits": 2670,
+  "note": "Requested user media production and Claude handoff. Files are not delivered until downloaded and verified. No final FilmCraft montage performed here.",
+  "jobs": [
+    {
+      "scene": "01-dunya-kesfi",
+      "sourceFile": "E:/PROJELER/KaplanArena/tasarim/sinematik/sahneler/01-dunya-kesfi.png",
+      "targetFile": "ham/01-dunya-kesfi.mp4",
+      "timeline": {
+        "start_s": 0,
+        "end_s": 6
+      },
+      "quotedCredits": 210,
+      "status": "COMPLETED",
+      "request": {
+        "model": "pixverseV6",
+        "mode": "image2video",
+        "params": {
+          "prompt": "Animate this exact first-frame illustration into a continuous cinematic shot. Preserve the painterly fantasy game-art style, teal and antique-gold palette, exact environment geometry, costume details and identities. Actual subject/environment motion, not a slideshow or mere digital zoom. Stable anatomy and architecture throughout; natural physically coherent motion. No scene change, no new characters, no text, logos, subtitles or watermarks. No blood, injury, horror, rapid flashes or violent camera shake. Silent output; no music, dialogue or sound effects.\n\nWide establishing view of the same forest valley, central castle, river and distant arena. A subtle slow forward camera glide with foreground depth; leaves sway independently in a gentle breeze, low mist drifts slowly across the valley and river water shimmers. Preserve the castle silhouette and road. Calm dawn, warm golden light, no invented flying creatures or buildings.",
+          "startFrame": {
+            "id": "mcp-fa831b165fe5083de416b94e9ff64b99c83b6895512f7d6efaecef09f7718d36",
+            "type": "image",
+            "url": "https://cdn.openart.ai/openart-uploads/production/attachment-transfers/fa831b165fe5083de416b94e9ff64b99c83b6895512f7d6efaecef09f7718d36.png",
+            "label": "01-dunya-kesfi.png"
+          },
+          "duration": 7,
+          "resolution": "1080p",
+          "generateAudio": false,
+          "videoCount": 1
+        }
+      },
+      "historyId": "NTW0RaAP0eoWrcNISX4W",
+      "submission": {
+        "status": "PENDING",
+        "historyId": "NTW0RaAP0eoWrcNISX4W",
+        "projectId": "6Nv0Uci7x7aq6gkrCHc9",
+        "projectName": "Personal Project",
+        "folderId": null,
+        "prompt": "Animate this exact first-frame illustration into a continuous cinematic shot. Preserve the painterly fantasy game-art style, teal and antique-gold palette, exact environment geometry, costume details and identities. Actual subject/environment motion, not a slideshow or mere digital zoom. Stable anatomy and architecture throughout; natural physically coherent motion. No scene change, no new characters, no text, logos, subtitles or watermarks. No blood, injury, horror, rapid flashes or violent camera shake. Silent output; no music, dialogue or sound effects.\n\nWide establishing view of the same forest valley, central castle, river and distant arena. A subtle slow forward camera glide with foreground depth; leaves sway independently in a gentle breeze, low mist drifts slowly across the valley and river water shimmers. Preserve the castle silhouette and road. Calm dawn, warm golden light, no invented flying creatures or buildings.",
+        "modelDisplayName": "PixVerse V6",
+        "resourceCount": 1,
+        "resolution": "1080p",
+        "pollAfterSeconds": 10
+      },
+      "resourceUrl": "https://cdn.openart.ai/openart-ai/production/2026-11/create-video/t5FPca6aeaWW26F8OBK4/d5ecd3fb-a8a0-4f6d-b55b-8925f76bfa94_seed503757343_1795661445750_e7993085.mp4",
+      "localFile": "E:/PROJELER/KaplanArena/tasarim/sinematik/videolar-openart/ham/01-dunya-kesfi.mp4",
+      "metadata": {
+        "width": 1920,
+        "height": 1072,
+        "fps": 24,
+        "duration": 7.041667,
+        "hasAudio": false
+      },
+      "qa": {
+        "decode": "PASS",
+        "sampledFrames": "REVIEWED",
+        "fullMotionReview": "PENDING",
+        "note": "Sampled contact sheets preserve identity/style; full playback review still required, especially foot contact in tiger walk."
+      },
+      "sha256": "C4DB257CCB6E4C877F864A0EC026C682566A5C3DFDFBA9E254E2BB9BF1C0E292",
+      "selectedFile": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\01-dunya-kesfi.mp4"
+    },
+    {
+      "scene": "02-kaplan-yolculuk",
+      "sourceFile": "E:/PROJELER/KaplanArena/tasarim/sinematik/sahneler/02-kaplan-yolculuk.png",
+      "targetFile": "ham/02-kaplan-yolculuk.mp4",
+      "timeline": {
+        "start_s": 6,
+        "end_s": 12
+      },
+      "quotedCredits": 210,
+      "status": "COMPLETED",
+      "request": {
+        "model": "pixverseV6",
+        "mode": "image2video",
+        "params": {
+          "prompt": "Animate this exact first-frame illustration into a continuous cinematic shot. Preserve the painterly fantasy game-art style, teal and antique-gold palette, exact environment geometry, costume details and identities. Actual subject/environment motion, not a slideshow or mere digital zoom. Stable anatomy and architecture throughout; natural physically coherent motion. No scene change, no new characters, no text, logos, subtitles or watermarks. No blood, injury, horror, rapid flashes or violent camera shake. Silent output; no music, dialogue or sound effects.\n\nThe same upright anthropomorphic TIGER guide on the left, wearing the exact dark teal cloak with gold laurel embroidery, brown trousers and boots, takes two small deliberate bipedal steps forward along the rocky path toward the distant castle. Rear three-quarter view, head stays turned toward the valley. His tail sways once, cloak ripples in the breeze, paws remain paws. Maintain his scale, striped tiger head and four total limbs; no transformation into a lion or human. Gently track forward from behind; keep the landscape stable.",
+          "startFrame": {
+            "id": "mcp-dc12d4f688926ee066c8accd61fc3443431e732836b3d2a3fc41305746f4ccc8",
+            "type": "image",
+            "url": "https://cdn.openart.ai/openart-uploads/production/attachment-transfers/dc12d4f688926ee066c8accd61fc3443431e732836b3d2a3fc41305746f4ccc8.png",
+            "label": "02-kaplan-yolculuk.png"
+          },
+          "duration": 7,
+          "resolution": "1080p",
+          "generateAudio": false,
+          "videoCount": 1
+        }
+      },
+      "historyId": "GEbc5yCBXVbUxnUOmZlY",
+      "submission": {
+        "status": "PENDING",
+        "historyId": "GEbc5yCBXVbUxnUOmZlY",
+        "projectId": "6Nv0Uci7x7aq6gkrCHc9",
+        "projectName": "Personal Project",
+        "folderId": null,
+        "prompt": "Animate this exact first-frame illustration into a continuous cinematic shot. Preserve the painterly fantasy game-art style, teal and antique-gold palette, exact environment geometry, costume details and identities. Actual subject/environment motion, not a slideshow or mere digital zoom. Stable anatomy and architecture throughout; natural physically coherent motion. No scene change, no new characters, no text, logos, subtitles or watermarks. No blood, injury, horror, rapid flashes or violent camera shake. Silent output; no music, dialogue or sound effects.\n\nThe same upright anthropomorphic TIGER guide on the left, wearing the exact dark teal cloak with gold laurel embroidery, brown trousers and boots, takes two small deliberate bipedal steps forward along the rocky path toward the distant castle. Rear three-quarter view, head stays turned toward the valley. His tail sways once, cloak ripples in the breeze, paws remain paws. Maintain his scale, striped tiger head and four total limbs; no transformation into a lion or human. Gently track forward from behind; keep the landscape stable.",
+        "modelDisplayName": "PixVerse V6",
+        "resourceCount": 1,
+        "resolution": "1080p",
+        "pollAfterSeconds": 10
+      },
+      "resourceUrl": "https://cdn.openart.ai/openart-ai/production/2026-11/create-video/t5FPca6aeaWW26F8OBK4/2811f246-2d0e-4fc4-bdf2-da41784c8552_seed30024572_1795661462673_9c0fae22.mp4",
+      "localFile": "E:/PROJELER/KaplanArena/tasarim/sinematik/videolar-openart/ham/02-kaplan-yolculuk.mp4",
+      "metadata": {
+        "width": 1920,
+        "height": 1072,
+        "fps": 24,
+        "duration": 7.041667,
+        "hasAudio": false
+      },
+      "qa": {
+        "decode": "PASS",
+        "sampledFrames": "REVIEWED",
+        "fullMotionReview": "PENDING",
+        "note": "Sampled contact sheets preserve identity/style; full playback review still required, especially foot contact in tiger walk."
+      },
+      "sha256": "787894DDBE5B213B0A6C23879FCB24CA7122FA41168F859AB8B013C309E28150",
+      "selectedFile": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\02-kaplan-yolculuk.mp4"
+    },
+    {
+      "scene": "03-kale-kapisi",
+      "sourceFile": "E:/PROJELER/KaplanArena/tasarim/sinematik/sahneler/03-kale-kapisi.png",
+      "targetFile": "ham/03-kale-kapisi.mp4",
+      "timeline": {
+        "start_s": 12,
+        "end_s": 18
+      },
+      "quotedCredits": 210,
+      "status": "COMPLETED",
+      "request": {
+        "model": "pixverseV6",
+        "mode": "image2video",
+        "params": {
+          "prompt": "Animate this exact first-frame illustration into a continuous cinematic shot. Preserve the painterly fantasy game-art style, teal and antique-gold palette, exact environment geometry, costume details and identities. Actual subject/environment motion, not a slideshow or mere digital zoom. Stable anatomy and architecture throughout; natural physically coherent motion. No scene change, no new characters, no text, logos, subtitles or watermarks. No blood, injury, horror, rapid flashes or violent camera shake. Silent output; no music, dialogue or sound effects.\n\nThe same two enormous green wooden gate leaves slowly swing INWARD from their outside hinges, separating at the central seam to reveal a restrained warm sunlit passage. Begin with the closed gate of the reference. Heavy believable movement, door panels remain rigid, both torches flicker naturally, small ground mist drifts, ivy quivers. Camera slowly advances but does not pass through the opening. No sliding door, rubber wood, exploding hinges or magical blast.",
+          "startFrame": {
+            "id": "mcp-cc62abafe355a484be7cc94ae0480925c62c33205d3f6eb06b1eac42b195c14c",
+            "type": "image",
+            "url": "https://cdn.openart.ai/openart-uploads/production/attachment-transfers/cc62abafe355a484be7cc94ae0480925c62c33205d3f6eb06b1eac42b195c14c.png",
+            "label": "03-kale-kapisi.png"
+          },
+          "duration": 7,
+          "resolution": "1080p",
+          "generateAudio": false,
+          "videoCount": 1
+        }
+      },
+      "deferredReason": "PARALLEL_LIMIT_EXCEEDED",
+      "historyId": "0DsbzGt3HEpO5ZygvUTj",
+      "submission": {
+        "status": "PENDING",
+        "historyId": "0DsbzGt3HEpO5ZygvUTj",
+        "projectId": "6Nv0Uci7x7aq6gkrCHc9",
+        "projectName": "Personal Project",
+        "folderId": null,
+        "prompt": "Animate this exact first-frame illustration into a continuous cinematic shot. Preserve the painterly fantasy game-art style, teal and antique-gold palette, exact environment geometry, costume details and identities. Actual subject/environment motion, not a slideshow or mere digital zoom. Stable anatomy and architecture throughout; natural physically coherent motion. No scene change, no new characters, no text, logos, subtitles or watermarks. No blood, injury, horror, rapid flashes or violent camera shake. Silent output; no music, dialogue or sound effects.\n\nThe same two enormous green wooden gate leaves slowly swing INWARD from their outside hinges, separating at the central seam to reveal a restrained warm sunlit passage. Begin with the closed gate of the reference. Heavy believable movement, door panels remain rigid, both torches flicker naturally, small ground mist drifts, ivy quivers. Camera slowly advances but does not pass through the opening. No sliding door, rubber wood, exploding hinges or magical blast.",
+        "modelDisplayName": "PixVerse V6",
+        "resourceCount": 1,
+        "resolution": "1080p",
+        "pollAfterSeconds": 10
+      },
+      "resourceUrl": "https://cdn.openart.ai/openart-ai/production/2026-11/create-video/t5FPca6aeaWW26F8OBK4/26fb7fce-1ce0-4b54-9894-39da502d35dd_seed320778012_1795661899199_178ff185.mp4",
+      "localFile": "E:/PROJELER/KaplanArena/tasarim/sinematik/videolar-openart/ham/03-kale-kapisi.mp4",
+      "metadata": {
+        "width": 1920,
+        "height": 1072,
+        "fps": 24,
+        "duration": 7.041667,
+        "hasAudio": false
+      },
+      "qa": {
+        "decode": "PASS",
+        "sampledFrames": "REVIEWED",
+        "fullMotionReview": "PENDING",
+        "note": "Gate opens only a narrow seam and returns near closed by sampled 6s; use opening section, not a full gate opening."
+      },
+      "sha256": "EEB412C0B5DBB02FFA9F4F4E19D70CBEF8B3E7421BA963044F77387C184A825D",
+      "selectedFile": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\03-kale-kapisi.mp4"
+    },
+    {
+      "scene": "04-turnuva-karsilasma",
+      "sourceFile": "E:/PROJELER/KaplanArena/tasarim/sinematik/sahneler/04-turnuva-karsilasma.png",
+      "targetFile": "ham/04-turnuva-karsilasma.mp4",
+      "timeline": {
+        "start_s": 18,
+        "end_s": 24
+      },
+      "quotedCredits": 210,
+      "status": "COMPLETED",
+      "request": {
+        "model": "pixverseV6",
+        "mode": "image2video",
+        "params": {
+          "prompt": "Animate this exact first-frame illustration into a continuous cinematic shot. Preserve the painterly fantasy game-art style, teal and antique-gold palette, exact environment geometry, costume details and identities. Actual subject/environment motion, not a slideshow or mere digital zoom. Stable anatomy and architecture throughout; natural physically coherent motion. No scene change, no new characters, no text, logos, subtitles or watermarks. No blood, injury, horror, rapid flashes or violent camera shake. Silent output; no music, dialogue or sound effects.\n\nExactly the two adult armored tournament knights shown, left teal cloak and right amber cloak, perform a short measured ceremonial sparring exchange. From the crossed-blade starting pose they disengage, take one controlled step and meet blades once at mid-height, then recover into guard. Shields stay on the same arms, swords remain rigid single blades, gloved hands keep a consistent grip. Cloaks and banners move naturally. Wide stable framing, entire bodies visible, no injuries, no third fighter, no stabbing a person.",
+          "startFrame": {
+            "id": "mcp-e27fb25e7bee984a402d2f6bfbb80f768bd219e14303a1c73ba74890a67bf312",
+            "type": "image",
+            "url": "https://cdn.openart.ai/openart-uploads/production/attachment-transfers/e27fb25e7bee984a402d2f6bfbb80f768bd219e14303a1c73ba74890a67bf312.png",
+            "label": "04-turnuva-karsilasma.png"
+          },
+          "duration": 7,
+          "resolution": "1080p",
+          "generateAudio": false,
+          "videoCount": 1
+        }
+      },
+      "deferredReason": "batch_skipped",
+      "historyId": "lK3477hrL0OXOHJVrJUm",
+      "submission": {
+        "status": "PENDING",
+        "historyId": "lK3477hrL0OXOHJVrJUm",
+        "projectId": "6Nv0Uci7x7aq6gkrCHc9",
+        "projectName": "Personal Project",
+        "folderId": null,
+        "prompt": "Animate this exact first-frame illustration into a continuous cinematic shot. Preserve the painterly fantasy game-art style, teal and antique-gold palette, exact environment geometry, costume details and identities. Actual subject/environment motion, not a slideshow or mere digital zoom. Stable anatomy and architecture throughout; natural physically coherent motion. No scene change, no new characters, no text, logos, subtitles or watermarks. No blood, injury, horror, rapid flashes or violent camera shake. Silent output; no music, dialogue or sound effects.\n\nExactly the two adult armored tournament knights shown, left teal cloak and right amber cloak, perform a short measured ceremonial sparring exchange. From the crossed-blade starting pose they disengage, take one controlled step and meet blades once at mid-height, then recover into guard. Shields stay on the same arms, swords remain rigid single blades, gloved hands keep a consistent grip. Cloaks and banners move naturally. Wide stable framing, entire bodies visible, no injuries, no third fighter, no stabbing a person.",
+        "modelDisplayName": "PixVerse V6",
+        "resourceCount": 1,
+        "resolution": "1080p",
+        "pollAfterSeconds": 10
+      },
+      "resourceUrl": "https://cdn.openart.ai/openart-ai/production/2026-11/create-video/t5FPca6aeaWW26F8OBK4/0d0351fc-8808-409d-ac6f-e6a5dec1a34d_seed1479931743_1795661806002_9f83d282.mp4",
+      "localFile": "E:/PROJELER/KaplanArena/tasarim/sinematik/videolar-openart/ham/04-turnuva-karsilasma.mp4",
+      "metadata": {
+        "width": 1920,
+        "height": 1072,
+        "fps": 24,
+        "duration": 7.041667,
+        "hasAudio": false
+      },
+      "qa": {
+        "decode": "PASS",
+        "sampledFrames": "REVIEWED",
+        "fullMotionReview": "PENDING",
+        "note": "Two knights change poses, clash and separate in sampled frames. Full temporal contact/anatomy review still required."
+      },
+      "sha256": "74A1742CA6A0E259C639C9EB58C2E79C1FEC453B2D88EFA57F5C25274ADE038C",
+      "selectedFile": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\04-turnuva-karsilasma.mp4"
+    },
+    {
+      "scene": "05-kilic-temasi",
+      "sourceFile": "E:/PROJELER/KaplanArena/tasarim/sinematik/sahneler/05-kilic-temasi.png",
+      "targetFile": "ham/05-kilic-temasi.mp4",
+      "timeline": {
+        "start_s": 24,
+        "end_s": 27
+      },
+      "quotedCredits": 120,
+      "status": "COMPLETED",
+      "request": {
+        "model": "pixverseV6",
+        "mode": "image2video",
+        "params": {
+          "prompt": "Animate this exact first-frame illustration into a continuous cinematic shot. Preserve the painterly fantasy game-art style, teal and antique-gold palette, exact environment geometry, costume details and identities. Actual subject/environment motion, not a slideshow or mere digital zoom. Stable anatomy and architecture throughout; natural physically coherent motion. No scene change, no new characters, no text, logos, subtitles or watermarks. No blood, injury, horror, rapid flashes or violent camera shake. Silent output; no music, dialogue or sound effects.\n\nMacro close-up of exactly two armored hands holding the same two swords. Start with the crossed X blades in contact. The blades slide briefly against one another, part a small distance, then strike together once at the same central contact point at approximately 1.5 seconds, yielding a restrained brief burst of golden sparks, followed by a short recoil. The solid blades never bend or merge; gauntlets keep their fingers and grips. Minimal camera movement and no cut away. Keep the contact readable for later synchronized metal Foley.",
+          "startFrame": {
+            "id": "mcp-293b25e7beb0219497ba9e4f8ff8ce19a637a9e0372d0b0cc7106abd61a91cd6",
+            "type": "image",
+            "url": "https://cdn.openart.ai/openart-uploads/production/attachment-transfers/293b25e7beb0219497ba9e4f8ff8ce19a637a9e0372d0b0cc7106abd61a91cd6.png",
+            "label": "05-kilic-temasi.png"
+          },
+          "duration": 4,
+          "resolution": "1080p",
+          "generateAudio": false,
+          "videoCount": 1
+        }
+      },
+      "deferredReason": "batch_skipped",
+      "historyId": "Mh4R2G6m1q8DbZZmbPWE",
+      "localFile": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\ham\\05-kilic-temasi.mp4",
+      "resourceUrl": "https://cdn.openart.ai/openart-ai/production/2026-11/create-video/t5FPca6aeaWW26F8OBK4/884bb759-77ad-4f1c-ab5e-1f5cc5bc24d3_seed642347110_1795662059610_99e19ed9.mp4",
+      "metadata": {
+        "width": 1920,
+        "height": 1072,
+        "fps": 24,
+        "duration": 4.041667,
+        "hasAudio": false
+      },
+      "qa": {
+        "decode": "PASS",
+        "sampledFrames": "REVIEWED_WITH_LIMITATIONS",
+        "fullMotionReview": "PENDING",
+        "note": "Blade tip distortion in later frames. Provisional only; cut before about 2.5s or regenerate if full 3s cannot be assembled cleanly."
+      },
+      "sha256": "E0D20EB3A7980997900F520BA75B2D4609BF92EDDBB9A0AC87698BB5EABA9A20"
+    },
+    {
+      "scene": "06-kalkan-temasi",
+      "sourceFile": "E:/PROJELER/KaplanArena/tasarim/sinematik/sahneler/06-kalkan-temasi.png",
+      "targetFile": "ham/06-kalkan-temasi.mp4",
+      "timeline": {
+        "start_s": 27,
+        "end_s": 31
+      },
+      "quotedCredits": 150,
+      "status": "COMPLETED",
+      "request": {
+        "model": "pixverseV6",
+        "mode": "image2video",
+        "params": {
+          "prompt": "Animate this exact first-frame illustration into a continuous cinematic shot. Preserve the painterly fantasy game-art style, teal and antique-gold palette, exact environment geometry, costume details and identities. Actual subject/environment motion, not a slideshow or mere digital zoom. Stable anatomy and architecture throughout; natural physically coherent motion. No scene change, no new characters, no text, logos, subtitles or watermarks. No blood, injury, horror, rapid flashes or violent camera shake. Silent output; no music, dialogue or sound effects.\n\nPreserve the large stationary observer at left foreground and exactly the same two tournament fighters in midground. Begin at the shown sword-on-gold-shield contact. The attacking knight withdraws the blade, performs one controlled strike that the defender blocks with the same round gold shield at approximately 2 seconds, small brief sparks at the physical contact, and both recover into a balanced stance. Blade contacts shield only, never flesh. Rigid shield, natural footwork, consistent limbs and weapons; no new fighter. Cloaks and banners flutter, observer remains an observer. Stable over-shoulder composition.",
+          "startFrame": {
+            "id": "mcp-316124d6bf6725a46f7d4765a5475b7c48dcc83179a6db4876b9c81cd716bce2",
+            "type": "image",
+            "url": "https://cdn.openart.ai/openart-uploads/production/attachment-transfers/316124d6bf6725a46f7d4765a5475b7c48dcc83179a6db4876b9c81cd716bce2.png",
+            "label": "06-kalkan-temasi.png"
+          },
+          "duration": 5,
+          "resolution": "1080p",
+          "generateAudio": false,
+          "videoCount": 1
+        }
+      },
+      "deferredReason": "batch_skipped",
+      "historyId": "GZOvpHUYE0IzJRNbz8Nh",
+      "localFile": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\ham\\06-kalkan-temasi.mp4",
+      "resourceUrl": "https://cdn.openart.ai/openart-ai/production/2026-11/create-video/t5FPca6aeaWW26F8OBK4/6a57845c-05e4-4de1-bf03-a7ac6545308b_seed1079568437_1795662077292_4db868e3.mp4",
+      "metadata": {
+        "width": 1920,
+        "height": 1072,
+        "fps": 24,
+        "duration": 5.041667,
+        "hasAudio": false
+      },
+      "qa": {
+        "decode": "PASS",
+        "sampledFrames": "REVIEWED_WITH_LIMITATIONS",
+        "fullMotionReview": "PENDING",
+        "note": "Visible shield contact around 2s. Observer exits framing as camera advances. Full motion review pending."
+      },
+      "sha256": "C4BA3736A0BEC98F7B2A5144553842C6241D3AB9A67EB7E23EBDCC0B6845098E",
+      "selectedFile": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\06-kalkan-temasi.mp4"
+    },
+    {
+      "scene": "07-arenaya-giris",
+      "sourceFile": "E:/PROJELER/KaplanArena/tasarim/sinematik/sahneler/07-arenaya-giris.png",
+      "targetFile": "ham/07-arenaya-giris.mp4",
+      "timeline": {
+        "start_s": 31,
+        "end_s": 38
+      },
+      "quotedCredits": 240,
+      "status": "COMPLETED",
+      "request": {
+        "model": "pixverseV6",
+        "mode": "image2video",
+        "params": {
+          "prompt": "Animate this exact first-frame illustration into a continuous cinematic shot. Preserve the painterly fantasy game-art style, teal and antique-gold palette, exact environment geometry, costume details and identities. Actual subject/environment motion, not a slideshow or mere digital zoom. Stable anatomy and architecture throughout; natural physically coherent motion. No scene change, no new characters, no text, logos, subtitles or watermarks. No blood, injury, horror, rapid flashes or violent camera shake. Silent output; no music, dialogue or sound effects.\n\nFollow the same small upright tiger guide from behind as he walks steadily on two legs through the stone arch into the same sunlit circular arena. Several slow natural steps, boots make contact with paving, tail and embroidered teal cloak sway gently. Slow forward tracking camera maintains his modest scale within the monumental architecture; do not rush or zoom into a face. Flags sway, dust drifts through sunbeams. Keep the arena empty and geometry unchanged; no crowd or fighters appear.",
+          "startFrame": {
+            "id": "mcp-9e06281714d6a39913879b35cefd395976776f831f404229cf44f016165053e7",
+            "type": "image",
+            "url": "https://cdn.openart.ai/openart-uploads/production/attachment-transfers/9e06281714d6a39913879b35cefd395976776f831f404229cf44f016165053e7.png",
+            "label": "07-arenaya-giris.png"
+          },
+          "duration": 8,
+          "resolution": "1080p",
+          "generateAudio": false,
+          "videoCount": 1
+        }
+      },
+      "deferredReason": "batch_skipped",
+      "historyId": "dJnom3P4Y7WngSald3f2",
+      "localFile": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\ham\\07-arenaya-giris.mp4",
+      "resourceUrl": "https://cdn.openart.ai/openart-ai/production/2026-11/create-video/t5FPca6aeaWW26F8OBK4/7eab90a4-2999-499b-a002-ddfd8ccecb09_seed2035786817_1795662318533_b5d2ce9a.mp4",
+      "metadata": {
+        "width": 1920,
+        "height": 1072,
+        "fps": 24,
+        "duration": 8.041667,
+        "hasAudio": false
+      },
+      "qa": {
+        "decode": "PASS",
+        "sampledFrames": "REVIEWED",
+        "fullMotionReview": "PENDING",
+        "note": "Sampled frames show tiger walking into empty arena, identity/style retained. Full motion foot contact review pending."
+      },
+      "sha256": "47D75F2B8D72A93AD949000B9A1875A3B5085D8B846BBA34A28192F2477AC4BC",
+      "selectedFile": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\07-arenaya-giris.mp4"
+    },
+    {
+      "scene": "08-arena-ihtisam",
+      "sourceFile": "E:/PROJELER/KaplanArena/tasarim/sinematik/sahneler/08-arena-ihtisam.png",
+      "targetFile": "ham/08-arena-ihtisam.mp4",
+      "timeline": {
+        "start_s": 38,
+        "end_s": 44
+      },
+      "quotedCredits": 210,
+      "status": "COMPLETED",
+      "request": {
+        "model": "pixverseV6",
+        "mode": "image2video",
+        "params": {
+          "prompt": "Animate this exact first-frame illustration into a continuous cinematic shot. Preserve the painterly fantasy game-art style, teal and antique-gold palette, exact environment geometry, costume details and identities. Actual subject/environment motion, not a slideshow or mere digital zoom. Stable anatomy and architecture throughout; natural physically coherent motion. No scene change, no new characters, no text, logos, subtitles or watermarks. No blood, injury, horror, rapid flashes or violent camera shake. Silent output; no music, dialogue or sound effects.\n\nThe same empty magnificent arena revealed in a slow, restrained lateral camera glide with slight forward movement. Real environmental animation: teal and amber banners undulate in a light breeze, suspended dust floats through the diagonal warm sunbeams and leaves stir. Keep the steps, paving, arches and distant castle geometrically stable. No added spectators, warriors, tiger or props. Majestic calm before the climax, no rapid light flicker.",
+          "startFrame": {
+            "id": "mcp-091b88f86cbf5e052c3ade9e372a742a8ed0aba2ae39740355ccf70ad3e2c2db",
+            "type": "image",
+            "url": "https://cdn.openart.ai/openart-uploads/production/attachment-transfers/091b88f86cbf5e052c3ade9e372a742a8ed0aba2ae39740355ccf70ad3e2c2db.png",
+            "label": "08-arena-ihtisam.png"
+          },
+          "duration": 7,
+          "resolution": "1080p",
+          "generateAudio": false,
+          "videoCount": 1
+        }
+      },
+      "deferredReason": "batch_skipped",
+      "historyId": "1Zm9VELIhKP6l2kaPkI9",
+      "localFile": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\ham\\08-arena-ihtisam.mp4",
+      "resourceUrl": "https://cdn.openart.ai/openart-ai/production/2026-11/create-video/t5FPca6aeaWW26F8OBK4/a6e00472-aae9-441d-badc-2ff778768c6e_seed1007628361_1795662314725_cadc32e1.mp4",
+      "metadata": {
+        "width": 1920,
+        "height": 1072,
+        "fps": 24,
+        "duration": 7.041667,
+        "hasAudio": false
+      },
+      "qa": {
+        "decode": "PASS",
+        "sampledFrames": "REVIEWED",
+        "fullMotionReview": "PENDING",
+        "note": "Sampled frames show empty arena with gradual camera/environment change. Black unused contact-sheet cell is not a video defect. Full motion review pending."
+      },
+      "sha256": "82B83B48DFE66F0449CA2131BC6CB3551A32498925C8B3F0B9B0D151BD4CDB1D",
+      "selectedFile": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\08-arena-ihtisam.mp4"
+    },
+    {
+      "scene": "09-kaplan-kukreme",
+      "sourceFile": "E:/PROJELER/KaplanArena/tasarim/sinematik/sahneler/09-kaplan-kukreme.png",
+      "targetFile": "ham/09-kaplan-kukreme.mp4",
+      "timeline": {
+        "start_s": 44,
+        "end_s": 48
+      },
+      "quotedCredits": 150,
+      "status": "COMPLETED",
+      "request": {
+        "model": "pixverseV6",
+        "mode": "image2video",
+        "params": {
+          "prompt": "Animate this exact first-frame illustration into a continuous cinematic shot. Preserve the painterly fantasy game-art style, teal and antique-gold palette, exact environment geometry, costume details and identities. Actual subject/environment motion, not a slideshow or mere digital zoom. Stable anatomy and architecture throughout; natural physically coherent motion. No scene change, no new characters, no text, logos, subtitles or watermarks. No blood, injury, horror, rapid flashes or violent camera shake. Silent output; no music, dialogue or sound effects.\n\nKeep the same orange striped TIGER guide on the right wearing the teal gold-embroidered cloak and round brooch; preserve the empty darker left side for a later title. Begin from his open-mouth reference pose, briefly settle his jaw, then lift his chin slightly and perform ONE majestic nonverbal roar starting approximately 0.8 seconds into the clip, mouth opening naturally for about 2.5 seconds, chest expanding, whiskers and cheek fur moving subtly, then ease back. No speaking, no human lips, no mane or lion transformation, no excessive teeth. Maintain exact face proportions and stripes. Camera nearly locked, cloak breathes gently in the wind. Silent: the selected real roar will be added later.",
+          "startFrame": {
+            "id": "mcp-fcd9aade45c314211999c6626b1ba07c05d6d240f2a6c5a0531d2962a46666b2",
+            "type": "image",
+            "url": "https://cdn.openart.ai/openart-uploads/production/attachment-transfers/fcd9aade45c314211999c6626b1ba07c05d6d240f2a6c5a0531d2962a46666b2.png",
+            "label": "09-kaplan-kukreme.png"
+          },
+          "duration": 5,
+          "resolution": "1080p",
+          "generateAudio": false,
+          "videoCount": 1
+        }
+      },
+      "historyId": "m90geakFWeAz1uVOIkc8",
+      "localFile": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\ham\\09-kaplan-kukreme.mp4",
+      "resourceUrl": "https://cdn.openart.ai/openart-ai/production/2026-11/create-video/t5FPca6aeaWW26F8OBK4/1058ea1e-bc2e-4e4e-8439-2269496ef638_seed1821434058_1795662562138_94a477b4.mp4",
+      "metadata": {
+        "width": 1920,
+        "height": 1072,
+        "fps": 24,
+        "duration": 5.041667,
+        "hasAudio": false
+      },
+      "qa": {
+        "decode": "PASS",
+        "sampledFrames": "REVIEWED",
+        "fullMotionReview": "PENDING",
+        "note": "Roar jaw/head movement visible in sampled frames. Match selected roar to actual mouth timing; no native audio. Full motion QA pending."
+      },
+      "sha256": "50A60559A3449F5E043BB21A1EC298A9F5980E48D4FC7D1FB4845E77109F77C5",
+      "selectedFile": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\09-kaplan-kukreme.mp4"
+    },
+    {
+      "scene": "10-final-kunye",
+      "sourceFile": "E:/PROJELER/KaplanArena/tasarim/sinematik/sahneler/10-final-kunye.png",
+      "targetFile": "ham/10-final-kunye.mp4",
+      "timeline": {
+        "start_s": 48,
+        "end_s": 60
+      },
+      "quotedCredits": 390,
+      "status": "COMPLETED",
+      "request": {
+        "model": "pixverseV6",
+        "mode": "image2video",
+        "params": {
+          "prompt": "Animate this exact first-frame illustration into a continuous cinematic shot. Preserve the painterly fantasy game-art style, teal and antique-gold palette, exact environment geometry, costume details and identities. Actual subject/environment motion, not a slideshow or mere digital zoom. Stable anatomy and architecture throughout; natural physically coherent motion. No scene change, no new characters, no text, logos, subtitles or watermarks. No blood, injury, horror, rapid flashes or violent camera shake. Silent output; no music, dialogue or sound effects.\n\nLocked-off wide view of the same valley for end credits that will be composited later. Only subtle periodic leaf movement, slow soft valley mist and gentle river shimmer. Preserve large quiet central and lower areas so overlaid typography stays readable. No camera pan or zoom, no new subjects, no typography generated in the image. Begin and finish at the exact supplied composition and light level; make the motion a very gentle complete cycle with no sudden reversal, freeze or fade to black.",
+          "startFrame": {
+            "id": "mcp-25eea2628e75bcfbf412d5d9f8fd7a7ada279a6fefcbc40f30942f45898ed2cc",
+            "type": "image",
+            "url": "https://cdn.openart.ai/openart-uploads/production/attachment-transfers/25eea2628e75bcfbf412d5d9f8fd7a7ada279a6fefcbc40f30942f45898ed2cc.png",
+            "label": "10-final-kunye.png"
+          },
+          "endFrame": {
+            "id": "mcp-25eea2628e75bcfbf412d5d9f8fd7a7ada279a6fefcbc40f30942f45898ed2cc",
+            "type": "image",
+            "url": "https://cdn.openart.ai/openart-uploads/production/attachment-transfers/25eea2628e75bcfbf412d5d9f8fd7a7ada279a6fefcbc40f30942f45898ed2cc.png",
+            "label": "10-final-kunye.png"
+          },
+          "duration": 13,
+          "resolution": "1080p",
+          "generateAudio": false,
+          "videoCount": 1
+        }
+      },
+      "historyId": "u7tOprsu3kIrcCNC4Ts8",
+      "localFile": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\ham\\10-final-kunye.mp4",
+      "resourceUrl": "https://cdn.openart.ai/openart-ai/production/2026-11/create-video/t5FPca6aeaWW26F8OBK4/d920e0d5-55db-4e7e-a9ec-e80242fe09be_seed410214843_1795662695254_a92f8e60.mp4",
+      "metadata": {
+        "width": 1920,
+        "height": 1072,
+        "fps": 24,
+        "duration": 13.041667,
+        "hasAudio": false
+      },
+      "qa": {
+        "decode": "PASS",
+        "sampledFrames": "REVIEWED",
+        "fullMotionReview": "PENDING",
+        "note": "Subtle valley animation, no generated text. Some viewpoint drift in sampled frames; first/end matching and full-motion credit readability require montage QA."
+      },
+      "sha256": "9123B75BC28091B1367E898FBA8A7FCF3C23DE1AB9B28CFC57CFA98A06E50C89",
+      "selectedFile": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\10-final-kunye.mp4"
+    },
+    {
+      "scene": "ara-arena-sakin",
+      "sourceFile": "E:/PROJELER/KaplanArena/tasarim/sinematik/sahneler/ara-arena-sakin.png",
+      "targetFile": "ham/ara-arena-sakin.mp4",
+      "timeline": {
+        "start_s": null,
+        "end_s": null
+      },
+      "quotedCredits": 450,
+      "status": "COMPLETED",
+      "request": {
+        "model": "pixverseV6",
+        "mode": "image2video",
+        "params": {
+          "prompt": "Animate this exact first-frame illustration into a continuous cinematic shot. Preserve the painterly fantasy game-art style, teal and antique-gold palette, exact environment geometry, costume details and identities. Actual subject/environment motion, not a slideshow or mere digital zoom. Stable anatomy and architecture throughout; natural physically coherent motion. No scene change, no new characters, no text, logos, subtitles or watermarks. No blood, injury, horror, rapid flashes or violent camera shake. Silent output; no music, dialogue or sound effects.\n\nCreate a calm seamless environmental loop from this exact empty blue-hour fantasy arena. LOCKED CAMERA. No people, tiger, fighters or action. Banners sway slowly and return naturally to their starting positions, warm lantern flames flicker subtly, thin ground haze drifts delicately and sparse dust motes move. No evolving sunset, no dramatic lighting changes, no new torches or crowds. First and final frames match the provided composition and lighting; periodic restrained motion designed to repeat without a visible seam. Maintain clear uncluttered center for the competition's waiting overlay. No zoom, transitions, text or fade.",
+          "startFrame": {
+            "id": "mcp-4c304b62f27de94aee331ab3dac6f914d1145d154d469bc59a331c3cc0375bb0",
+            "type": "image",
+            "url": "https://cdn.openart.ai/openart-uploads/production/attachment-transfers/4c304b62f27de94aee331ab3dac6f914d1145d154d469bc59a331c3cc0375bb0.png",
+            "label": "ara-arena-sakin.png"
+          },
+          "endFrame": {
+            "id": "mcp-4c304b62f27de94aee331ab3dac6f914d1145d154d469bc59a331c3cc0375bb0",
+            "type": "image",
+            "url": "https://cdn.openart.ai/openart-uploads/production/attachment-transfers/4c304b62f27de94aee331ab3dac6f914d1145d154d469bc59a331c3cc0375bb0.png",
+            "label": "ara-arena-sakin.png"
+          },
+          "duration": 15,
+          "resolution": "1080p",
+          "generateAudio": false,
+          "videoCount": 1
+        }
+      },
+      "historyId": "xHRrFWwxooHQwnWgiUnu",
+      "localFile": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\ham\\ara-arena-sakin.mp4",
+      "resourceUrl": "https://cdn.openart.ai/openart-ai/production/2026-11/create-video/t5FPca6aeaWW26F8OBK4/34d1356c-9366-4b41-93d9-fa1fd761d3ef_seed753998378_1795663201261_3949cc9a.mp4",
+      "metadata": {
+        "width": 1920,
+        "height": 1072,
+        "fps": 24,
+        "duration": 15.041667,
+        "hasAudio": false
+      },
+      "qa": {
+        "decode": "PASS",
+        "sampledFrames": "REVIEWED",
+        "fullMotionReview": "PENDING",
+        "note": "First/last frame pair and 2-second sample grid reviewed. Close composition match, some internal viewpoint/light motion. Final 30s seamless-loop playback QA belongs to FilmCraft montage."
+      },
+      "sha256": "9196D6285ACF328BA1B87932D0CE6D01A5FD0ED4604797912F7F78744A01BC74",
+      "selectedFile": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\ara-arena-sakin.mp4"
+    },
+    {
+      "scene": "05-kilic-temasi-duzeltme-v02",
+      "replaces": "05-kilic-temasi",
+      "sourceFile": "E:/PROJELER/KaplanArena/tasarim/sinematik/sahneler/05-kilic-temasi.png",
+      "targetFile": "ham/05-kilic-temasi-duzeltme-v02.mp4",
+      "timeline": {
+        "start_s": 24,
+        "end_s": 27
+      },
+      "quotedCredits": 120,
+      "status": "COMPLETED",
+      "request": {
+        "model": "pixverseV6",
+        "mode": "image2video",
+        "params": {
+          "duration": 4,
+          "resolution": "1080p",
+          "generateAudio": false,
+          "videoCount": 1,
+          "startFrame": {
+            "id": "mcp-293b25e7beb0219497ba9e4f8ff8ce19a637a9e0372d0b0cc7106abd61a91cd6",
+            "type": "image",
+            "url": "https://cdn.openart.ai/openart-uploads/production/attachment-transfers/293b25e7beb0219497ba9e4f8ff8ce19a637a9e0372d0b0cc7106abd61a91cd6.png",
+            "label": "05-kilic-temasi.png"
+          },
+          "endFrame": {
+            "id": "mcp-293b25e7beb0219497ba9e4f8ff8ce19a637a9e0372d0b0cc7106abd61a91cd6",
+            "type": "image",
+            "url": "https://cdn.openart.ai/openart-uploads/production/attachment-transfers/293b25e7beb0219497ba9e4f8ff8ce19a637a9e0372d0b0cc7106abd61a91cd6.png",
+            "label": "05-kilic-temasi.png"
+          },
+          "prompt": "Bring this exact painterly fantasy illustration to life as a single four-second locked-off close-up. Exactly two rigid straight steel swords cross at their center, held by exactly the same two armored hands. The swords remain crossed and in contact at the same central point for the entire shot. Animate only a tiny natural pressure adjustment of the wrists, a subtle short steel vibration and a single brief shower of small golden sparks from their shared contact around 1.5 seconds. Gloves, grips, sword length, straight edges, hand count and background architecture stay identical. Maintain the exact teal-gold illustration style. First and final frames match the supplied image. No blade separation, no new swing, no lifting blades out of frame, no bending, no rubber or melting metal, no extra swords, no morphing, no camera motion, no cuts, no text. Gentle real fabric and banner movement in background, no dramatic flash. Silent output, no audio."
+        }
+      },
+      "historyId": "m4Mn6psESorpSUJrL0KJ",
+      "localFile": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\ham\\05-kilic-temasi-duzeltme-v02.mp4",
+      "resourceUrl": "https://cdn.openart.ai/openart-ai/production/2026-11/create-video/t5FPca6aeaWW26F8OBK4/8b132709-54a6-4c1b-a4dd-b82413a1da75_seed2065561489_1795663035154_9489ec91.mp4",
+      "metadata": {
+        "width": 1920,
+        "height": 1072,
+        "fps": 24,
+        "duration": 4.041667,
+        "hasAudio": false
+      },
+      "qa": {
+        "decode": "PASS",
+        "sampledFrames": "REVIEWED",
+        "fullMotionReview": "PENDING",
+        "note": "Half-second grid reviewed; straighter blades retained than v01. Provisional preferred take for edit. Full-motion final review remains required."
+      },
+      "sha256": "4D76ECB033885B11605B85AEDE9B2F93DEB5F7A4EDC94578B591CAE4671C0C96",
+      "selectedFile": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\05-kilic-temasi.mp4"
+    }
+  ],
+  "parallelLimit": {
+    "videoLimit": 2
+  },
+  "submittedCount": 12,
+  "remainingCount": 0,
+  "currentBalance": 530,
+  "actualCreditsSpentSoFar": 2670,
+  "originalPlanQuotedCredits": 2550,
+  "deliveryStatus": "ALL_12_GENERATIONS_DOWNLOADED__11_PREFERRED_CLIPS_FOR_FILMCRAFT_EDIT",
+  "selectedClips": [
+    {
+      "file": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\01-dunya-kesfi.mp4",
+      "sourceScene": "01-dunya-kesfi",
+      "historyId": "NTW0RaAP0eoWrcNISX4W",
+      "metadata": {
+        "width": 1920,
+        "height": 1072,
+        "fps": 24,
+        "duration": 7.041667,
+        "hasAudio": false
+      },
+      "timeline": {
+        "start_s": 0,
+        "end_s": 6
+      },
+      "sha256": "C4DB257CCB6E4C877F864A0EC026C682566A5C3DFDFBA9E254E2BB9BF1C0E292",
+      "qa": "TECHNICAL_PASS_AND_SAMPLED_FRAME_REVIEW__FINAL_EDIT_REVIEW_REQUIRED"
+    },
+    {
+      "file": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\02-kaplan-yolculuk.mp4",
+      "sourceScene": "02-kaplan-yolculuk",
+      "historyId": "GEbc5yCBXVbUxnUOmZlY",
+      "metadata": {
+        "width": 1920,
+        "height": 1072,
+        "fps": 24,
+        "duration": 7.041667,
+        "hasAudio": false
+      },
+      "timeline": {
+        "start_s": 6,
+        "end_s": 12
+      },
+      "sha256": "787894DDBE5B213B0A6C23879FCB24CA7122FA41168F859AB8B013C309E28150",
+      "qa": "TECHNICAL_PASS_AND_SAMPLED_FRAME_REVIEW__FINAL_EDIT_REVIEW_REQUIRED"
+    },
+    {
+      "file": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\03-kale-kapisi.mp4",
+      "sourceScene": "03-kale-kapisi",
+      "historyId": "0DsbzGt3HEpO5ZygvUTj",
+      "metadata": {
+        "width": 1920,
+        "height": 1072,
+        "fps": 24,
+        "duration": 7.041667,
+        "hasAudio": false
+      },
+      "timeline": {
+        "start_s": 12,
+        "end_s": 18
+      },
+      "sha256": "EEB412C0B5DBB02FFA9F4F4E19D70CBEF8B3E7421BA963044F77387C184A825D",
+      "qa": "TECHNICAL_PASS_AND_SAMPLED_FRAME_REVIEW__FINAL_EDIT_REVIEW_REQUIRED"
+    },
+    {
+      "file": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\04-turnuva-karsilasma.mp4",
+      "sourceScene": "04-turnuva-karsilasma",
+      "historyId": "lK3477hrL0OXOHJVrJUm",
+      "metadata": {
+        "width": 1920,
+        "height": 1072,
+        "fps": 24,
+        "duration": 7.041667,
+        "hasAudio": false
+      },
+      "timeline": {
+        "start_s": 18,
+        "end_s": 24
+      },
+      "sha256": "74A1742CA6A0E259C639C9EB58C2E79C1FEC453B2D88EFA57F5C25274ADE038C",
+      "qa": "TECHNICAL_PASS_AND_SAMPLED_FRAME_REVIEW__FINAL_EDIT_REVIEW_REQUIRED"
+    },
+    {
+      "file": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\05-kilic-temasi.mp4",
+      "sourceScene": "05-kilic-temasi-duzeltme-v02",
+      "historyId": "m4Mn6psESorpSUJrL0KJ",
+      "metadata": {
+        "width": 1920,
+        "height": 1072,
+        "fps": 24,
+        "duration": 4.041667,
+        "hasAudio": false
+      },
+      "timeline": {
+        "start_s": 24,
+        "end_s": 27
+      },
+      "sha256": "4D76ECB033885B11605B85AEDE9B2F93DEB5F7A4EDC94578B591CAE4671C0C96",
+      "qa": "TECHNICAL_PASS_AND_SAMPLED_FRAME_REVIEW__FINAL_EDIT_REVIEW_REQUIRED"
+    },
+    {
+      "file": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\06-kalkan-temasi.mp4",
+      "sourceScene": "06-kalkan-temasi",
+      "historyId": "GZOvpHUYE0IzJRNbz8Nh",
+      "metadata": {
+        "width": 1920,
+        "height": 1072,
+        "fps": 24,
+        "duration": 5.041667,
+        "hasAudio": false
+      },
+      "timeline": {
+        "start_s": 27,
+        "end_s": 31
+      },
+      "sha256": "C4BA3736A0BEC98F7B2A5144553842C6241D3AB9A67EB7E23EBDCC0B6845098E",
+      "qa": "TECHNICAL_PASS_AND_SAMPLED_FRAME_REVIEW__FINAL_EDIT_REVIEW_REQUIRED"
+    },
+    {
+      "file": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\07-arenaya-giris.mp4",
+      "sourceScene": "07-arenaya-giris",
+      "historyId": "dJnom3P4Y7WngSald3f2",
+      "metadata": {
+        "width": 1920,
+        "height": 1072,
+        "fps": 24,
+        "duration": 8.041667,
+        "hasAudio": false
+      },
+      "timeline": {
+        "start_s": 31,
+        "end_s": 38
+      },
+      "sha256": "47D75F2B8D72A93AD949000B9A1875A3B5085D8B846BBA34A28192F2477AC4BC",
+      "qa": "TECHNICAL_PASS_AND_SAMPLED_FRAME_REVIEW__FINAL_EDIT_REVIEW_REQUIRED"
+    },
+    {
+      "file": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\08-arena-ihtisam.mp4",
+      "sourceScene": "08-arena-ihtisam",
+      "historyId": "1Zm9VELIhKP6l2kaPkI9",
+      "metadata": {
+        "width": 1920,
+        "height": 1072,
+        "fps": 24,
+        "duration": 7.041667,
+        "hasAudio": false
+      },
+      "timeline": {
+        "start_s": 38,
+        "end_s": 44
+      },
+      "sha256": "82B83B48DFE66F0449CA2131BC6CB3551A32498925C8B3F0B9B0D151BD4CDB1D",
+      "qa": "TECHNICAL_PASS_AND_SAMPLED_FRAME_REVIEW__FINAL_EDIT_REVIEW_REQUIRED"
+    },
+    {
+      "file": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\09-kaplan-kukreme.mp4",
+      "sourceScene": "09-kaplan-kukreme",
+      "historyId": "m90geakFWeAz1uVOIkc8",
+      "metadata": {
+        "width": 1920,
+        "height": 1072,
+        "fps": 24,
+        "duration": 5.041667,
+        "hasAudio": false
+      },
+      "timeline": {
+        "start_s": 44,
+        "end_s": 48
+      },
+      "sha256": "50A60559A3449F5E043BB21A1EC298A9F5980E48D4FC7D1FB4845E77109F77C5",
+      "qa": "TECHNICAL_PASS_AND_SAMPLED_FRAME_REVIEW__FINAL_EDIT_REVIEW_REQUIRED"
+    },
+    {
+      "file": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\10-final-kunye.mp4",
+      "sourceScene": "10-final-kunye",
+      "historyId": "u7tOprsu3kIrcCNC4Ts8",
+      "metadata": {
+        "width": 1920,
+        "height": 1072,
+        "fps": 24,
+        "duration": 13.041667,
+        "hasAudio": false
+      },
+      "timeline": {
+        "start_s": 48,
+        "end_s": 60
+      },
+      "sha256": "9123B75BC28091B1367E898FBA8A7FCF3C23DE1AB9B28CFC57CFA98A06E50C89",
+      "qa": "TECHNICAL_PASS_AND_SAMPLED_FRAME_REVIEW__FINAL_EDIT_REVIEW_REQUIRED"
+    },
+    {
+      "file": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\ara-arena-sakin.mp4",
+      "sourceScene": "ara-arena-sakin",
+      "historyId": "xHRrFWwxooHQwnWgiUnu",
+      "metadata": {
+        "width": 1920,
+        "height": 1072,
+        "fps": 24,
+        "duration": 15.041667,
+        "hasAudio": false
+      },
+      "timeline": {
+        "start_s": null,
+        "end_s": null
+      },
+      "sha256": "9196D6285ACF328BA1B87932D0CE6D01A5FD0ED4604797912F7F78744A01BC74",
+      "qa": "TECHNICAL_PASS_AND_SAMPLED_FRAME_REVIEW__FINAL_EDIT_REVIEW_REQUIRED"
+    }
+  ],
+  "finalMontageProduced": false,
+  "seamlessLoopVerified": false
+}

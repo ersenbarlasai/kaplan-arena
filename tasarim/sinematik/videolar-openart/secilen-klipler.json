@@ -1,0 +1,200 @@
+[
+  {
+    "file": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\01-dunya-kesfi.mp4",
+    "sourceScene": "01-dunya-kesfi",
+    "historyId": "NTW0RaAP0eoWrcNISX4W",
+    "metadata": {
+      "width": 1920,
+      "height": 1072,
+      "fps": 24,
+      "duration": 7.041667,
+      "hasAudio": false
+    },
+    "timeline": {
+      "start_s": 0,
+      "end_s": 6
+    },
+    "sha256": "C4DB257CCB6E4C877F864A0EC026C682566A5C3DFDFBA9E254E2BB9BF1C0E292",
+    "qa": "TECHNICAL_PASS_AND_SAMPLED_FRAME_REVIEW__FINAL_EDIT_REVIEW_REQUIRED"
+  },
+  {
+    "file": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\02-kaplan-yolculuk.mp4",
+    "sourceScene": "02-kaplan-yolculuk",
+    "historyId": "GEbc5yCBXVbUxnUOmZlY",
+    "metadata": {
+      "width": 1920,
+      "height": 1072,
+      "fps": 24,
+      "duration": 7.041667,
+      "hasAudio": false
+    },
+    "timeline": {
+      "start_s": 6,
+      "end_s": 12
+    },
+    "sha256": "787894DDBE5B213B0A6C23879FCB24CA7122FA41168F859AB8B013C309E28150",
+    "qa": "TECHNICAL_PASS_AND_SAMPLED_FRAME_REVIEW__FINAL_EDIT_REVIEW_REQUIRED"
+  },
+  {
+    "file": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\03-kale-kapisi.mp4",
+    "sourceScene": "03-kale-kapisi",
+    "historyId": "0DsbzGt3HEpO5ZygvUTj",
+    "metadata": {
+      "width": 1920,
+      "height": 1072,
+      "fps": 24,
+      "duration": 7.041667,
+      "hasAudio": false
+    },
+    "timeline": {
+      "start_s": 12,
+      "end_s": 18
+    },
+    "sha256": "EEB412C0B5DBB02FFA9F4F4E19D70CBEF8B3E7421BA963044F77387C184A825D",
+    "qa": "TECHNICAL_PASS_AND_SAMPLED_FRAME_REVIEW__FINAL_EDIT_REVIEW_REQUIRED"
+  },
+  {
+    "file": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\04-turnuva-karsilasma.mp4",
+    "sourceScene": "04-turnuva-karsilasma",
+    "historyId": "lK3477hrL0OXOHJVrJUm",
+    "metadata": {
+      "width": 1920,
+      "height": 1072,
+      "fps": 24,
+      "duration": 7.041667,
+      "hasAudio": false
+    },
+    "timeline": {
+      "start_s": 18,
+      "end_s": 24
+    },
+    "sha256": "74A1742CA6A0E259C639C9EB58C2E79C1FEC453B2D88EFA57F5C25274ADE038C",
+    "qa": "TECHNICAL_PASS_AND_SAMPLED_FRAME_REVIEW__FINAL_EDIT_REVIEW_REQUIRED"
+  },
+  {
+    "file": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\05-kilic-temasi.mp4",
+    "sourceScene": "05-kilic-temasi-duzeltme-v02",
+    "historyId": "m4Mn6psESorpSUJrL0KJ",
+    "metadata": {
+      "width": 1920,
+      "height": 1072,
+      "fps": 24,
+      "duration": 4.041667,
+      "hasAudio": false
+    },
+    "timeline": {
+      "start_s": 24,
+      "end_s": 27
+    },
+    "sha256": "4D76ECB033885B11605B85AEDE9B2F93DEB5F7A4EDC94578B591CAE4671C0C96",
+    "qa": "TECHNICAL_PASS_AND_SAMPLED_FRAME_REVIEW__FINAL_EDIT_REVIEW_REQUIRED"
+  },
+  {
+    "file": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\06-kalkan-temasi.mp4",
+    "sourceScene": "06-kalkan-temasi",
+    "historyId": "GZOvpHUYE0IzJRNbz8Nh",
+    "metadata": {
+      "width": 1920,
+      "height": 1072,
+      "fps": 24,
+      "duration": 5.041667,
+      "hasAudio": false
+    },
+    "timeline": {
+      "start_s": 27,
+      "end_s": 31
+    },
+    "sha256": "C4BA3736A0BEC98F7B2A5144553842C6241D3AB9A67EB7E23EBDCC0B6845098E",
+    "qa": "TECHNICAL_PASS_AND_SAMPLED_FRAME_REVIEW__FINAL_EDIT_REVIEW_REQUIRED"
+  },
+  {
+    "file": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\07-arenaya-giris.mp4",
+    "sourceScene": "07-arenaya-giris",
+    "historyId": "dJnom3P4Y7WngSald3f2",
+    "metadata": {
+      "width": 1920,
+      "height": 1072,
+      "fps": 24,
+      "duration": 8.041667,
+      "hasAudio": false
+    },
+    "timeline": {
+      "start_s": 31,
+      "end_s": 38
+    },
+    "sha256": "47D75F2B8D72A93AD949000B9A1875A3B5085D8B846BBA34A28192F2477AC4BC",
+    "qa": "TECHNICAL_PASS_AND_SAMPLED_FRAME_REVIEW__FINAL_EDIT_REVIEW_REQUIRED"
+  },
+  {
+    "file": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\08-arena-ihtisam.mp4",
+    "sourceScene": "08-arena-ihtisam",
+    "historyId": "1Zm9VELIhKP6l2kaPkI9",
+    "metadata": {
+      "width": 1920,
+      "height": 1072,
+      "fps": 24,
+      "duration": 7.041667,
+      "hasAudio": false
+    },
+    "timeline": {
+      "start_s": 38,
+      "end_s": 44
+    },
+    "sha256": "82B83B48DFE66F0449CA2131BC6CB3551A32498925C8B3F0B9B0D151BD4CDB1D",
+    "qa": "TECHNICAL_PASS_AND_SAMPLED_FRAME_REVIEW__FINAL_EDIT_REVIEW_REQUIRED"
+  },
+  {
+    "file": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\09-kaplan-kukreme.mp4",
+    "sourceScene": "09-kaplan-kukreme",
+    "historyId": "m90geakFWeAz1uVOIkc8",
+    "metadata": {
+      "width": 1920,
+      "height": 1072,
+      "fps": 24,
+      "duration": 5.041667,
+      "hasAudio": false
+    },
+    "timeline": {
+      "start_s": 44,
+      "end_s": 48
+    },
+    "sha256": "50A60559A3449F5E043BB21A1EC298A9F5980E48D4FC7D1FB4845E77109F77C5",
+    "qa": "TECHNICAL_PASS_AND_SAMPLED_FRAME_REVIEW__FINAL_EDIT_REVIEW_REQUIRED"
+  },
+  {
+    "file": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\10-final-kunye.mp4",
+    "sourceScene": "10-final-kunye",
+    "historyId": "u7tOprsu3kIrcCNC4Ts8",
+    "metadata": {
+      "width": 1920,
+      "height": 1072,
+      "fps": 24,
+      "duration": 13.041667,
+      "hasAudio": false
+    },
+    "timeline": {
+      "start_s": 48,
+      "end_s": 60
+    },
+    "sha256": "9123B75BC28091B1367E898FBA8A7FCF3C23DE1AB9B28CFC57CFA98A06E50C89",
+    "qa": "TECHNICAL_PASS_AND_SAMPLED_FRAME_REVIEW__FINAL_EDIT_REVIEW_REQUIRED"
+  },
+  {
+    "file": "E:\\PROJELER\\KaplanArena\\tasarim\\sinematik\\videolar-openart\\secilen\\ara-arena-sakin.mp4",
+    "sourceScene": "ara-arena-sakin",
+    "historyId": "xHRrFWwxooHQwnWgiUnu",
+    "metadata": {
+      "width": 1920,
+      "height": 1072,
+      "fps": 24,
+      "duration": 15.041667,
+      "hasAudio": false
+    },
+    "timeline": {
+      "start_s": null,
+      "end_s": null
+    },
+    "sha256": "9196D6285ACF328BA1B87932D0CE6D01A5FD0ED4604797912F7F78744A01BC74",
+    "qa": "TECHNICAL_PASS_AND_SAMPLED_FRAME_REVIEW__FINAL_EDIT_REVIEW_REQUIRED"
+  }
+]

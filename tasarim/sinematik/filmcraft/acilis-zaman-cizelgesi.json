@@ -3,101 +3,87 @@
  "durationFrames": 1800,
  "video": [
   {
-   "track": "Sahneler",
+   "track": "OpenArt planlar",
    "clips": [
     {
-     "name": "01-dunya-kesfi.png",
+     "name": "01-dunya-kesfi.mp4",
      "startS": 0,
      "endS": 6,
-     "sourceInS": 0,
+     "sourceInS": 0.5,
      "gainDb": 0
     },
     {
-     "name": "02-kaplan-yolculuk.png",
+     "name": "02-kaplan-yolculuk.mp4",
      "startS": 6,
      "endS": 12,
-     "sourceInS": 0,
+     "sourceInS": 0.5,
      "gainDb": 0
     },
     {
-     "name": "03-kale-kapisi.png",
+     "name": "03-kale-kapisi.mp4",
      "startS": 12,
      "endS": 18,
      "sourceInS": 0,
      "gainDb": 0
     },
     {
-     "name": "04-turnuva-karsilasma.png",
+     "name": "04-turnuva-karsilasma.mp4",
      "startS": 18,
      "endS": 24,
-     "sourceInS": 0,
+     "sourceInS": 0.5,
      "gainDb": 0
     },
     {
-     "name": "05-kilic-temasi.png",
+     "name": "05-kilic-temasi.mp4",
      "startS": 24,
      "endS": 27,
-     "sourceInS": 0,
+     "sourceInS": 0.25,
      "gainDb": 0
     },
     {
-     "name": "06-kalkan-temasi.png",
+     "name": "06-kalkan-temasi.mp4",
      "startS": 27,
      "endS": 31,
-     "sourceInS": 0,
+     "sourceInS": 1,
      "gainDb": 0
     },
     {
-     "name": "07-arenaya-giris.png",
+     "name": "07-arenaya-giris.mp4",
      "startS": 31,
      "endS": 38,
-     "sourceInS": 0,
+     "sourceInS": 0.5,
      "gainDb": 0
     },
     {
-     "name": "08-arena-ihtisam.png",
+     "name": "08-arena-ihtisam.mp4",
      "startS": 38,
      "endS": 44,
-     "sourceInS": 0,
+     "sourceInS": 0.5,
      "gainDb": 0
     },
     {
-     "name": "09-kaplan-kukreme.png",
+     "name": "09-kaplan-kukreme.mp4",
      "startS": 44,
      "endS": 48,
-     "sourceInS": 0,
+     "sourceInS": 0.875,
      "gainDb": 0
     },
     {
-     "name": "10-final-kunye.png",
+     "name": "10-final-kunye.mp4",
      "startS": 48,
      "endS": 60,
-     "sourceInS": 0,
+     "sourceInS": 0.5,
      "gainDb": 0
     }
    ],
-   "transitions": 5
+   "transitions": 4
   },
   {
-   "track": "Atmosfer",
+   "track": "Vinyet",
    "clips": [
     {
-     "name": "sis-seridi.png",
+     "name": "Adjustment Layer",
      "startS": 0,
-     "endS": 18,
-     "sourceInS": 0,
-     "gainDb": 0
-    },
-    {
-     "name": "isik-huzmeleri.png",
-     "startS": 31,
-     "endS": 44,
-     "sourceInS": 0,
-     "gainDb": 0
-    },
-    {
-     "name": "sis-seridi.png",
-     "startS": 48,
      "endS": 60,
      "sourceInS": 0,
      "gainDb": 0
@@ -106,59 +92,11 @@
    "transitions": 0
   },
   {
-   "track": "Kivilcim-Isik",
+   "track": "Baslik zemini",
    "clips": [
     {
      "name": "Shape",
-     "startS": 12.9,
-     "endS": 18,
-     "sourceInS": 0,
-     "gainDb": 0
-    },
-    {
-     "name": "temas-kivilcim.png",
-     "startS": 22,
-     "endS": 22.467,
-     "sourceInS": 0,
-     "gainDb": 0
-    },
-    {
-     "name": "temas-kivilcim.png",
-     "startS": 24.2,
-     "endS": 24.667,
-     "sourceInS": 0,
-     "gainDb": 0
-    },
-    {
-     "name": "temas-kivilcim.png",
-     "startS": 28,
-     "endS": 28.467,
-     "sourceInS": 0,
-     "gainDb": 0
-    },
-    {
-     "name": "altin-toz.png",
-     "startS": 31,
-     "endS": 48,
-     "sourceInS": 0,
-     "gainDb": 0
-    }
-   ],
-   "transitions": 0
-  },
-  {
-   "track": "Kapi isigi",
-   "clips": [
-    {
-     "name": "Shape",
-     "startS": 12.9,
-     "endS": 18,
-     "sourceInS": 0,
-     "gainDb": 0
-    },
-    {
-     "name": "Shape",
-     "startS": 47.5,
+     "startS": 47.6,
      "endS": 60,
      "sourceInS": 0,
      "gainDb": 0
@@ -171,13 +109,13 @@
    "clips": [
     {
      "name": "KAPLAN ARENA",
-     "startS": 44.9,
+     "startS": 47.9,
      "endS": 60,
      "sourceInS": 0,
      "gainDb": 0
     }
    ],
-   "transitions": 1
+   "transitions": 0
   },
   {
    "track": "Kunye",
@@ -193,11 +131,11 @@
    "transitions": 0
   },
   {
-   "track": "Vinyet",
+   "track": "Logo",
    "clips": [
     {
-     "name": "Adjustment Layer",
-     "startS": 0,
+     "name": "logo-dark.png",
+     "startS": 48.6,
      "endS": 60,
      "sourceInS": 0,
      "gainDb": 0
@@ -225,15 +163,15 @@
    "clips": [
     {
      "name": "kilic-temas-kayit-foley.wav",
-     "startS": 22,
-     "endS": 23.767,
-     "sourceInS": 0.04,
-     "gainDb": 8
+     "startS": 20.2,
+     "endS": 21.967,
+     "sourceInS": 0.032,
+     "gainDb": 6
     },
     {
      "name": "kilic-temas-kayit-foley.wav",
-     "startS": 24.2,
-     "endS": 25.967,
+     "startS": 24,
+     "endS": 25.767,
      "sourceInS": 0.04,
      "gainDb": 8
     },
@@ -243,6 +181,13 @@
      "endS": 29.767,
      "sourceInS": 0.04,
      "gainDb": 11
+    },
+    {
+     "name": "kilic-temas-kayit-foley.wav",
+     "startS": 30.733,
+     "endS": 32.5,
+     "sourceInS": 0.023,
+     "gainDb": 7
     }
    ],
    "transitions": 0
@@ -252,8 +197,15 @@
    "clips": [
     {
      "name": "savurma-gercek.wav",
-     "startS": 21.733,
-     "endS": 22.233,
+     "startS": 19.933,
+     "endS": 20.467,
+     "sourceInS": 0,
+     "gainDb": 3
+    },
+    {
+     "name": "savurma-gercek.wav",
+     "startS": 23.733,
+     "endS": 24.233,
      "sourceInS": 0,
      "gainDb": 6
     },
@@ -266,10 +218,17 @@
     },
     {
      "name": "savurma-gercek.wav",
+     "startS": 30.467,
+     "endS": 30.833,
+     "sourceInS": 0,
+     "gainDb": 4
+    },
+    {
+     "name": "savurma-gercek.wav",
      "startS": 30.833,
      "endS": 31.367,
      "sourceInS": 0,
-     "gainDb": 3
+     "gainDb": 2
     }
    ],
    "transitions": 0
@@ -280,23 +239,23 @@
     {
      "name": "zincir-gercek.wav",
      "startS": 11.6,
-     "endS": 15.833,
+     "endS": 15.8,
      "sourceInS": 0,
      "gainDb": -2
     },
     {
      "name": "kilic-suruntu-gercek.wav",
-     "startS": 21.967,
-     "endS": 23,
+     "startS": 23.967,
+     "endS": 25,
      "sourceInS": 0,
      "gainDb": 3
     },
     {
      "name": "kilic-suruntu-gercek.wav",
-     "startS": 24.167,
-     "endS": 25.2,
+     "startS": 25.2,
+     "endS": 26.233,
      "sourceInS": 0,
-     "gainDb": 3
+     "gainDb": 4
     }
    ],
    "transitions": 0
@@ -306,8 +265,8 @@
    "clips": [
     {
      "name": "kapi-acilis-kayit-foley.wav",
-     "startS": 13,
-     "endS": 19,
+     "startS": 13.733,
+     "endS": 19.733,
      "sourceInS": 0,
      "gainDb": 5
     }
@@ -319,8 +278,8 @@
    "clips": [
     {
      "name": "kapi-gicirti-gercek.wav",
-     "startS": 12.967,
-     "endS": 16.467,
+     "startS": 13.833,
+     "endS": 17.333,
      "sourceInS": 0,
      "gainDb": 2
     }
@@ -332,8 +291,8 @@
    "clips": [
     {
      "name": "kukreme-kullanici.wav",
-     "startS": 44.133,
-     "endS": 46.6,
+     "startS": 43.867,
+     "endS": 46.333,
      "sourceInS": 0,
      "gainDb": 4
     },
@@ -346,6 +305,90 @@
     }
    ],
    "transitions": 0
+  }
+ ],
+ "olaylar": {
+  "kapiAralanir": 13.764705882352942,
+  "kapiEnGenis": 17,
+  "turnuvaTemas": 20.208333333333332,
+  "kilicTemas": 24,
+  "kilicParlama": 25.65,
+  "kalkanTemas": 28,
+  "kilicCarpisma2": 30.75,
+  "kukreme": 44.03333333333333,
+  "cenekapanir": 46.875
+ },
+ "planlar": [
+  {
+   "id": "01",
+   "f": "01-dunya-kesfi.mp4",
+   "s": 0,
+   "e": 6,
+   "src": 0.5
+  },
+  {
+   "id": "02",
+   "f": "02-kaplan-yolculuk.mp4",
+   "s": 6,
+   "e": 12,
+   "src": 0.5
+  },
+  {
+   "id": "03",
+   "f": "03-kale-kapisi.mp4",
+   "s": 12,
+   "e": 18,
+   "src": 0,
+   "speed": 85
+  },
+  {
+   "id": "04",
+   "f": "04-turnuva-karsilasma.mp4",
+   "s": 18,
+   "e": 24,
+   "src": 0.5
+  },
+  {
+   "id": "05",
+   "f": "05-kilic-temasi.mp4",
+   "s": 24,
+   "e": 27,
+   "src": 0.25
+  },
+  {
+   "id": "06",
+   "f": "06-kalkan-temasi.mp4",
+   "s": 27,
+   "e": 31,
+   "src": 1
+  },
+  {
+   "id": "07",
+   "f": "07-arenaya-giris.mp4",
+   "s": 31,
+   "e": 38,
+   "src": 0.5
+  },
+  {
+   "id": "08",
+   "f": "08-arena-ihtisam.mp4",
+   "s": 38,
+   "e": 44,
+   "src": 0.5
+  },
+  {
+   "id": "09",
+   "f": "09-kaplan-kukreme.mp4",
+   "s": 44,
+   "e": 48,
+   "src": 0.875
+  },
+  {
+   "id": "10",
+   "f": "10-final-kunye.mp4",
+   "s": 48,
+   "e": 60,
+   "src": 0.5
   }
  ]
 }
