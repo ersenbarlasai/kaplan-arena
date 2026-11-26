@@ -3,3 +3,4 @@
 
 # Test ekran görüntülerinin PNG kopyaları (depoda WebP sürümleri tutulur)
 tasarim/ekran-goruntuleri/*.png
+tasarim/ekran-goruntuleri/uc-kampus/*.png

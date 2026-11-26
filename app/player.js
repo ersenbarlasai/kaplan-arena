@@ -24,16 +24,18 @@ function plJoin(pin){
 }
 function plOnState(){
   const st = P.st; if (!st) return plRender();
-  if (P.plStage !== st.stage){
+  // Sahiplik yolu: turnuvada etap başına; ortak yarışmada (pk = 'all') bütün yarışma boyunca tek kayıt.
+  const pk = st.pk || st.stage;
+  if (P.plStage !== pk){
     if (P.plRef) P.plRef.off();
-    P.plStage = st.stage; P.players = {};
-    P.plRef = NET.db.ref(`games/${P.pin}/players/${st.stage}`);
+    P.plStage = pk; P.players = {};
+    P.plRef = NET.db.ref(`games/${P.pin}/players/${pk}`);
     P.plRef.on('value', s => { P.players = s.val() || {}; plRender(); });
   }
   const i = myIdx();
-  if (i >= 0 && P.claimedFor !== st.stage + ':' + i){
-    P.claimedFor = st.stage + ':' + i;
-    NET.db.ref(`games/${P.pin}/players/${st.stage}/${i}`).set({ dev:P.dev, t:TS() }).catch(() => {});
+  if (i >= 0 && P.claimedFor !== pk + ':' + i){
+    P.claimedFor = pk + ':' + i;
+    NET.db.ref(`games/${P.pin}/players/${pk}/${i}`).set({ dev:P.dev, t:TS() }).catch(() => {});
   }
   const qk = st.qk || null, key = qk && i >= 0 ? qk + '/' + i : null;
   if (P.nodeKey !== key){
@@ -153,16 +155,18 @@ const fmtV = v => typeof v === 'number' ? fmt(v) : String(v).split('').join(' ve
 function plJokerSheet(j){
   return `<div class="ph-sheet-bg" data-pl="jkNo"><div class="ph-sheet" role="dialog" aria-modal="true" aria-labelledby="jsh">
     <img src="${JK[j].icon}" alt=""><h3 id="jsh">${JK[j].name}</h3>
-    <p>${esc(JK[j].desc)}</p><p><b>${esc(PENALTY_TXT)}</b></p><p>Bu joker yarışma boyunca yalnız bir kez kullanılır ve onaylandıktan sonra geri alınamaz. Kullanınca süre bütün sınıflar için kısa bir tanıtım boyunca durur.</p>
+    <p>${esc(JK[j].desc)}</p><p><b>${esc(PENALTY_TXT)}</b></p><p>Bu joker yarışma boyunca yalnız bir kez kullanılır ve onaylandıktan sonra geri alınamaz. Kullanınca süre bütün ${plN().many} için kısa bir tanıtım boyunca durur.</p>
     <div class="row"><button class="btn" data-pl="jkNo">Vazgeç</button><button class="btn primary" data-pl="jkYes" data-j="${j}">Jokeri Kullan</button></div></div></div>`;
 }
 function plPick(){
   const st = P.st, joinedBy = i => P.players && P.players[i];
-  return `<div class="ph-card"><h2>Sınıfını seç</h2><p>${esc(st.place || st.stageName)} şu an bu sınıflarla oynanıyor. Sınıfının kaptanıysan sınıfını seç.</p>
+  const n = plN();
+  const intro = st.mode === 'shared' ? 'Üç takım bütün etaplarda birlikte yarışıyor. Takımının kaptanıysan takımını seç.' : `${esc(st.place || st.stageName)} şu an bu sınıflarla oynanıyor. Sınıfının kaptanıysan sınıfını seç.`;
+  return `<div class="ph-card"><h2>${n.ch.replace(/ı$/, 'ını')} seç</h2><p>${intro}</p>
     <div class="ph-plist">${(st.teams || []).map((n, i) => { const j = joinedBy(i), taken = j && j.dev !== P.dev;
       return `<button class="${taken ? 'taken' : ''}" data-pl="pick" data-i="${i}">${armaHTML(st.arma ? st.arma[i] : 0, 'sm', '')}<b>${esc(n)}</b><small>${taken ? 'Başka telefon bağlı' : 'Seçmek için dokun'}</small></button>`; }).join('')}</div>
-    ${P.confirmPick != null ? `<div class="ph-msg warn"><b>${esc(st.teams[P.confirmPick])}</b> sınıfına başka bir telefon bağlı. Kaptan sizseniz bu telefonla devam edin; diğer telefonun komutları geçersiz olur.<div class="row"><button class="btn" data-pl="pickNo">Vazgeç</button><button class="btn primary" data-pl="pickYes">Bu Telefonla Devam Et</button></div></div>` : ''}
-    ${P.team ? `<p>${esc(P.team)} bu etapta yarışmıyor. İzlemeye devam edebilirsiniz.</p>` : ''}</div>`;
+    ${P.confirmPick != null ? `<div class="ph-msg warn"><b>${esc(st.teams[P.confirmPick])}</b> ${n.dat} başka bir telefon bağlı. Kaptan sizseniz bu telefonla devam edin; diğer telefonun komutları geçersiz olur.<div class="row"><button class="btn" data-pl="pickNo">Vazgeç</button><button class="btn primary" data-pl="pickYes">Bu Telefonla Devam Et</button></div></div>` : ''}
+    ${P.team ? `<p>${esc(P.team)} ${st.mode === 'shared' ? 'bu yarışmada yok' : 'bu etapta yarışmıyor'}. İzlemeye devam edebilirsiniz.</p>` : ''}</div>`;
 }
 function plBody(){
   const st = P.st, i = myIdx();
@@ -176,7 +180,7 @@ function plBody(){
                           : card('', 'Şampiyon: ' + esc(champ), `${esc(st.title)} sona erdi. Katıldığınız için teşekkürler!`, shield('wait', '★'));
   }
   if (i < 0) return plPick();
-  const change = `<button class="linkbtn" data-pl="change">Sınıfı değiştir</button>`;
+  const change = `<button class="linkbtn" data-pl="change">${plN().ch} değiştir</button>`;
   if (st.view === 'teams') return card('good', 'Hazırsınız!', `<b>${esc(P.team)}</b> olarak ${esc(st.place)} için katıldınız. Sorular başlayınca burada görünecek.`, shield('good', '✓')) + jokersLeft() + change;
   if (st.view === 'question' || st.view === 'tie'){
     if (st.eligible && !st.eligible.includes(i)) return card('', 'Eşitlik sorusu', `Bu soruyu yalnız ${st.eligible.map(x => esc(st.teams[x])).join(' ve ')} cevaplıyor.`);
@@ -213,9 +217,14 @@ function plBody(){
     else res = resCard('', shield('wait', '–'), 'Bu soruda puan yok', '');
     return res + jokersLeft() + '<div class="ph-wait">⌛ Sonraki soruyu bekle</div>';
   }
+  if (st.view === 'stageEnd' && st.mode === 'shared' && st.stage !== 'final'){
+    // Ortak yarışma: eleme yok; toplam puan ve sıralama ile devam.
+    const order = (st.scores || []).map((s, k) => ({ s, k })).sort((a, b) => b.s - a.s), rank = order.findIndex(o => o.k === i) + 1;
+    return card('good', `${esc(st.place)} tamamlandı`, `Toplam <b>${st.scores[i]}</b> puan · Sıralama <b>${rank}.</b> / ${st.teams.length}<br>Eleme yok: üç takım da yola devam ediyor${st.next ? ` · sıradaki durak <b>${esc(st.next)}</b>` : ''}. Puanlar birikerek sürüyor.`, shield('good', '★')) + jokersLeft();
+  }
   if (st.view === 'stageEnd'){
     const q = (st.qualified || []).includes(i), tie = (st.eligible || []).includes(i);
-    if (st.stage === 'final') return card('', tie ? 'Eşitlik var!' : 'Final bitti', tie ? 'Ek tahmin sorusu geliyor, hazır olun!' : 'Şampiyon birazdan açıklanacak.');
+    if (st.stage === 'final') return card('', tie ? 'Eşitlik var!' : 'Final bitti', tie ? (st.mode === 'shared' ? 'Birincilikte eşitlik: ek tahmin sorusu geliyor, hazır olun! Toplam puanlar değişmez.' : 'Ek tahmin sorusu geliyor, hazır olun!') : st.tiePending ? 'Liderler arasında eşitlik sorusu bekleniyor.' : 'Şampiyon birazdan açıklanacak.');
     if (q) return card('good', 'FİNALDESİNİZ!', `${esc(P.team)} Kaplan Arenası’na çıktı. Tebrikler!`, shield('gold', '★'));
     if (tie) return card('', 'Eşitlik var!', 'Finale çıkmak için ek tahmin sorusu geliyor, hazır olun!');
     if (st.tiePending) return card('', `${esc(st.place)} bitti`, 'Eşitlik sorusu bekleniyor.');
@@ -223,6 +232,8 @@ function plBody(){
   }
   return card('', 'Bekleniyor…');
 }
+/* Kapsayıcı adlandırma: ortak yarışmada "takım", turnuvada mevcut "sınıf". */
+const plN = () => P.st && P.st.mode === 'shared' ? { one:'takım', acc:'takımını', dat:'takımına', many:'takımlar', gen:'takımının', ch:'Takımı' } : { one:'sınıf', acc:'sınıfını', dat:'sınıfına', many:'sınıflar', gen:'sınıfının', ch:'Sınıfı' };
 function plRender(){
   const app = document.getElementById('app');
   let h = '';

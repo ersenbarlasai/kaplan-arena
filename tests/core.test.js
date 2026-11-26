@@ -226,3 +226,72 @@ test('göç: eski kayıt korunur, şema 2 alanları eklenir, çalışan saat dur
   const again = C.migrate(JSON.parse(JSON.stringify(s)), { now: 2000 });
   assert.deepEqual(again.settings.emblems, s.settings.emblems);
 });
+
+/* ---------- Üç Kampüs — Ortak Yarışma ---------- */
+test('takım listesi: boşluk/satır/virgül temizliği; en az 3 benzersiz ad', () => {
+  assert.deepEqual(C.normRoster('Kampüs A\n  Kampüs   B ,Kampüs C\n\n , '), ['Kampüs A', 'Kampüs B', 'Kampüs C']);
+  assert.deepEqual(C.normRoster([' Kampüs A ', 'Kampüs B,Kampüs C', null, '']), ['Kampüs A', 'Kampüs B', 'Kampüs C']);
+  assert.equal(C.rosterError(['A', 'B', 'C']), '');
+  assert.match(C.rosterError(['A', 'B']), /En az 3/);
+  assert.match(C.rosterError([]), /En az 3/);
+  assert.match(C.rosterError(C.normRoster('Kampüs A\nKampüs B\nkampüs  a')), /iki kez/);
+  assert.match(C.rosterError(C.normRoster('İzmir\nizmir\nAnkara')), /iki kez/);
+  assert.equal(C.rosterError(C.normRoster(Array.from({ length: 20 }, (_, i) => 'T' + i))), '');   // ilgisiz üst sınır yok
+});
+
+test('mod seçimi: 3 takım ortak yarışma, 4+ iki gruplu turnuva; modsuz kayıt turnuvadır', () => {
+  assert.equal(C.modeFor(3), 'shared');
+  assert.equal(C.modeFor(4), 'tournament');
+  assert.equal(C.modeFor(11), 'tournament');
+  const old = { teams: { s1: [team('9A', 5)], s2: [team('9B', 0)], final: [] } };
+  assert.equal(C.isShared(old), false);
+  assert.deepEqual(C.teamsOf(old, 's1').map(t => t.name), ['9A']);
+  const sh = { mode: 'shared', teams: { all: [team('A', 0), team('B', 0), team('C', 0)], s1: [], s2: [], final: [] } };
+  for (const k of ['s1', 's2', 'final']) assert.equal(C.teamsOf(sh, k), sh.teams.all);   // tek puan kaynağı
+});
+
+test('ortak yarışma etap sonucu: ilk iki etapta eleme/eşitlik yok; finalde yalnız lider eşitliği', () => {
+  const sc = arr => arr.map((score, i) => ({ i, score }));
+  const r1 = C.stageOutcome('shared', sc([20, 20, 20]), 's1');
+  assert.equal(r1.tie, null); assert.deepEqual(r1.qualified.sort(), [0, 1, 2]);
+  assert.equal(C.stageOutcome('shared', sc([0, 0, 0]), 's2').tie, null);
+  const f = C.stageOutcome('shared', sc([30, 30, 20]), 'final');
+  assert.deepEqual(f.tie, { candidates: [0, 1], slots: 1 }); assert.deepEqual(f.qualified, []);
+  assert.deepEqual(C.stageOutcome('shared', sc([10, 40, 20]), 'final'), { qualified: [1], tie: null });
+  assert.deepEqual(C.stageOutcome('shared', sc([40, 20, 20]), 'final'), { qualified: [0], tie: null });   // 2./3. eşitliği şampiyonluk eşitliği değil
+  assert.deepEqual(C.stageOutcome('shared', sc([20, 20, 20]), 'final').tie, { candidates: [0, 1, 2], slots: 1 });
+  // turnuva davranışı değişmedi: grup etabında ilk 2, finalde 1
+  assert.deepEqual(C.stageOutcome('tournament', sc([30, 20, 10, 0]), 's1'), { qualified: [0, 1], tie: null });
+  assert.deepEqual(C.stageOutcome('tournament', sc([30, 20, 20, 0]), 's1'), { qualified: [0], tie: { candidates: [1, 2], slots: 1 } });
+  assert.deepEqual(C.stageOutcome(undefined, sc([30, 20, 20]), 'final'), { qualified: [0], tie: null });
+});
+
+test('ortak yarışma: puanlar üç etap boyunca birikir; jokerler yarışmada birer kez; iptal bir kez geri alır', () => {
+  const g = { mode: 'shared', teams: { all: [team('Kampüs A', 0), team('Kampüs B', 0), team('Kampüs C', 0)] }, jokers: {}, jdone: {}, jrej: {}, scored: {}, cancelled: {} };
+  const T = k => C.teamsOf(g, k);
+  // 1. etap: A Çifte Puan doğru, B doğru → 20/10/0
+  C.jokerRec(g, 'Kampüs A').x2 = 's1_0_q1';
+  C.applyScore(g, T('s1'), 's1_0_q1', [0, 1], { 0: 'x2' });
+  assert.deepEqual(T('s1').map(t => t.score), [20, 10, 0]);
+  // 1. etap soru 2: C +10, sonra iptal → bir kez geri
+  C.applyScore(g, T('s1'), 's1_1_q2', [2], {});
+  C.cancelQuestion(g, T('s1'), 's1_1_q2', 0);
+  C.cancelQuestion(g, T('s1'), 's1_1_q2', 0);
+  assert.deepEqual(T('s1').map(t => t.score), [20, 10, 0]);
+  // 2. etap: A'nın Çifte Puan hakkı geri gelmez
+  const g2 = Object.assign(openGame(1000, 30000), { jokers: g.jokers });
+  const why = C.checkJoker(g2, { qk: 's2_0_q3', qtype: 'ders', isTie: false, i: 0, name: 'Kampüs A', j: 'x2', t: 2000, owner: null, dev: 'd', node: null });
+  assert.match(why, /daha önce kullanıldı/);
+  C.applyScore(g, T('s2'), 's2_0_q3', [1, 2], { 2: 'x2' });
+  assert.deepEqual(T('s2').map(t => t.score), [20, 20, 20]);
+  // final sıfırlanmadan devam eder
+  C.applyScore(g, T('final'), 'final_0_q4', [0, 1], {});
+  assert.deepEqual(T('final').map(t => t.score), [30, 30, 20]);
+  assert.deepEqual(C.stageOutcome('shared', T('final').map((t, i) => ({ i, score: t.score })), 'final').tie, { candidates: [0, 1], slots: 1 });
+});
+
+test('göç: ortak listedeki takımların armaları korunur', () => {
+  const s = { settings: { classes: ['9A', '9B', '9C', '9D'], emblems: {} }, game: { mode: 'shared', teams: { all: [team('Kampüs A', 0), team('Kampüs B', 0), team('Kampüs C', 0)] } } };
+  C.migrate(s, { now: 1 });
+  for (const n of ['Kampüs A', 'Kampüs B', 'Kampüs C']) assert.equal(typeof s.settings.emblems[n], 'number');
+});

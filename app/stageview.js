@@ -28,6 +28,15 @@ const StageView = (() => {
     return `<div class="sg-join ${big ? 'big' : ''}"><div class="qr" data-url="${esc(j.url)}" data-size="${big ? 260 : 170}"></div>
       <div class="jtx"><small>Telefonla katıl</small><div class="addr">${esc(j.addr)}</div><small>Yarışma kodu</small><div class="pin">${esc(pinTxt(j.pin))}</div></div></div>`;
   }
+  // Kapsayıcı adlandırma: ortak yarışmada "takım", turnuvada mevcut "sınıf".
+  const N = (m) => m && m.mode === 'shared' ? { one:'takım', dat:'takımlara' } : { one:'sınıf', dat:'sınıflara' };
+  function lobbyNote(m){
+    const n = (m.teams || []).length;
+    if (m.mode !== 'shared') return m.stage.key === 'final' ? 'Şampiyon belirlenecek · puanlar sıfırdan' : 'İlk 2 sınıf finale çıkar';
+    if (m.stage.key === 's1') return `${n} takım birlikte yarışıyor · eleme yok · puanlar üç etap boyunca birikir`;
+    if (m.stage.key === 'final') return 'Son etap · puanlar birikir · toplam puan şampiyonu belirler';
+    return `Puanlar korunuyor · ${n} takım birlikte devam ediyor · puanlar birikir`;
+  }
   const S = {};
 
   S.idle = () => `${bg('karsilama')}<div class="sg-center"><div class="sg-plaque"><h2>Sahne hazırlanıyor</h2><p>Yönetim penceresi bekleniyor…</p></div></div>`;
@@ -73,9 +82,9 @@ const StageView = (() => {
   };
 
   S.lobby = (m) => `${bg(m.stage.img)}<div class="sg-dim"></div><div class="sg-frame">
-      <header class="sg-head">${stageBadge(m)}<h2 class="sg-h">Katılım</h2><span>${m.stage.key === 'final' ? 'Şampiyon belirlenecek · puanlar sıfırdan' : 'İlk 2 sınıf finale çıkar'}</span></header>
+      <header class="sg-head">${stageBadge(m)}<h2 class="sg-h">${m.mode === 'shared' ? 'Ortak Katılım' : 'Katılım'}</h2><span>${esc(lobbyNote(m))}</span></header>
       <div class="sg-lobby">${m.join ? join(m.join, true) : '<div class="sg-plaque"><p>Telefonsuz yarışma: puanları yönetici girer.</p></div>'}
-        <div class="sg-jlist">${(m.teams || []).map(t => `<div class="sg-jl ${t.joined ? 'on' : ''}">${armaHTML(t.arma, 'sg-arma', '')}<span>${esc(t.name)}</span><em>${t.joined ? 'Hazır ✓' : 'Bekleniyor'}</em></div>`).join('')}</div>
+        <div class="sg-jlist n${Math.min((m.teams || []).length, 12)}">${(m.teams || []).map(t => `<div class="sg-jl ${t.joined ? 'on' : ''}">${armaHTML(t.arma, 'sg-arma', '')}<span>${esc(t.name)}</span>${m.showScores ? `<b class="sc" title="Toplam puan">${t.score}</b>` : ''}<em>${t.joined ? 'Hazır ✓' : 'Bekleniyor'}</em></div>`).join('')}</div>
       </div></div>`;
 
   S.ready = (m) => `${bg(m.stage.img)}<div class="sg-dim soft"></div><div class="sg-frame">
@@ -91,7 +100,7 @@ const StageView = (() => {
         return `<div class="sg-opt ${cls}"><b class="L">${L}</b><span>${esc(o)}</span>${rev && L === m.answer ? '<i class="ok">✓</i>' : ''}</div>`; }).join('')}</div>`;
     }
     return rev ? `<div class="sg-reveal gold"><small>Doğru cevap</small><b>${esc(fmt(m.answer))}</b><i>${esc(q.unit || '')}</i></div>`
-               : `<div class="sg-hint">Tahmininizi telefondan gönderin. Gerçek cevaba en yakın sınıf kazanır.${q.unit ? ` <b>Birim: ${esc(q.unit)}</b>` : ''}</div>`;
+               : `<div class="sg-hint">Tahmininizi telefondan gönderin. Gerçek cevaba en yakın ${N(m).one} kazanır.${q.unit ? ` <b>Birim: ${esc(q.unit)}</b>` : ''}</div>`;
   }
   S.question = (m) => {
     const q = m.q, lockTxt = m.phase === 'locked' ? '<div class="sg-band lock">Süre doldu · cevaplar kilitlendi</div>' : '';
@@ -124,7 +133,7 @@ const StageView = (() => {
         <div class="sg-subj">Eşitlik · ${esc((m.teams || []).map(t => t.name).join(' · '))}</div>
         ${m.phase === 'ready' ? '<h2 class="sg-qt">Eşitlik sorusu geliyor. Hazır olun!</h2>'
           : `<h2 class="sg-qt">${esc(m.q ? m.q.text : 'Sunucunun sorduğu eşitlik sorusunu dinleyin.')}</h2>
-             ${rev && m.answer != null ? `<div class="sg-reveal"><small>Doğru cevap</small><b>${esc(fmt(m.answer))}</b><i>${esc(m.q && m.q.unit || '')}</i></div>` : '<div class="sg-hint">Tahmininizi telefondan gönderin. En yakın sınıf kazanır.</div>'}`}
+             ${rev && m.answer != null ? `<div class="sg-reveal"><small>Doğru cevap</small><b>${esc(fmt(m.answer))}</b><i>${esc(m.q && m.q.unit || '')}</i></div>` : `<div class="sg-hint">Tahmininizi telefondan gönderin. En yakın ${N(m).one} kazanır.</div>`}`}
       </div>
       ${m.phase === 'locked' ? '<div class="sg-band lock">Süre doldu · cevaplar kilitlendi</div>' : ''}${pausedBand(m)}${teamsRow(m)}</div>`;
   };
@@ -140,13 +149,13 @@ const StageView = (() => {
     const max = Math.max(10, ...rows.map(r => r.score));
     return `<div class="sg-board">${rows.map((t, k) => `<div class="sg-row-b ${t.out ? 'out' : ''} ${t.win ? 'win' : ''}">
         <span class="rk r${k + 1}">${k + 1}</span>${armaHTML(t.arma, 'sg-arma', '')}<span class="nm">${esc(t.name)}${t.badge ? `<em>${esc(t.badge)}</em>` : ''}</span>
-        ${opt && opt.delta ? delta(t) : ''}<span class="bar"><i style="width:${Math.round(t.score / max * 100)}%"></i></span><b class="sc" ${opt && opt.delta && t.from != null ? `data-from="${t.from}" data-to="${t.score}"` : ''}>${t.score}</b></div>`).join('')}</div>`;
+        <span class="dl">${opt && opt.delta ? delta(t) : ''}</span><span class="bar"><i style="width:${Math.round(t.score / max * 100)}%"></i></span><b class="sc" ${opt && opt.delta && t.from != null ? `data-from="${t.from}" data-to="${t.score}"` : ''}>${t.score}</b></div>`).join('')}</div>`;
   }
   S.scores = (m) => `${bg(m.stage.img)}<div class="sg-dim"></div><div class="sg-frame">
       <header class="sg-head">${stageBadge(m)}<h2 class="sg-h">Puan Durumu</h2><span>Soru ${m.q ? m.q.n : ''} / ${m.q ? m.q.total : ''}${m.answerText ? ` · doğru cevap: ${esc(m.answerText)}` : ''}</span></header>
       ${board(m.board || [], { delta: true })}</div>`;
   S.stageEnd = (m) => `${bg(m.stage.img)}<div class="sg-dim"></div><div class="sg-frame">
-      <header class="sg-head">${stageBadge(m)}<h2 class="sg-h">${esc(m.stage.key === 'final' ? 'Final Sonuçları' : m.stage.place + ' Tamamlandı')}</h2></header>
+      <header class="sg-head">${stageBadge(m)}<h2 class="sg-h">${esc(m.stage.key === 'final' ? 'Final Sonuçları' : m.stage.place + ' Tamamlandı')}</h2>${m.totals ? '<span>Toplam puanlar · eleme yok</span>' : ''}</header>
       ${board(m.board || [])}
       ${m.note ? `<div class="sg-band ${m.tie ? 'lock' : 'ok'}">${esc(m.note)}</div>` : ''}</div>`;
   S.champion = (m) => {
@@ -161,7 +170,7 @@ const StageView = (() => {
       <canvas class="sg-confetti" data-confetti></canvas>`;
   };
   S.ended = (m) => `${bg(m.stage ? m.stage.img : 'arena')}<div class="sg-dim"></div><div class="sg-frame">
-      <header class="sg-head"><h2 class="sg-h">Yarışma Sona Erdi</h2><span>Katılan tüm sınıflara teşekkürler!</span></header>
+      <header class="sg-head"><h2 class="sg-h">Yarışma Sona Erdi</h2><span>Katılan tüm ${N(m).dat} teşekkürler!</span></header>
       ${(m.board || []).length ? board(m.board) : ''}</div>`;
 
   function intro(m){

@@ -141,7 +141,7 @@
     if (!JOKERS.includes(c.j)) return 'Geçersiz joker.';
     if (c.j === 'double' && c.qtype !== 'ders') return 'Çift Cevap yalnız şıklı sorularda kullanılır.';
     if (g.phase !== 'open') return 'Soru açık değilken joker kullanılamaz.';
-    if (!c.admin && c.owner && c.dev !== c.owner) return 'Bu sınıfın yetkili telefonu değil.';
+    if (!c.admin && c.owner && c.dev !== c.owner) return 'Bu takımın/sınıfın yetkili telefonu değil.';
     if (!inWindow(g.win, c.t, 0)) return 'Joker yalnız süre işlerken kullanılabilir.';
     const r = jokerRec(g, c.name);
     if (r.double === c.qk || r.x2 === c.qk) return 'Bu soruda zaten bir joker kullanıldı.';
@@ -238,6 +238,47 @@
     return { winners: dists.map((x, i) => x === m ? i : -1).filter(i => i >= 0), dists };
   }
 
+  /* ---------- takım listesi ve yarışma modu ----------
+     'shared' = Üç Kampüs — Ortak Yarışma: üç takım üç etabın tamamında aynı anda yarışır, eleme yok, puanlar
+     birikir; finalde birincilik eşitse yalnız eşit liderlere yedek tahmin sorusu sorulur.
+     'tournament' = iki gruplu turnuva (4+ takım; modu kayıtlı olmayan eski kayıtlar da budur).
+     Mod yarışma başlarken kayda yazılır (g.mode); sonraki ayar değişiklikleri açık yarışmayı dönüştürmez. */
+  const MIN_TEAMS = 3;
+  function normRoster(input) {
+    const raw = Array.isArray(input) ? input.map(x => x == null ? '' : String(x)).join('\n') : String(input == null ? '' : input);
+    return raw.split(/[\r\n,]+/).map(s => s.replace(/\s+/g, ' ').trim()).filter(Boolean);
+  }
+  function rosterError(list) {
+    if (!Array.isArray(list) || list.length < MIN_TEAMS) return `En az ${MIN_TEAMS} benzersiz takım/sınıf adı girin.`;
+    const seen = new Set();
+    for (const n of list) {
+      if (typeof n !== 'string' || !n.trim()) return 'Boş takım/sınıf adı olamaz.';
+      const k = n.toLocaleLowerCase('tr-TR');
+      if (seen.has(k)) return `"${n}" adı listede iki kez geçiyor.`;
+      seen.add(k);
+    }
+    return '';
+  }
+  function modeFor(n) { return n === MIN_TEAMS ? 'shared' : 'tournament'; }
+  function isShared(g) { return !!g && g.mode === 'shared'; }
+  /* Etabın takım dizisi. Ortak yarışmada tek kaynak g.teams.all (etaplar arasında kopya yok). */
+  function teamsOf(g, key) { return isShared(g) ? ((g.teams && g.teams.all) || []) : (((g && g.teams) || {})[key] || []); }
+  function cutoff(scores, slots) {
+    const sorted = [...scores].sort((a, b) => b.score - a.score);
+    if (sorted.length <= slots) return { qualified: sorted.map(x => x.i), tie: null };
+    const boundary = sorted[slots - 1].score;
+    const above = sorted.filter(x => x.score > boundary).map(x => x.i);
+    const at = sorted.filter(x => x.score === boundary).map(x => x.i);
+    const remaining = slots - above.length;
+    if (at.length === remaining) return { qualified: [...above, ...at], tie: null };
+    return { qualified: above, tie: { candidates: at, slots: remaining } };
+  }
+  /* Etap sonucu. scores: [{i, score}] */
+  function stageOutcome(mode, scores, key) {
+    if (mode === 'shared' && key !== 'final') return { qualified: [...scores].sort((a, b) => b.score - a.score).map(x => x.i), tie: null, all: true };
+    return cutoff(scores, key === 'final' ? 1 : 2);
+  }
+
   /* ---------- armalar ---------- */
   /* Var olan eşleşmeler değişmez; yeni sınıf en küçük boş numarayı alır. */
   function assignEmblems(map, names) {
@@ -265,7 +306,7 @@
     if (typeof st.sound !== 'boolean') st.sound = true;
     const names = [].concat(st.classes || []);
     const g = s.game || {};
-    for (const k of ['s1', 's2', 'final']) for (const t of ((g.teams || {})[k] || [])) names.push(t.name);
+    for (const k of ['s1', 's2', 'final', 'all']) for (const t of ((g.teams || {})[k] || [])) names.push(t.name);
     st.emblems = assignEmblems(st.emblems, names);
     if (s.game) {
       ['jokers', 'jdone', 'jrej', 'scored', 'cancelled', 'frozen'].forEach(k => { if (!g[k] || typeof g[k] !== 'object') g[k] = {}; });
@@ -301,6 +342,7 @@
     validAnswer, submissions, pickAnswer, firstSubmitT, isCorrect,
     jokerRec, activeJoker, checkJoker, acceptJoker, rejectJoker, seenJoker, endIntro,
     computeDelta, applyScore, cancelQuestion, closestWinners,
+    MIN_TEAMS, normRoster, rosterError, modeFor, isShared, teamsOf, cutoff, stageOutcome,
     assignEmblems, emblemInfo, migrate
   };
 });

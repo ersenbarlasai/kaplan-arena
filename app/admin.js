@@ -5,7 +5,18 @@ const C = KaplanCore;
 let S, ui;
 const G = () => S.game;
 const stageKey = () => STAGES[G().stage].key;
-const curTeams = () => G().teams[stageKey()] || [];
+const curTeams = () => C.teamsOf(G(), stageKey());
+/* Yarışma modu kayda yazılıdır (g.mode). Modsuz eski kayıt turnuvadır; ayardaki takım sayısına bakılmaz. */
+const shared = () => C.isShared(G());
+const gameMode = () => shared() ? 'shared' : 'tournament';
+/* Yeni yarışmada kullanılacak liste ve mod (ayarlardan; açık yarışmayı etkilemez). */
+const nextRoster = () => C.normRoster(S.settings.classes);
+const nextMode = () => C.modeFor(nextRoster().length);
+/* Kapsayıcı adlandırma: ortak yarışmada "takım", turnuvada mevcut "sınıf". */
+const NOUNS = { shared:{ one:'takım', many:'takımlar', Many:'Takımlar', dat:'takımlara', gen:'takımın' }, tournament:{ one:'sınıf', many:'sınıflar', Many:'Sınıflar', dat:'sınıflara', gen:'sınıfın' } };
+const noun = mode => NOUNS[mode || (G().started ? gameMode() : nextMode())] || NOUNS.tournament;
+/* Telefon sahipliği yolu: ortak yarışmada tüm yarışma boyunca tek kayıt (etap geçişinde cihaz-takım eşleşmesi korunur). */
+const plKey = () => shared() ? 'all' : stageKey();
 const inQ = () => { const g = G(); return g.view === 'question' || g.view === 'tie'; };
 const isTie = () => G().view === 'tie';
 
@@ -93,7 +104,7 @@ function jkStates(){
 }
 function buildState(){
   const g = G(), st = STAGES[g.stage], key = st.key, teams = curTeams(), qk = currentQk();
-  const s = { v:4, title:S.settings.title, view:g.view, stage:key, stageName:st.name, place:st.place, teams:teams.map(t => t.name), scores:teams.map(t => t.score),
+  const s = { v:4, title:S.settings.title, mode:gameMode(), pk:plKey(), view:g.view, stage:key, stageName:st.name, place:st.place, teams:teams.map(t => t.name), scores:teams.map(t => t.score),
     arma:teams.map(t => emblem(t.name)), qk, phase:inQ() ? g.phase : null, q:null, qType:null, qn:0, qt:S.questions[key].length,
     open:false, deadline:null, left:null, paused:[], intro:null, answer:null, ack:{}, jk:jkStates(), jrej:{}, brk:!!g.brk,
     eligible:null, lastDelta:null, lastJk:null, lastWinners:null, qualified:null, tiePending:false, champ:null, draw:null, ts:TS() };
@@ -117,7 +128,7 @@ function buildState(){
     s.jrej = g.jrej || {};
   }
   if (g.view === 'scoreboard' && g.last){ s.lastWinners = g.last.winners; s.lastDelta = g.last.delta || null; s.lastJk = g.last.jk || null; s.answer = g.last.answer; s.qn = g.qIndex + 1; }
-  if (g.view === 'stageEnd' && g.result){ s.qualified = g.result.qualified; s.tiePending = !!g.result.tie; s.eligible = g.result.tie ? g.result.tie.candidates : null; }
+  if (g.view === 'stageEnd' && g.result){ s.qualified = g.result.qualified; s.tiePending = !!g.result.tie; s.eligible = g.result.tie ? g.result.tie.candidates : null; s.next = STAGES[g.stage + 1] ? STAGES[g.stage + 1].place : null; }
   if (g.view === 'champion' && g.result) s.champ = g.result.qualified[0];
   return s;
 }
@@ -141,11 +152,11 @@ function netWatch(){
       }
     }
   }
-  const pk = pin + '/' + stageKey();
+  const pk = pin + '/' + plKey();
   if (NET.plKey !== pk){
     if (NET.plRef) NET.plRef.off('value', NET.plFn);
     NET.plKey = pk; NET.joined = {};
-    NET.plRef = NET.db.ref(`games/${pin}/players/${stageKey()}`);
+    NET.plRef = NET.db.ref(`games/${pin}/players/${plKey()}`);
     NET.plFn = snap => { NET.joined = snap.val() || {}; render(); };
     NET.plRef.on('value', NET.plFn);
   }
@@ -183,13 +194,15 @@ function teamList(idxs){
   return list.map(i => { const t = teams[i];
     return { name:t.name, arma:emblem(t.name), score:t.score, ans:!!(inQ() && g.phase !== 'ready' && liveAccepted(i)), jk:inQ() ? C.activeJoker(g, t.name, qk) : null, joined:!!(NET.joined && NET.joined[i]) }; });
 }
-function boardRows(teams, extra){
+/* Puana göre sıralı; eşit puanda prio (ör. eşitlik sorusu sonucu) sırası kullanılır, yoksa kararlı takım sırası. */
+function boardRows(teams, extra, prio){
+  const rk = i => { const k = (prio || []).indexOf(i); return k < 0 ? 1e6 : k; };
   return teams.map((t, i) => Object.assign({ i, name:t.name, arma:emblem(t.name), score:t.score }, extra ? extra(t, i) : {}))
-    .sort((a, b) => b.score - a.score);
+    .sort((a, b) => (b.score - a.score) || (rk(a.i) - rk(b.i)));
 }
 function stageModel(){
   const g = G(), st = STAGES[g.stage], nowL = Date.now();
-  const m = { title:S.settings.title, motion:reducedMotion(), evId:g.evId || 0, events:(g.events || []).slice(-10).map(e => ({ id:e.id, kind:e.kind })),
+  const m = { title:S.settings.title, mode:g.started ? gameMode() : nextMode(), motion:reducedMotion(), evId:g.evId || 0, events:(g.events || []).slice(-10).map(e => ({ id:e.id, kind:e.kind })),
     sound:{ on:!!S.settings.sound, volume:S.settings.volume, stage:StageHost.soundStage() }, stage:{ key:st.key, name:st.name, place:st.place, img:st.img } };
   const present = ui.present || 'welcome';
   if (present === 'welcome' || (!g.started && present !== 'map')){
@@ -202,7 +215,7 @@ function stageModel(){
       classes:(g.started && curTeams().length ? curTeams().map(t => t.name) : S.settings.classes).map(n => ({ name:n, arma:emblem(n) })) });
   }
   if (g.view === 'draw'){
-    const cls = S.settings.classes;
+    const cls = g.roster || S.settings.classes;
     const d = { pool:cls.map(n => ({ name:n, arma:emblem(n) })), started:!!g.draw, done:false, s1:[], s2:[] };
     if (g.draw){
       const seq = drawSeq(g.draw), shown = ui.drawShown == null ? seq.length : ui.drawShown, vis = new Set(seq.slice(0, shown).map(x => x.join(':')));
@@ -211,7 +224,7 @@ function stageModel(){
     }
     return Object.assign(m, { screen:'draw', draw:d, join:joinInfo() });
   }
-  if (g.view === 'teams') return Object.assign(m, { screen:'lobby', teams:teamList(), join:joinInfo() });
+  if (g.view === 'teams') return Object.assign(m, { screen:'lobby', teams:teamList(), join:joinInfo(), showScores:shared() && g.stage > 0 });
   if (inQ()){
     const q = curQ(), tie = isTie();
     const qi = tie ? null : { n:g.qIndex + 1, total:S.questions[st.key].length, type:q ? q.type : 'ders' };
@@ -241,14 +254,24 @@ function stageModel(){
   if (g.view === 'stageEnd' && g.result){
     const r = g.result, isFinal = st.key === 'final', tieSet = r.tie ? r.tie.candidates : [];
     const teams = curTeams();
+    if (shared()){
+      // Ortak yarışma: eleme yok. Ara etaplarda bütün takımlar toplam puanlarıyla devam eder; finalde toplam puan
+      // (lider eşitliğinde yalnız eşitlik sorusu sırası) şampiyonu belirler.
+      const next = STAGES[g.stage + 1];
+      const note = r.tie ? `Birincilikte eşitlik! ${r.tie.candidates.map(i => teams[i].name).join(', ')} için ek tahmin sorusu sorulacak; toplam puanlar değişmez.`
+        : isFinal ? `Şampiyon: ${teams[r.qualified[0]].name} · toplam puanla`
+        : `Üç takım da yola devam ediyor · sıradaki durak: ${next.place} · puanlar birikerek sürüyor`;
+      return Object.assign(m, { screen:'stageEnd', tie:!!r.tie, note:(r.tieNote ? r.tieNote + ' · ' : '') + note, totals:true,
+        board:boardRows(teams, (t, i) => ({ win:isFinal && !r.tie && r.qualified[0] === i, badge:isFinal ? (!r.tie && r.qualified[0] === i ? 'Şampiyon' : tieSet.includes(i) ? 'Eşitlik' : '') : 'Devam' }), r.qualified) });
+    }
     const note = r.tie ? `Eşitlik! ${r.tie.candidates.map(i => teams[i].name).join(', ')} için ek tahmin sorusu sorulacak.`
       : isFinal ? `Şampiyon: ${teams[r.qualified[0]].name}` : `Finale çıkanlar: ${r.qualified.map(i => teams[i].name).join(' ve ')}`;
     return Object.assign(m, { screen:'stageEnd', tie:!!r.tie, note:(r.tieNote ? r.tieNote + ' · ' : '') + note,
       board:boardRows(teams, (t, i) => ({ win:r.qualified.includes(i), out:!r.qualified.includes(i) && !tieSet.includes(i) && !r.tie, badge:r.qualified.includes(i) ? (isFinal ? 'Şampiyon' : 'Finalde') : tieSet.includes(i) ? 'Eşitlik' : '' })) });
   }
   if (g.view === 'champion' && g.result){
-    const teams = g.teams.final, ci = g.result.qualified[0];
-    const rest = boardRows(teams).filter(r => r.i !== ci);
+    const teams = curTeams(), ci = g.result.qualified[0];
+    const rest = boardRows(teams, null, g.result.qualified).filter(r => r.i !== ci);
     const champ = { name:teams[ci].name, arma:emblem(teams[ci].name), score:teams[ci].score };
     return Object.assign(m, { screen:'champion', champ, podium:[champ, rest[0], rest[1]] });
   }
@@ -291,7 +314,7 @@ function onStageLink(kind){
 /* ---------- akış eylemleri ---------- */
 function drawSeq(d){ const seq = []; const m = Math.max(d.s1.length, d.s2.length); for (let i = 0; i < m; i++){ if (d.s1[i]) seq.push(['s1', i]); if (d.s2[i]) seq.push(['s2', i]); } return seq; }
 function runDrawAnim(){
-  const g = G(), seq = drawSeq(g.draw), all = S.settings.classes;
+  const g = G(), seq = drawSeq(g.draw), all = g.roster || S.settings.classes;
   if (reducedMotion()){ ui.drawShown = null; save(); render(); return; }
   ui.drawShown = 0; render(); pushStage();
   clearInterval(ui.drumH); clearInterval(ui.drawH);
@@ -341,19 +364,10 @@ function freezeAnswers(){
 }
 function finishStage(){
   const g = G(), key = stageKey(), teams = curTeams();
-  g.result = C ? cutoff(teams.map((t, i) => ({ i, score:t.score })), key === 'final' ? 1 : 2) : null;
+  g.result = C.stageOutcome(gameMode(), teams.map((t, i) => ({ i, score:t.score })), key);
   g.view = 'stageEnd';
 }
-function cutoff(scores, slots){
-  const sorted = [...scores].sort((a, b) => b.score - a.score);
-  if (sorted.length <= slots) return { qualified:sorted.map(x => x.i), tie:null };
-  const boundary = sorted[slots - 1].score;
-  const above = sorted.filter(x => x.score > boundary).map(x => x.i);
-  const at = sorted.filter(x => x.score === boundary).map(x => x.i);
-  const remaining = slots - above.length;
-  if (at.length === remaining) return { qualified:[...above, ...at], tie:null };
-  return { qualified:above, tie:{ candidates:at, slots:remaining } };
-}
+function cutoff(scores, slots){ return C.cutoff(scores, slots); }
 function toQuestion(idx){
   const g = G();
   g.qIndex = idx; g.view = 'question'; g.phase = 'ready'; g.clock = null; g.win = []; g.jrej = {}; g.intro = null;

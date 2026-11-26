@@ -59,7 +59,8 @@ const ROMAN = ['', 'II', 'III', 'IV', 'V', 'VI'];
 function syncEmblems(st){
   const s = st || S, keep = new Set(s.settings.classes);
   const g = s.game || {};
-  for (const k of ['s1', 's2', 'final']) for (const t of ((g.teams || {})[k] || [])) keep.add(t.name);
+  for (const k of ['s1', 's2', 'final', 'all']) for (const t of ((g.teams || {})[k] || [])) keep.add(t.name);
+  for (const n of (g.roster || [])) keep.add(n);
   const m = s.settings.emblems || (s.settings.emblems = {});
   for (const n of Object.keys(m)) if (!keep.has(n)) delete m[n];
   KaplanCore.assignEmblems(m, [...keep]);
@@ -151,7 +152,12 @@ function validateImport(o){
     settings = {};
     if (typeof o.settings.title === 'string') settings.title = o.settings.title;
     if (Number(o.settings.seconds) >= 5) settings.seconds = Math.round(o.settings.seconds);
-    if (Array.isArray(o.settings.classes) && o.settings.classes.length >= 4) settings.classes = o.settings.classes.map(String);
+    // Takım listesi yedekte varsa ayarlardaki kuralla doğrulanır; hatalıysa yedek bütünüyle reddedilir (eski liste sessizce kalmaz).
+    if (o.settings.classes != null){
+      const list = KaplanCore.normRoster(o.settings.classes), err = KaplanCore.rosterError(list);
+      if (err) throw new Error('takım/sınıf listesi geçersiz: ' + err);
+      settings.classes = list;
+    }
   }
   return {questions:out, settings};
 }

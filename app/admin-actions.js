@@ -45,7 +45,12 @@ const ACT = {
   /* ---- yarışma başlat/bitir ---- */
   newGameAsk(){ ui.confirm = 'newgame'; render(); },
   async newGameYes(){
+    // Katılımcılar ve mod başlangıçta kayda sabitlenir: 3 takım → Üç Kampüs ortak yarışma, 4+ → iki gruplu turnuva.
+    const roster = nextRoster(), err = C.rosterError(roster);
+    if (err){ ui.confirm = null; return toast(err + ' Ayarlar ekranından takım listesini düzeltin.', 6000); }
     const g = newGame(); g.started = true; g.since = Math.round(nowS());
+    g.mode = C.modeFor(roster.length); g.roster = roster.slice();
+    if (g.mode === 'shared'){ g.teams.all = roster.map(n => ({ name:n, score:0 })); g.view = 'teams'; }
     if (lockOn()){
       let j;
       try{ j = await lockReq('acquire', true, g); }catch(e){ return toast('Bağlantı kurulamadı, tekrar deneyin.'); }
@@ -63,7 +68,11 @@ const ACT = {
 
   /* ---- kura ve etap ---- */
   drawGo(){
-    const g = G(), sh = shuffle(S.settings.classes), n1 = Math.ceil(sh.length / 2);
+    const g = G();
+    if (shared()) return;                                   // ortak yarışmada grup kurası yoktur
+    const list = g.roster || S.settings.classes;            // eski kayıt: rosteri yoksa mevcut davranış
+    if (list.length < 4) return toast('İki gruplu turnuva kurası için en az 4 takım gerekir.', 5000);
+    const sh = shuffle(list), n1 = Math.ceil(sh.length / 2);
     g.draw = { s1:sh.slice(0, n1), s2:sh.slice(n1) }; C.assignEmblems(S.settings.emblems, sh);
     save(); runDrawAnim();
   },
@@ -78,7 +87,8 @@ const ACT = {
   startStage(){
     const key = stageKey();
     if (!S.questions[key].length) return toast('Bu etapta soru yok. Önce Soru Yönetimi ekranından soru ekleyin.');
-    curTeams().forEach(t => t.score = 0);
+    // Turnuvada her etap kendi takım listesiyle sıfırdan başlar; ortak yarışmada puanlar etaplar boyunca birikir.
+    if (!shared()) curTeams().forEach(t => t.score = 0);
     const g = G(); g.result = null; g.tie = null; g.last = null; g.history = [];
     toQuestion(0); save(); render();
   },
@@ -189,7 +199,7 @@ const ACT = {
     const ans = q ? q.answer : parseNum(document.getElementById('tie-ans')?.value);
     if (ans == null) return toast('Önce doğru cevabı girin.');
     const scores = t.candidates.map(i => { const v = parseNum(ui.guesses[i]); return { i, score:v == null ? -Infinity : -Math.round(Math.abs(v - ans) * 1e6) / 1e6 }; });
-    if (scores.every(s => s.score === -Infinity)) return toast('En az bir sınıfın tahminini girin.');
+    if (scores.every(s => s.score === -Infinity)) return toast(`En az bir ${noun().gen} tahminini girin.`);
     pushHistory();
     if (q) g.tieUsed = Math.max(g.tieUsed, t.poolIdx + 1);
     const res = cutoff(scores, t.slots);
@@ -210,6 +220,11 @@ const ACT = {
   advance(){
     const g = G(), st = STAGES[g.stage], key = st.key, teams = curTeams();
     if (!g.result || g.result.tie) return;
+    if (shared()){
+      if (key !== 'final'){ g.stage++; g.history = []; g.result = null; g.view = 'teams'; addEvent('stage'); save(); render(); }
+      else { g.view = 'champion'; g.finished = true; addEvent('champion'); save(); render(); lockSync(false); }
+      return;
+    }
     if (key !== 'final'){
       g.qualified[key] = g.result.qualified.map(i => ({ name:teams[i].name, from:st.name }));
       g.stage++; g.history = []; g.result = null; g.view = 'teams';
@@ -295,9 +310,9 @@ Object.assign(ACT, {
     const title = document.getElementById('set-title').value.trim() || 'Kaplan Arena';
     const sec = Math.round(Number(document.getElementById('set-sec').value));
     if (!(sec >= 5 && sec <= 600)) return toast('Süre 5 ile 600 saniye arasında olmalı.');
-    const classes = document.getElementById('set-classes').value.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
-    if (new Set(classes).size !== classes.length) return toast('Sınıf listesinde aynı isim iki kez geçiyor.');
-    if (classes.length < 4) return toast('En az 4 sınıf girin.');
+    // Aynı temizlik/doğrulama yeni yarışma başlatmada ve yedek içe aktarmada da kullanılır (KaplanCore).
+    const classes = C.normRoster(document.getElementById('set-classes').value), rerr = C.rosterError(classes);
+    if (rerr) return toast(rerr, 5000);
     S.settings.title = title; S.settings.seconds = sec; S.settings.classes = classes;
     S.settings.sound = document.getElementById('set-sound').checked;
     S.settings.volume = Math.max(0, Math.min(100, Math.round(Number(document.getElementById('set-vol').value))));

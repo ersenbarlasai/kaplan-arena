@@ -31,6 +31,9 @@ Eski kayıtlar yüklenirken `KaplanCore.migrate()` uygulanır; sorular, sınıfl
 S.schema = 2
 S.settings += { volume: 0..100, reduceMotion: bool, emblems: {sınıfAdı: n} }
 S.game += {
+  mode: 'shared' | 'tournament' | undefined    // yeni yarışmada sabitlenir; undefined (eski kayıt) = turnuva
+  roster: [ad, ...]                            // başlangıçtaki katılımcı listesi (ayar değişikliği etkilemez)
+  teams.all: [{ name, score }]                 // yalnız 'shared': üç etabın tek puan kaynağı (kopya yok)
   phase: 'ready' | 'open' | 'locked' | 'revealed' | 'cancelled'   // view === 'question' iken
   clock: { total, left, runAt, reasons: [] }   // ms; runAt = çalışmaya başladığı sunucu zamanı (null = duruyor)
   win:   [[başla, bitir|null], ...]           // bu soruda cevap kabul pencereleri (sunucu zamanı)
@@ -56,7 +59,7 @@ Duraklatma nedenleri: `admin` (elle/yeniden yükleme/sahne kaybı sonrası), `jo
 
 - Cevap: `games/<pin>/answers/<qk>/<i>/<sid>` = `{ v, t, dev }` — her gönderim ayrı anahtar; sonuncusu silinmez. `sid = s<t><rastgele>`.
 - Joker: `games/<pin>/jreq/<qk>/<i>` = `{ j, t, dev }`.
-- Sahiplik: `games/<pin>/players/<etap>/<i>` = `{ dev }` (mevcut model). Admin yalnız güncel sahibin komutunu sayar.
+- Sahiplik: `games/<pin>/players/<pk>/<i>` = `{ dev }`; `pk` turnuvada etap anahtarı (mevcut model), ortak yarışmada `all` (cihaz-takım eşleşmesi etap geçişinde korunur). Telefon `pk`'yi durumdan (`state.pk`) okur. Admin yalnız güncel sahibin komutunu sayar.
 
 Admin (yetkili taraf) kabul kuralları:
 - Cevap: `t` bu sorunun açık penceresi içinde (±250 ms tolerans), biçim geçerli (şıklı: tek harf; Çift Cevap: iki farklı harf; tahmin: sayı), cihaz sahip. Geçerli gönderimlerin en sonuncusu sayılır. Açıklamada dondurulur.
@@ -64,6 +67,13 @@ Admin (yetkili taraf) kabul kuralları:
 - Tekilleştirme: `jdone[qk][i] = t` ile aynı istek ikinci kez işlenmez; puan `scored[qk]` ile bir kez uygulanır; iptal `cancelled[qk]` ile bir kez işlenir.
 
 Joker tanıtımı: ilk kabulde `pauseAt = şimdi`, açık pencere kapanır, `joker` nedeni eklenir, `until = pauseAt + 3500 ms`. Bu tanıtım sürerken gelen ve `t ≤ pauseAt` olan geçerli istekler aynı tanıtıma eklenir (gruplama penceresi: duraklama anı öncesi gönderilmiş, tanıtım bitmeden ulaşan istekler; en çok 3,5 sn). Tanıtım uzatılmaz; liste eklenerek güncellenir. Süre bitince yalnız `joker` nedeni kalkar.
+
+## Yarışma modları
+
+`KaplanCore.normRoster()` adları satır/virgülle böler, boşlukları sadeleştirir; `rosterError()` en az 3 benzersiz (Türkçe büyük/küçük harf duyarsız) ad ister. Aynı kontrol Ayarlar'da, yeni yarışma başlatırken ve yedek içe aktarmada kullanılır; hatalı yedek bütünüyle reddedilir. `modeFor(n)`: 3 → `shared`, 4+ → `tournament`. Mod `ACT.newGameYes()` içinde `g.mode`/`g.roster`'a yazılır; `curTeams()` = `KaplanCore.teamsOf(g, etap)`.
+
+- `shared` (Üç Kampüs — Ortak Yarışma): kura yok, doğrudan ortak katılım; `startStage` puan sıfırlamaz; `stageOutcome` ara etaplarda herkesi sırayla devam ettirir (eşitlik sorusu yok), finalde `cutoff(…, 1)` ile yalnız lider eşitliği eşitlik sorusuna gider; `advance` etap sırasını s1 → s2 → final izler, her etap kendi soru bankasını kullanır. Soru anahtarı (`qk`) etap anahtarını içerdiği için cevaplar etaplar arasında karışmaz.
+- `tournament`: mevcut davranış (kura 2 grup, ilk 2 finale, finalde puanlar sıfırdan). `drawGo` başlangıç listesini (`g.roster`) kullanır.
 
 ## Puan
 

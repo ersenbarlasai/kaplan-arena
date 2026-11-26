@@ -1,5 +1,5 @@
 {
- "tarih": "2026-11-25T22:55:43.446Z",
+ "tarih": "2026-11-26T02:45:54.127Z",
  "gecen": 43,
  "toplam": 43,
  "sonuclar": [
@@ -26,7 +26,7 @@
   {
    "name": "açılış sahnede oynuyor (görünür, sesli)",
    "ok": true,
-   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":0.479458,\"src\":\"http://localhost:3091/assets/sinematik/acilis-60sn.mp4\",\"muted\":false,\"vol\":0.8,\"loop\":false,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"\",\"n\":1,\"welcome\":true}"
+   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":0.466493,\"src\":\"http://localhost:3091/assets/sinematik/acilis-60sn.mp4\",\"muted\":false,\"vol\":0.8,\"loop\":false,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"\",\"n\":1,\"welcome\":true}"
   },
   {
    "name": "açılış videosu 1920×1080, ~60 s",
@@ -46,7 +46,7 @@
   {
    "name": "model yenilemeleri videoyu sıfırlamıyor/yeniden başlatmıyor",
    "ok": true,
-   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":3.093173,\"src\":\"http://localhost:3091/assets/sinematik/acilis-60sn.mp4\",\"muted\":false,\"vol\":0.8,\"loop\":false,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"kararli\",\"n\":1,\"welcome\":true}"
+   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":3.087029,\"src\":\"http://localhost:3091/assets/sinematik/acilis-60sn.mp4\",\"muted\":false,\"vol\":0.8,\"loop\":false,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"kararli\",\"n\":1,\"welcome\":true}"
   },
   {
    "name": "merkezi ses kapatılınca sahne videosu susar",
@@ -71,12 +71,12 @@
   {
    "name": "ara döngüsü oynuyor (loop, sesli)",
    "ok": true,
-   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":0.500793,\"src\":\"http://localhost:3091/assets/sinematik/ara-30sn-loop.mp4\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":30,\"mark\":\"\",\"n\":1,\"welcome\":true}"
+   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":0.4057,\"src\":\"http://localhost:3091/assets/sinematik/ara-30sn-loop.mp4\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":30,\"mark\":\"\",\"n\":1,\"welcome\":true}"
   },
   {
    "name": "ara döngüsü sonda başa sarar, gizlenmez",
    "ok": true,
-   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":1.3455,\"src\":\"http://localhost:3091/assets/sinematik/ara-30sn-loop.mp4\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":30,\"mark\":\"\",\"n\":1,\"welcome\":true}"
+   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":1.359673,\"src\":\"http://localhost:3091/assets/sinematik/ara-30sn-loop.mp4\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":30,\"mark\":\"\",\"n\":1,\"welcome\":true}"
   },
   {
    "name": "sahne yenilenince sakin ara döngüsü sürer",
@@ -101,7 +101,7 @@
   {
    "name": "aktif soruda ara: süre durdu (break+admin)",
    "ok": true,
-   "detail": "{\"screen\":\"welcome\",\"running\":false,\"reasons\":[\"break\",\"admin\"],\"inWin\":false,\"left\":58583.5}"
+   "detail": "{\"screen\":\"welcome\",\"running\":false,\"reasons\":[\"break\",\"admin\"],\"inWin\":false,\"left\":58568}"
   },
   {
    "name": "aktif soruda ara: cevap kabulü kapalı",
@@ -111,7 +111,7 @@
   {
    "name": "ara sürerken kalan süre korunur, yarışma ilerlemez",
    "ok": true,
-   "detail": "{\"running\":false,\"left\":58583.5,\"phase\":\"open\",\"screen\":\"welcome\"}"
+   "detail": "{\"running\":false,\"left\":58568,\"phase\":\"open\",\"screen\":\"welcome\"}"
   },
   {
    "name": "döngü sınırı yarışmayı başlatmaz",
@@ -121,7 +121,7 @@
   {
    "name": "Yarışmaya Devam: sahnede video kapanır, soru aynı",
    "ok": true,
-   "detail": "{\"screen\":\"game\",\"cine\":null,\"running\":false,\"reasons\":[\"admin\"],\"q\":0,\"left\":58583.5,\"scores\":[30,20],\"jk\":\"{}\"}"
+   "detail": "{\"screen\":\"game\",\"cine\":null,\"running\":false,\"reasons\":[\"admin\"],\"q\":0,\"left\":58568,\"scores\":[30,20],\"jk\":\"{}\"}"
   },
   {
    "name": "Devam sonrası süre yalnız admin \"devam\" ile başlar",
@@ -161,7 +161,7 @@
   {
    "name": "file://: ara döngüsü sahnede oynuyor",
    "ok": true,
-   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":0.501649,\"src\":\"file:///E:/PROJELER/KaplanArena/assets/sinematik/ara-30sn-loop.mp4\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":30,\"mark\":\"\",\"n\":1,\"welcome\":true}"
+   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":0.468918,\"src\":\"file:///E:/PROJELER/KaplanArena/assets/sinematik/ara-30sn-loop.mp4\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":30,\"mark\":\"\",\"n\":1,\"welcome\":true}"
   },
   {
    "name": "file://: açılış filmi sahnede oynuyor",
@@ -201,17 +201,17 @@
   {
    "name": "PS: video oynarken API istekleri bekletilmez",
    "ok": true,
-   "detail": "53 ms"
+   "detail": "51 ms"
   },
   {
    "name": "PS: açılış filmi parça parça akarak oynuyor",
    "ok": true,
-   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":3.537338,\"src\":\"http://localhost:8090/assets/sinematik/acilis-60sn.mp4\",\"muted\":false,\"vol\":0.8,\"loop\":false,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"\",\"n\":1,\"welcome\":true}"
+   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":3.552023,\"src\":\"http://localhost:8090/assets/sinematik/acilis-60sn.mp4\",\"muted\":false,\"vol\":0.8,\"loop\":false,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"\",\"n\":1,\"welcome\":true}"
   },
   {
    "name": "PS: ileri sarma (seek) çalışıyor",
    "ok": true,
-   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":47.360484,\"src\":\"http://localhost:8090/assets/sinematik/acilis-60sn.mp4\",\"muted\":false,\"vol\":0.8,\"loop\":false,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"\",\"n\":1,\"welcome\":true}"
+   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":47.358285,\"src\":\"http://localhost:8090/assets/sinematik/acilis-60sn.mp4\",\"muted\":false,\"vol\":0.8,\"loop\":false,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"\",\"n\":1,\"welcome\":true}"
   },
   {
    "name": "konsol/sayfa hatası yok",

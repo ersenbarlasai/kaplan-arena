@@ -32,6 +32,26 @@ Sahne olmadan sürdürmek için "Sahnesiz Devam" seçilebilir.
 2) YARIŞMA AKIŞI (TAMAMEN SİZİN KONTROLÜNÜZDE)
 ========================================================================
 Kura > Orman Geçidi (1. etap) > Kadim Kale (2. etap) > Kaplan Arenası (final).
+
+YARIŞMA MODU takım sayısına göre yeni yarışma başlarken seçilir ve o yarışmanın
+kaydına sabitlenir (sonradan Ayarlar'da listeyi değiştirmek açık yarışmayı
+etkilemez; değişiklik bir sonraki yeni yarışmada geçerli olur):
+  * ÜÇ KAMPÜS — ORTAK YARIŞMA (Ayarlar'da tam 3 takım): Kura ve eleme yok.
+    Üç takım Orman Geçidi, Kadim Kale ve Kaplan Arenası boyunca aynı anda
+    yarışır. Puanlar yarışma başında sıfırdır; yeni soruda ve yeni etapta
+    SIFIRLANMAZ, üç etap boyunca birikir. Son etap sonunda en yüksek toplam
+    puan şampiyondur. Birincilikte eşitlik olursa yalnız eşit liderlere yedek
+    tahmin sorusu sorulur (toplam puanlar değişmez); ikinci/üçüncü sıradaki
+    eşitlik için soru sorulmaz. Jokerler bütün yarışmada birer kez kullanılır.
+    Telefonlar takımını bir kez seçer; etap geçişinde yeniden seçmez.
+  * İKİ GRUPLU TURNUVA (4 ve daha fazla sınıf): Kura listeyi iki etaba böler,
+    her etabın ilk 2'si finale çıkar, finalde puanlar sıfırdan başlar.
+  * Ayarlar en az 3 benzersiz, boş olmayan ad ister (2 ve altı kabul edilmez).
+Üç kampüs pilotu: Ayarlar > "Takımlar / sınıflar" alanına üç kampüs adını
+yazıp kaydedin; Ana Menü'de "Mod: Üç Kampüs — Ortak Yarışma" kartını kontrol
+edip "Yarışmayı Başlat" deyin. Uzak kampüsler internet adresinden
+(kaplan-arena.vercel.app) QR/kodla katılır; yerel ağ adresi gerekmez.
+
 Her soru için panelde tek bir ana düğme sırayla şunları yapar:
   1. "Hazır mısınız?"  Soru sahneye ve telefonlara henüz GİTMEZ, süre işlemez.
   2. "Soruyu Göster"   Soru sahnede ve telefonlarda açılır, ortak süre başlar.
@@ -65,10 +85,11 @@ siz başlatırsınız. Hareketleri azaltma açıksa açılış yerine sabit kar�
 gösterilir. Video dosyası yoksa/açılamazsa sahne sabit karşılamayla sürer.
 
 ========================================================================
-3) TELEFONLA KATILIM (SINIF KAPTANLARI)
+3) TELEFONLA KATILIM (SINIF / TAKIM KAPTANLARI)
 ========================================================================
 - Katılım ekranında QR kod ve 6 haneli yarışma kodu görünür.
-- Kaptan QR'ı okutur ya da adresi yazıp kodu girer, sonra sınıfını seçer.
+- Kaptan QR'ı okutur ya da adresi yazıp kodu girer, sonra sınıfını
+  (Üç Kampüs modunda takımını) seçer.
 - Şık seçmek cevap GÖNDERMEZ; "Cevabı Gönder" düğmesine basılır. Süre
   bitene kadar değiştirip yeniden gönderilebilir; son gönderilen geçerlidir.
   "Gönderilemedi" yazarsa bağlantıyı kontrol edip yeniden gönderin.

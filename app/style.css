@@ -598,3 +598,16 @@ body.mode-phone{background:linear-gradient(180deg,rgba(6,21,19,.72),rgba(6,21,19
 .sg-cor.n7 .sg-cor-item,.sg-cor.n8 .sg-cor-item,.sg-cor.n9 .sg-cor-item,.sg-cor.n10 .sg-cor-item,.sg-cor.n11 .sg-cor-item,.sg-cor.n12 .sg-cor-item,.sg-cor.n13 .sg-cor-item,.sg-cor.n14 .sg-cor-item{min-width:calc(var(--u)*6.4);padding:calc(var(--u)*.35) calc(var(--u)*.6)}
 .sg-cor.n7 .sg-arma,.sg-cor.n8 .sg-arma,.sg-cor.n9 .sg-arma,.sg-cor.n10 .sg-arma,.sg-cor.n11 .sg-arma,.sg-cor.n12 .sg-arma,.sg-cor.n13 .sg-arma,.sg-cor.n14 .sg-arma{width:calc(var(--u)*2.5)}
 .sg-cor.n7 .nm,.sg-cor.n8 .nm,.sg-cor.n9 .nm,.sg-cor.n10 .nm,.sg-cor.n11 .nm,.sg-cor.n12 .nm,.sg-cor.n13 .nm,.sg-cor.n14 .nm{font-size:calc(var(--u)*1.25)}
+
+/* ---------- Üç Kampüs — Ortak Yarışma ---------- */
+.sg-jlist.n3{grid-template-columns:minmax(0,1fr)}
+.sg-jlist.n3 .sg-jl{padding:calc(var(--u)*.9) calc(var(--u)*1.2)}
+.sg-jl b.sc{font-family:var(--f-title,inherit);font-size:calc(var(--u)*1.6);color:var(--gold);min-width:calc(var(--u)*2.6);text-align:right}
+.adm-mode{border-left:4px solid var(--gold-line,#b8913f)}
+.adm-mode.shared{border-left-color:var(--gold,#e7c46a)}
+.adm-mode.bad{border-left-color:#d9772b}
+.adm-mode h3{margin-top:0}
+.adm-mode-names{font-weight:700;overflow-wrap:anywhere}
+.adm-mode-now{margin:.4rem 0 1rem;padding:.6rem .8rem;border-radius:8px;background:rgba(231,196,106,.12);border:1px solid rgba(231,196,106,.35)}
+/* Puan satırı: joker rozeti ve puan değişimi tek sütunda (rozet/değişim olsa da olmasa da ızgara kaymaz) */
+.sg-row-b .dl{display:flex;align-items:center;justify-content:flex-end;gap:calc(var(--u)*.5);min-width:calc(var(--u)*4)}
