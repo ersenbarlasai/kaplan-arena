@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<title>Kaplan Arena — Kullanım ve Teknik Kılavuz</title>
+<link rel="stylesheet" href="../../assets/fonts/fonts.css">
+<style>
+  @page { size: A4; margin: 18mm 16mm 20mm 16mm; }
+  @page :first { margin: 0; }
+  :root { --ink:#13302c; --teal:#0f4a44; --gold:#b8913f; --gold-hi:#e7c46a; --muted:#5b6b67; --bg-soft:#f6f1e4; --line:#d9cfb6; --bad:#a8432a; --ok:#2f6b47; }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { font-family: 'Alegreya Sans', 'Segoe UI', sans-serif; font-size: 10.4pt; line-height: 1.45; color: var(--ink); margin: 0; }
+  h1, h2, h3 { font-family: 'Cinzel', serif; color: var(--teal); line-height: 1.2; }
+  h1 { font-size: 21pt; margin: 0 0 4mm; padding-bottom: 2mm; border-bottom: 1.2pt solid var(--gold); break-after: avoid; }
+  h2 { font-size: 13.5pt; margin: 6mm 0 2mm; break-after: avoid; }
+  h3 { font-size: 11pt; margin: 4mm 0 1.5mm; break-after: avoid; font-family: 'Alegreya Sans', sans-serif; font-weight: 800; color: var(--teal); }
+  p { margin: 0 0 2.2mm; }
+  ul, ol { margin: 0 0 2.5mm; padding-left: 6mm; }
+  li { margin-bottom: 1mm; }
+  b, strong { font-weight: 800; }
+  code, .mono { font-family: Consolas, 'Cascadia Mono', monospace; font-size: 8.8pt; background: #efe9da; padding: 0 1mm; border-radius: 1mm; }
+  pre { font-family: Consolas, monospace; font-size: 8.4pt; background: #f1ece0; border-left: 2pt solid var(--gold); padding: 2mm 3mm; white-space: pre-wrap; break-inside: avoid; margin: 0 0 3mm; }
+  table { width: 100%; border-collapse: collapse; margin: 1mm 0 3.5mm; font-size: 9.2pt; break-inside: auto; }
+  th, td { border: 0.5pt solid var(--line); padding: 1.3mm 2mm; vertical-align: top; text-align: left; }
+  th { background: var(--teal); color: #fbf3dd; font-weight: 800; }
+  tr { break-inside: avoid; }
+  tr:nth-child(even) td { background: #faf7ef; }
+  .chapter { margin-top: 9mm; }
+  .chapter.toc { break-before: page; margin-top: 0; }
+  .chapter.toc + .chapter { break-before: page; margin-top: 0; }
+  .pb { break-before: page; margin-top: 0; }
+  .box { border: 0.8pt solid var(--line); background: var(--bg-soft); border-radius: 2mm; padding: 2.5mm 3.5mm; margin: 2mm 0 3.5mm; break-inside: avoid; }
+  .box.warn { border-color: #e0b48a; background: #fdf1e6; }
+  .box.warn::before { content: "DİKKAT"; display: block; font-weight: 800; color: var(--bad); font-size: 8.5pt; letter-spacing: .08em; margin-bottom: 1mm; }
+  .box.tip::before { content: "İPUCU"; display: block; font-weight: 800; color: var(--ok); font-size: 8.5pt; letter-spacing: .08em; margin-bottom: 1mm; }
+  .box.tip { border-color: #b9d3be; background: #eef6ef; }
+  .btn { display: inline-block; font-weight: 800; background: #0f4a44; color: #fbf3dd; border-radius: 1.2mm; padding: 0 1.6mm; font-size: 9pt; white-space: nowrap; }
+  figure { margin: 2mm 0 4mm; break-inside: avoid; text-align: center; }
+  figure img { max-width: 100%; border: 0.6pt solid var(--line); border-radius: 1.5mm; }
+  figcaption { font-size: 8.6pt; color: var(--muted); margin-top: 1mm; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 4mm; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 3mm; }
+  .grid2 figure, .grid3 figure { margin: 0 0 2mm; }
+  .phones img { max-height: 92mm; width: auto; }
+  .steps { counter-reset: s; list-style: none; padding-left: 0; }
+  .steps > li { counter-increment: s; position: relative; padding-left: 8mm; margin-bottom: 1.8mm; }
+  .steps > li::before { content: counter(s); position: absolute; left: 0; top: 0.2mm; width: 5.2mm; height: 5.2mm; border-radius: 50%; background: var(--gold); color: #fff; font-weight: 800; font-size: 8.5pt; text-align: center; line-height: 5.2mm; }
+  .check { list-style: none; padding-left: 0; }
+  .check li { padding-left: 6mm; position: relative; }
+  .check li::before { content: "☐"; position: absolute; left: 0; color: var(--teal); font-weight: 800; }
+  .muted { color: var(--muted); }
+  .small { font-size: 8.8pt; }
+  /* Kapak */
+  .cover { height: 297mm; width: 210mm; position: relative; color: #fbf3dd; background: #0b2a2a; overflow: hidden; }
+  .cover .bg { position: absolute; inset: 0; background: url('../sinematik/onizleme/acilis-35sn.jpg') center/cover; opacity: .7; }
+  .cover .shade { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(6,25,27,.55), rgba(6,25,27,.2) 40%, rgba(6,25,27,.92) 75%); }
+  .cover .in { position: absolute; left: 18mm; right: 18mm; bottom: 26mm; }
+  .cover img.logo { width: 62mm; position: absolute; left: 18mm; top: 18mm; }
+  .cover h1 { color: #f3d98b; border: 0; font-size: 34pt; margin: 0; letter-spacing: .04em; }
+  .cover .sub { font-family: 'Cinzel', serif; font-size: 15pt; color: #f4e8c8; margin: 2mm 0 8mm; }
+  .cover .doc { font-size: 14pt; font-weight: 800; color: #fff; }
+  .cover .meta { font-size: 10pt; color: #e6dcc0; margin-top: 3mm; line-height: 1.6; }
+  /* İçindekiler */
+  .toc ol { list-style: none; padding: 0; columns: 2; column-gap: 8mm; }
+  .toc li { margin-bottom: 1.6mm; break-inside: avoid; }
+  .toc li b { color: var(--gold); display: inline-block; width: 7mm; }
+</style>
+</head>
+<body>
+
+<!-- ============ KAPAK ============ -->
+<section class="cover">
+  <div class="bg"></div><div class="shade"></div>
+  <img class="logo" src="../sinematik/filmcraft/katmanlar-png/logo-dark.png" alt="Kaplan Okulları">
+  <div class="in">
+    <h1>KAPLAN ARENA</h1>
+    <div class="sub">Efsaneye Yolculuk</div>
+    <div class="doc">Kullanım ve Teknik Kılavuz</div>
+    <div class="meta">
+      Bilgi yarışması uygulaması · yönetim paneli, sahne (projeksiyon) ekranı, öğrenci telefonları<br>
+      Düzenleyen: Kaplan Okulları Yapayzeka Kulübü · Mentörler: Ersen BARLAS, Alp Han KOÇDEMİR<br>
+      Sürüm: Kasım 2026 · Adres: https://kaplan-arena.vercel.app
+    </div>
+  </div>
+</section>
+
+<!-- ============ İÇİNDEKİLER ============ -->
+<section class="chapter toc">
+  <h1>İçindekiler</h1>
+  <ol>
+    <li><b>1</b>Genel bakış</li>
+    <li><b>2</b>Yarışma günü hızlı başlangıç</li>
+    <li><b>3</b>Açma: yönetim paneli ve sahne</li>
+    <li><b>4</b>Yarışma modları ve puan kuralları</li>
+    <li><b>5</b>Yarışma akışı adım adım</li>
+    <li><b>6</b>Jokerler</li>
+    <li><b>7</b>Eşitlik durumları</li>
+    <li><b>8</b>Telefonla katılım</li>
+    <li><b>9</b>Açılış filmi, ara döngüsü ve karşılama müziği</li>
+    <li><b>10</b>Soru yönetimi ve yedekleme</li>
+    <li><b>11</b>Ayarlar</li>
+    <li><b>12</b>Çalışma biçimleri: internet, yerel ağ, telefonsuz</li>
+    <li><b>13</b>Okulda, başka bilgisayar ve telefonlarda kullanım</li>
+    <li><b>14</b>Sorun giderme</li>
+    <li><b>15</b>Teknik mimari</li>
+    <li><b>16</b>Veri modeli ve ağ protokolü</li>
+    <li><b>17</b>Dağıtım (GitHub → Vercel) ve bakım</li>
+    <li><b>18</b>Sinematik üretim (FilmCraft)</li>
+    <li><b>19</b>Testler ve doğrulama</li>
+    <li><b>20</b>Kaynaklar, lisanslar ve künye</li>
+  </ol>
+  <div class="box tip">Bu kılavuz depodaki <code>OKU-BENI.txt</code>, <code>tasarim/TEKNIK-NOT.md</code>, <code>tasarim/UC-KAMPUS-TEST-RAPORU.md</code> ve <code>tasarim/sinematik/FILMCRAFT-TESLIM-RAPORU.md</code> belgelerinin derlenmiş hâlidir. Kaynağı <code>tasarim/kilavuz/kilavuz.html</code>; PDF yeniden üretimi için bkz. bölüm 17.</div>
+</section>
+
+<!-- ============ 1 ============ -->
+<section class="chapter">
+  <h1>1. Genel bakış</h1>
+  <p>Kaplan Arena, sınıflar ya da kampüsler arasında oynanan, tamamen yöneticinin kontrolünde ilerleyen bir bilgi yarışması uygulamasıdır. Kurulum gerektirmez; bir web tarayıcısında açılır. Yarışma üç pencereyle yürür:</p>
+  <table>
+    <tr><th style="width:24%">Pencere</th><th>Kim görür / ne yapar</th></tr>
+    <tr><td><b>Yönetim paneli</b></td><td>Yalnız yöneticinin bilgisayar ekranında. Bütün düğmeler buradadır: soruyu göster, cevabı açıkla, puanları göster, joker, iptal, ara, film. Süre ve puanın tek yetkilisi paneldir.</td></tr>
+    <tr><td><b>Sahne ekranı</b></td><td>Projeksiyonda seyircinin gördüğü pencere (yönetim düğmesi yok). Sorular, süre, doğru bilenler, puan tablosu, joker tanıtımları, açılış filmi. Bütün sesler yalnız buradan çalar.</td></tr>
+    <tr><td><b>Öğrenci telefonları</b></td><td>Takım/sınıf kaptanlarının telefonları. QR kod ya da 6 haneli kodla katılır, cevap ve joker gönderirler. Telefonlar ses ve video çalmaz.</td></tr>
+  </table>
+  <h2>Yolculuk</h2>
+  <p>Yarışma üç etaptan oluşur: <b>Orman Geçidi</b> (1. etap) → <b>Kadim Kale</b> (2. etap) → <b>Kaplan Arenası</b> (final). Her etabın kendi soru bankası vardır; önerilen düzen etap başına 5 tahmin + 5 ders sorusudur. Ayrıca eşitlik durumları için yedek tahmin soruları tutulur.</p>
+  <figure><img src="../ekran-goruntuleri/sahne-harita-13-sinif-1920x1080.webp" style="width:82%"><figcaption>Sahnede yolculuk haritası ve katılımcı armaları</figcaption></figure>
+  <h2>Soru türleri</h2>
+  <ul>
+    <li><b>Ders sorusu (şıklı):</b> Türkçe, Matematik, Fen Bilimleri, Sosyal Bilimler, Spor. Dört şık (A–D), tek doğru cevap. Doğru bilen her takım +10.</li>
+    <li><b>Tahmin sorusu:</b> Sayısal cevap (ör. 1355 km). Gerçek cevaba <b>en yakın</b> takım +10 alır; eşit uzaklıktakiler birlikte kazanır. Ondalık için virgül kullanılır (42,195).</li>
+  </ul>
+  <h2>Temel ilkeler</h2>
+  <ul>
+    <li><b>Tamamen manuel akış:</b> Hiçbir adım kendiliğinden ilerlemez. Süre bitince cevaplar kilitlenir ama doğru cevap kendiliğinden açılmaz.</li>
+    <li><b>Ortak süre:</b> Bütün takımlar aynı soruyu, aynı sunucu esaslı süreyle görür.</li>
+    <li><b>Ortak duraklama:</b> Joker tanıtımı, ara, sahne kaybı ya da film sırasında süre ve cevap kabulü herkes için birlikte durur.</li>
+    <li><b>Ses yalnız sahnede:</b> Panel ve telefonlar sessizdir.</li>
+    <li><b>Aynı anda tek yarışma:</b> İnternet modunda aynı anda yalnız bir yarışma yürütülebilir.</li>
+  </ul>
+</section>
+
+<!-- ============ 2 ============ -->
+<section class="chapter">
+  <h1>2. Yarışma günü hızlı başlangıç</h1>
+  <h2>Bir gün önce</h2>
+  <ul class="check">
+    <li>Soruları hazırladığınız bilgisayarda <b>yedek alın</b> (bölüm 10) ve dosyayı USB/e-posta/Drive'a koyun.</li>
+    <li>Yönetim bilgisayarında <code>https://kaplan-arena.vercel.app</code> adresini açın, yedeği <b>içe aktarın</b>, soru sayılarını kontrol edin.</li>
+    <li>Ayarlar'da takım/sınıf listesini kontrol edin. Üç kampüs için tam 3 takım adı yazın.</li>
+    <li>Okul ağından ve mobil veriden en az birer telefonla (bir iPhone, bir Android) katılım provası yapın.</li>
+    <li>Projeksiyonda sahne penceresini açıp ses testi ve açılış filmini bir kez oynatın (video ön belleğe alınır).</li>
+    <li>Prova yarışmasını <span class="btn">Yarışmayı Bitir</span> ile kapatın. Açık kalan prova, asıl yarışmanın başlatılmasını engeller.</li>
+  </ul>
+  <h2>Yarışma anı</h2>
+  <ol class="steps">
+    <li>Projeksiyonu bağlayın; Windows'ta <b>Win + P → Genişlet</b>.</li>
+    <li>Tarayıcıda (Chrome ya da Edge) <code>https://kaplan-arena.vercel.app</code> adresini açın.</li>
+    <li>Karşılama ekranında <span class="btn">Sahne Ekranını Aç</span>. Açılan pencereyi projeksiyona sürükleyin, <span class="btn">Tam Ekran</span> ya da F11.</li>
+    <li>Sahnede <span class="btn">Sesi Etkinleştir ve Test Et</span>. Test sesi salon hoparlöründen duyulmalı; karşılama müziği başlar.</li>
+    <li>İsterseniz panelde <span class="btn">Açılış Filmini Oynat</span>. Film siz ekranı değiştirene kadar döngüde sürer.</li>
+    <li><span class="btn">Yolculuğa Başla</span> → Ana Menü'de mod kartını kontrol edin → <span class="btn">Yarışmayı Başlat</span>.</li>
+    <li>Katılım ekranındaki QR/kodu kaptanlara gösterin; panelde "3/3 telefon bağlı" olana kadar bekleyin.</li>
+    <li><span class="btn">Etabı Başlat</span>; her soru için: <b>Soruyu Göster → Cevabı Açıkla → Puanları Göster → Sonraki Soru</b>.</li>
+  </ol>
+  <div class="box tip">Ara vermek için üst çubuktaki <span class="btn">Karşılama</span> ya da <span class="btn">Ara Döngüsü</span>. Süre ve cevaplar durur; <span class="btn">Yarışmaya Devam Et</span> ile aynı soruya dönülür, süreyi siz başlatırsınız.</div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section class="chapter">
+  <h1>3. Açma: yönetim paneli ve sahne</h1>
+  <h2>Yönetim panelini açmanın üç yolu</h2>
+  <table>
+    <tr><th style="width:26%">Yol</th><th>Ne zaman</th><th style="width:30%">Telefonlar</th></tr>
+    <tr><td><b>A) https://kaplan-arena.vercel.app</b></td><td>Önerilen. İnternet olan her bilgisayarda.</td><td>Herhangi bir ağdan (Wi-Fi, mobil veri)</td></tr>
+    <tr><td><b>B) kaplan-arena.html</b> dosyasına çift tıklama</td><td>Klasör bilgisayardaysa. İnternet varsa telefonlar Vercel üzerinden bağlanır.</td><td>İnternet varsa her ağdan; yoksa telefonsuz</td></tr>
+    <tr><td><b>C) BASLAT.bat</b> (yerel ağ modu)</td><td>İnternet yoksa. Bilgisayar küçük bir sunucu olur.</td><td>Yalnız aynı Wi-Fi'dan, ekrandaki yerel adresle</td></tr>
+  </table>
+  <h2>Sahne penceresi</h2>
+  <p>Ek monitör gerekmez; projeksiyon ikinci ekran olur. Karşılama ekranında <span class="btn">Sahne Ekranını Aç</span> deyin. Tarayıcı açılır pencereyi engellerse adres çubuğundaki simgeden bu siteye izin verin. Sahnede <span class="btn">Sesi Etkinleştir ve Test Et</span> (ya da <span class="btn">Sessiz Devam Et</span>). Ses açma/kapatma ve seviye: panel → Ayarlar.</p>
+  <div class="grid2">
+    <figure><img src="../ekran-goruntuleri/admin-karsilama-1366.webp"><figcaption>Yönetim paneli: karşılama</figcaption></figure>
+    <figure><img src="../ekran-goruntuleri/sahne-karsilama-1920.webp"><figcaption>Sahne: karşılama ve künye</figcaption></figure>
+  </div>
+  <h2>Sahne bağlantısı koparsa</h2>
+  <p>Sahne penceresi kapanırsa ya da bağlantı koparsa açık sorudaki süre ve cevap kabulü durur, panelde uyarı çıkar. <span class="btn">Sahne Ekranını Aç</span> ile yeniden açın; aynı soru ve kalan süre gelir, devamı siz başlatırsınız (<span class="btn">Devam Et</span>). Sahne olmadan sürdürmek için <span class="btn">Sahnesiz Devam</span>.</p>
+  <figure><img src="../ekran-goruntuleri/admin-sahne-kaybi-1366.webp" style="width:72%"><figcaption>Sahne bağlantısı koptuğunda panel uyarısı</figcaption></figure>
+  <div class="box warn">Yönetim panelini aynı bilgisayarda <b>tek sekmede</b> açık tutun. Aynı adresten açık iki panel sekmesi birbirinin kaydını ezebilir. Sahne penceresi kilit almaz; birden fazla sahne açılabilir, ses en son etkinleştirilen sahneden çalar.</div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section class="chapter">
+  <h1>4. Yarışma modları ve puan kuralları</h1>
+  <p>Mod, <b>yeni yarışma başlatılırken</b> Ayarlar'daki takım sayısına göre kendiliğinden seçilir ve o yarışmanın kaydına sabitlenir. Sonradan Ayarlar'da listeyi değiştirmek açık yarışmayı etkilemez; değişiklik bir sonraki yeni yarışmada geçerli olur. Ayarlar en az 3 benzersiz, boş olmayan ad ister.</p>
+  <table>
+    <tr><th style="width:22%"></th><th>Üç Kampüs — Ortak Yarışma</th><th>İki Gruplu Turnuva</th></tr>
+    <tr><td><b>Ne zaman</b></td><td>Ayarlarda tam <b>3</b> takım</td><td><b>4 ve daha fazla</b> sınıf</td></tr>
+    <tr><td><b>Kura</b></td><td>Yok; doğrudan ortak katılım</td><td>Liste kura ile iki etaba bölünür</td></tr>
+    <tr><td><b>Etaplar</b></td><td>Üç takım üç etabın tamamında birlikte</td><td>1. grup Orman Geçidi, 2. grup Kadim Kale; final ayrı</td></tr>
+    <tr><td><b>Eleme</b></td><td>Yok</td><td>Her etabın ilk 2'si finale çıkar (toplam 4 finalist)</td></tr>
+    <tr><td><b>Puanlar</b></td><td>Başta sıfır; yeni soruda ve yeni etapta <b>sıfırlanmaz</b>, üç etap boyunca birikir</td><td>Her etap sıfırdan; finalde puanlar sıfırdan başlar</td></tr>
+    <tr><td><b>Şampiyon</b></td><td>Son etap sonunda en yüksek toplam</td><td>Final etabının birincisi</td></tr>
+    <tr><td><b>Eşitlik</b></td><td>Yalnız birincilikteki eşitlik; yalnız eşit liderlere yedek tahmin sorusu</td><td>Finale çıkış sınırında ve final birinciliğinde</td></tr>
+    <tr><td><b>Telefon sahipliği</b></td><td>Yarışma boyunca bir kez seçilir</td><td>Etap bazında kaydedilir (her etabın takımları farklıdır)</td></tr>
+  </table>
+  <figure><img src="../ekran-goruntuleri/uc-kampus/admin-menu-uc-kampus-1366.webp" style="width:76%"><figcaption>Ana Menü'de mod kartı: kural yarışma başlamadan önce açıkça gösterilir</figcaption></figure>
+  <h2>Puan tablosu</h2>
+  <table>
+    <tr><th>Durum</th><th style="width:22%">Puan</th></tr>
+    <tr><td>Doğru cevap (şıklı) / en yakın tahmin</td><td>+10</td></tr>
+    <tr><td>Çift Cevap jokeri, iki seçimden biri doğru</td><td>+10</td></tr>
+    <tr><td>Çifte Puan jokeri, doğru</td><td>+20</td></tr>
+    <tr><td>Jokerle yanlış ya da cevapsız</td><td>−10 (puan sıfırın altına inmez; 5 puanlı takımdan 5 düşer)</td></tr>
+    <tr><td>Jokersiz yanlış ya da cevapsız</td><td>0</td></tr>
+    <tr><td>İptal edilen soru</td><td>Kimseye puan/ceza yok; uygulanmış etki geri alınır</td></tr>
+  </table>
+  <h2>Üç kampüs pilotu</h2>
+  <ol class="steps">
+    <li>Ayarlar → "Takımlar / sınıflar" alanına üç kampüs adını her satıra bir ad olarak yazın → <span class="btn">Ayarları Kaydet</span>. Alttaki satır "Üç Kampüs — Ortak Yarışma" demelidir.</li>
+    <li>Ana Menü'de "Mod: Üç Kampüs — Ortak Yarışma" kartını ve puan kuralını okuyun → <span class="btn">Yarışmayı Başlat</span>.</li>
+    <li>Uzak kampüsler internet adresinden (kaplan-arena.vercel.app/katil) QR/kodla katılır; yerel ağ adresi gerekmez.</li>
+  </ol>
+  <p class="small muted">Modu olmayan eski kayıtlar ve süren turnuvalar turnuva olarak açılır; ayardaki takım sayısına bakılmaz.</p>
+</section>
+
+<!-- ============ 5 ============ -->
+<section class="chapter">
+  <h1>5. Yarışma akışı adım adım</h1>
+  <p>Her soru için paneldeki ana düğme sırayla şu adımları yapar. Hiçbir adım kendiliğinden ilerlemez.</p>
+  <table>
+    <tr><th style="width:22%">Adım</th><th>Sahne ve telefonlar</th><th style="width:30%">Not</th></tr>
+    <tr><td><b>1. Hazır mısınız?</b></td><td>Soru sahneye ve telefonlara <b>gitmez</b>; "Hazır mısınız?" ekranı</td><td>Süre işlemez. Panelde soru ve cevap anahtarı görülebilir.</td></tr>
+    <tr><td><b>2. Soruyu Göster</b></td><td>Soru açılır, ortak süre başlar</td><td><span class="btn">Duraklat</span> / <span class="btn">Devam Et</span> kullanılabilir.</td></tr>
+    <tr><td><b>3. Süre biter</b></td><td>"Süre doldu · cevaplar kilitlendi"</td><td>Doğru cevap kendiliğinden açılmaz.</td></tr>
+    <tr><td><b>4. Cevabı Açıkla</b></td><td>Doğru şık/cevap ve <b>Doğru Bilenler</b> gösterimi</td><td>Süre bitmeden basılırsa onay sorulur. Panelde telefondan gelen cevaplara göre doğru bilenler işaretlenir; gerekirse düzeltin. Puanlar henüz görünmez.</td></tr>
+    <tr><td><b>5. Puanları Göster</b></td><td>Puan tablosu, değişim animasyonu</td><td>Puan <b>bir kez</b> uygulanır; tekrar basmak çoğaltmaz.</td></tr>
+    <tr><td><b>6. Sonraki Soru</b></td><td>Yeni sorunun "Hazır mısınız?" ekranı</td><td>Son soruda "Etap Sonucunu Göster".</td></tr>
+  </table>
+  <div class="grid2">
+    <figure><img src="../ekran-goruntuleri/admin-hazirlik-1366.webp"><figcaption>Panel: hazırlık aşaması</figcaption></figure>
+    <figure><img src="../ekran-goruntuleri/sahne-sikli-uzun-1920.webp"><figcaption>Sahne: açık soru ve ortak süre</figcaption></figure>
+    <figure><img src="../ekran-goruntuleri/admin-dogru-bilenler-1366.webp"><figcaption>Panel: cevap açıklandı, doğru bilenler</figcaption></figure>
+    <figure><img src="../ekran-goruntuleri/dogru-bilenler-tek-1920.webp"><figcaption>Sahne: Doğru Bilenler gösterimi</figcaption></figure>
+  </div>
+  <h2>Düzeltme araçları</h2>
+  <ul>
+    <li><b>Puanları Düzelt:</b> Puan ekranında takım başına ±10.</li>
+    <li><b>Geri Al:</b> Son işlemi geri alır (puanlar dahil, bir kez).</li>
+    <li><b>Soruyu İptal Et</b> (onaylı): O sorudan kimse puan ya da ceza almaz; uygulanmış puan etkisi geri alınır, o soruda kullanılan jokerler iade edilir. Önceki sorular etkilenmez. Sonra <span class="btn">Sonraki Soru</span>.</li>
+  </ul>
+  <h2>Ara ve yarışmayı bitirme</h2>
+  <ul>
+    <li><b>Ara:</b> Üst çubukta <span class="btn">Karşılama</span>: sahne karşılamaya döner, süre ve cevap kabulü durur, telefonlarda "Ara verildi" yazar. <span class="btn">Yarışmaya Devam Et</span> ile aynı soruya dönülür; süreyi siz başlatırsınız. Kayıtlar silinmez.</li>
+    <li><b>Etap sonu:</b> Ortak yarışmada üç takım toplam puanlarıyla devam eder (<span class="btn">Kadim Kale'ye Geç</span>, <span class="btn">Kaplan Arenası'na Geç</span>). Turnuvada finale çıkanlar gösterilir.</li>
+    <li><b>Yarışmayı Bitir:</b> Ana Menü'de, erken bitirme. Telefonlara "Yarışma sona erdi" gider ve tek yarışma kilidi kalkar.</li>
+  </ul>
+  <div class="grid2">
+    <figure><img src="../ekran-goruntuleri/uc-kampus/sahne-etap1-sonu-1920.webp"><figcaption>Ortak yarışmada etap sonu: eleme yok, toplam puan</figcaption></figure>
+    <figure><img src="../ekran-goruntuleri/sahne-sampiyon-1920.webp"><figcaption>Şampiyon ekranı</figcaption></figure>
+  </div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section class="chapter">
+  <h1>6. Jokerler</h1>
+  <p>Her takımın <b>bütün yarışma boyunca</b> iki jokeri vardır; etap geçişinde ve finalde yenilenmez.</p>
+  <table>
+    <tr><th style="width:22%">Joker</th><th>Kullanım</th><th style="width:22%">Sonuç</th></tr>
+    <tr><td><b>Çift Cevap</b> (2 Şık)</td><td>Yalnız şıklı soruda. İki farklı şık seçilir ve birlikte gönderilir.</td><td>Biri doğruysa +10; ikisi yanlışsa −10</td></tr>
+    <tr><td><b>Çifte Puan</b> (×2)</td><td>Şıklı ve tahmin sorusunda.</td><td>Doğruysa +20; yanlış/cevapsızsa −10</td></tr>
+  </table>
+  <h2>Kurallar</h2>
+  <ul>
+    <li>Aynı soruda bir takım yalnız bir joker kullanır. Eşitlik sorularında joker yoktur.</li>
+    <li>Joker yalnız <b>süre işlerken</b> ve takım o soruya <b>ilk cevabını göndermeden önce</b> kullanılabilir; duraklamada, süre bitince ya da açıklamadan sonra kullanılamaz.</li>
+    <li>Telefonda etkisi ve cezası yazan bir onay penceresi çıkar. Onaylanan joker <b>geri alınamaz</b>.</li>
+    <li>Telefonsuz takım için panelde takımın satırındaki joker düğmesi aynı kurallarla kullanılır.</li>
+    <li>Joker kullanılınca sahnede kısa, sesli bir tanıtım olur (3,5 sn). Bu sırada süre ve cevaplar herkes için durur, sonra kalan süreyle devam eder. Aynı anda gelen jokerler tek tanıtımda gösterilir.</li>
+    <li>Soru iptal edilirse o soruda kullanılan jokerler iade edilir.</li>
+  </ul>
+  <div class="grid3 phones">
+    <figure><img src="../ekran-goruntuleri/telefon-joker-onay-360.webp"><figcaption>Telefon: joker onayı</figcaption></figure>
+    <figure><img src="../ekran-goruntuleri/telefon-cift-cevap-360.webp"><figcaption>Çift Cevap: iki şık</figcaption></figure>
+    <figure><img src="../ekran-goruntuleri/telefon-joker-cezasi-360.webp"><figcaption>Joker cezası</figcaption></figure>
+  </div>
+  <figure><img src="../ekran-goruntuleri/sahne-joker-tanitimi-1920.webp" style="width:70%"><figcaption>Sahnede joker tanıtımı (ortak duraklama)</figcaption></figure>
+</section>
+
+<!-- ============ 7 ============ -->
+<section class="chapter">
+  <h1>7. Eşitlik durumları</h1>
+  <ul>
+    <li><b>Ortak yarışma (3 takım):</b> İlk iki etap sonunda eşitlik önemli değildir; eleme olmadığı için soru sorulmaz. Final sonunda <b>birincilikte</b> eşitlik varsa yalnız eşit liderler yedek tahmin sorusunu cevaplar; diğer takımın telefonunda "Bu soruyu yalnız … cevaplıyor" yazar. Eşitlik sorusu sıralamayı belirler; normal toplam puanları değiştirmez. İkinci/üçüncü sıradaki eşitlik için soru sorulmaz.</li>
+    <li><b>Turnuva:</b> Finale çıkış sınırında (ilk 2) ve final birinciliğinde eşitlik varsa yalnız eşit takımlar yedek soruyu cevaplar.</li>
+    <li>Eşitlik soruları Soru Yönetimi → "Eşitlik (Yedek)" sekmesinden sırayla kullanılır. Yedek soru kalmadıysa sunucu sözlü bir tahmin sorusu sorar; doğru cevabı açıklamadan sonra panele yazarsınız.</li>
+    <li>Yine eşitlik olursa yeni bir eşitlik sorusu hazırlanır. Hiçbir aday cevap vermediyse panel en az bir tahmin girilmesini ister.</li>
+  </ul>
+  <figure><img src="../ekran-goruntuleri/uc-kampus/sahne-final-esitlik-1920.webp" style="width:76%"><figcaption>Ortak yarışmada final birinciliğinde eşitlik</figcaption></figure>
+</section>
+
+<!-- ============ 8 ============ -->
+<section class="chapter">
+  <h1>8. Telefonla katılım</h1>
+  <ol class="steps">
+    <li>Katılım ekranında sahnede QR kod ve 6 haneli yarışma kodu görünür.</li>
+    <li>Kaptan QR'ı okutur ya da <code>kaplan-arena.vercel.app/katil</code> adresine gidip kodu girer.</li>
+    <li>Kendi takımını/sınıfını seçer. Başka telefon bağlı bir takım seçilirse uyarı çıkar; "Bu Telefonla Devam Et" denirse önceki telefonun komutları geçersiz olur.</li>
+    <li>Soru açılınca şık seçilir ya da tahmin yazılır, <span class="btn">Cevabı Gönder</span>'e basılır. <b>Şık seçmek cevap göndermez.</b></li>
+  </ol>
+  <ul>
+    <li>Süre bitene kadar cevap değiştirilip yeniden gönderilebilir; son gönderilen geçerlidir. Ölçüt, cevabın gönderildiği andır (ağ gecikmesine ±250 ms tolerans).</li>
+    <li>"Gönderilemedi" yazarsa bağlantıyı kontrol edip yeniden gönderin.</li>
+    <li>Telefon bağlantısı kopması yarışmayı durdurmaz; telefon geri gelince gönderdiği cevap ve kalan jokerleri görünür. Sayfa yenilenince takım hatırlanır.</li>
+    <li>Yetkisiz cihazdan (takımı sahiplenmemiş telefon) gelen cevaplar sayılmaz.</li>
+    <li>Telefonu olmayan takımlar için cevapları ve puanları panelde yönetici girer.</li>
+  </ul>
+  <div class="grid3 phones">
+    <figure><img src="../ekran-goruntuleri/telefon-katilim-390.webp"><figcaption>Kod girişi</figcaption></figure>
+    <figure><img src="../ekran-goruntuleri/uc-kampus/telefon-takim-secimi-390.webp"><figcaption>Takım seçimi</figcaption></figure>
+    <figure><img src="../ekran-goruntuleri/telefon-tahmin-gonderildi-390.webp"><figcaption>Cevap gönderildi</figcaption></figure>
+    <figure><img src="../ekran-goruntuleri/telefon-sure-doldu-390.webp"><figcaption>Süre doldu</figcaption></figure>
+    <figure><img src="../ekran-goruntuleri/telefon-dogru-bildiniz-x2-390.webp"><figcaption>Doğru bildiniz (×2)</figcaption></figure>
+    <figure><img src="../ekran-goruntuleri/telefon-sampiyon-390.webp"><figcaption>Şampiyon</figcaption></figure>
+  </div>
+</section>
+
+<!-- ============ 9 ============ -->
+<section class="chapter pb">
+  <h1>9. Açılış filmi, ara döngüsü ve karşılama müziği</h1>
+  <p>Karşılama ekranında panelde <b>Sinematik kontrolleri</b> bulunur; üst çubukta ayrıca <span class="btn">Ara Döngüsü</span> vardır.</p>
+  <table>
+    <tr><th style="width:26%">Düğme</th><th>Ne yapar</th></tr>
+    <tr><td><span class="btn">Açılış Filmini Oynat</span></td><td>60 saniyelik açılış filmi sahnede, sesli. <b>Döngüde</b> oynar: ekranı değiştirene ya da Atla/Durdur'a basana kadar sürer. Paneldeki durum satırı kaçıncı turda olduğunu gösterir.</td></tr>
+    <tr><td><span class="btn">Ara Döngüsü</span></td><td>30 saniyelik sakin arena görüntüsü ve müziği, kesintisiz döngü. Konuşma ve ara için.</td></tr>
+    <tr><td><span class="btn">Atla</span></td><td>Açılış filmini kapatır; sabit karşılama ve karşılama müziği.</td></tr>
+    <tr><td><span class="btn">Durdur / Karşılamaya Dön</span></td><td>Filmi kapatır, sabit karşılamaya döner.</td></tr>
+  </table>
+  <h2>Karşılama müziği</h2>
+  <p>Karşılama ekranında film oynamıyorken sahne, ara döngüsünün müziğini kesintisiz çalar: yalnız sesi etkinleştirilmiş sahnede ve Ayarlar'da ses açıkken; seviye aynı ayardan. Film başlayınca müzik durur (iki ses üst üste çalmaz), film kapanınca kaldığı yerden sürer; karşılamadan çıkınca durur.</p>
+  <h2>Davranış kuralları</h2>
+  <ul>
+    <li>Video ve ses <b>yalnız sahne penceresinde</b>; panel önizlemesi ve telefonlar sessizdir.</li>
+    <li>Yarışma sırasında filme ya da karşılamaya geçilirse süre ve cevap kabulü durur (ortak duraklama). Film dönse de yarışma kendiliğinden ilerlemez: <span class="btn">Yarışmaya Devam Et</span>, ardından süreyi siz başlatırsınız. Puan, joker ve soru korunur.</li>
+    <li>Sahne penceresi yenilenirse film baştan değil kaldığı yerden sürer.</li>
+    <li>Hareketleri azaltma açıksa açılış yerine sabit karşılama gösterilir.</li>
+    <li>Video dosyası yoksa ya da açılamazsa sahne sabit karşılamayla sürer (statik yedek).</li>
+  </ul>
+  <figure><img src="../ekran-goruntuleri/admin-sinematik-kontrolleri-1366.webp" style="width:74%"><figcaption>Panelde sinematik kontrolleri</figcaption></figure>
+  <figure><img src="../sinematik/onizleme/acilis-kareler.jpg" style="width:86%"><figcaption>Açılış filminden kareler: dünya, kale kapısı, turnuva, kılıç ve kalkan teması, arena, kükreme, başlık ve künye</figcaption></figure>
+</section>
+
+<!-- ============ 10 ============ -->
+<section class="chapter">
+  <h1>10. Soru yönetimi ve yedekleme</h1>
+  <h2>Soru Yönetimi</h2>
+  <p>Üst çubuktan <span class="btn">Soru Yönetimi</span>. Dört sekme: <b>1. Etap, 2. Etap, Final, Eşitlik (Yedek)</b>. Her sekmede soru ekleme (<span class="btn">+ Ders Sorusu</span>, <span class="btn">+ Tahmin Sorusu</span>), düzenleme, silme ve sıralama (↑ ↓) yapılır. Sorular bu sırayla sorulur. Özet satırı önerilen dağılımı (5 tahmin + 5 ders) gösterir.</p>
+  <figure><img src="../ekran-goruntuleri/admin-soru-yonetimi-1366.webp" style="width:74%"><figcaption>Soru Yönetimi</figcaption></figure>
+  <div class="box warn">Sorular, ayarlar ve armalar <b>bu bilgisayarın bu tarayıcısında</b>, açılan adrese göre saklanır. Başka bilgisayara, başka tarayıcıya ya da başka açılış yoluna (Vercel adresi / kaplan-arena.html / BASLAT.bat ayrı yerlerdir) kendiliğinden gitmez. Tarayıcı verisi silinirse kaybolur.</div>
+  <h2>Yedek alma (soruları hazırladığınız bilgisayarda)</h2>
+  <ol class="steps">
+    <li>Üst çubuktan <span class="btn">Soru Yönetimi</span>'ni açın.</li>
+    <li>"Yedekleme ve Aktarma" bölümünde <span class="btn">Yedek Oluştur</span>.</li>
+    <li><span class="btn">Dosya Olarak İndir</span>: <code>kaplan-arena-yedek.json</code> İndirilenler klasörüne kaydedilir. İndirme çalışmazsa <span class="btn">Kopyala</span> deyip metni bir metin dosyasına yapıştırın (.json ya da .txt).</li>
+    <li>Dosyayı USB belleğe, e-postaya ya da Drive'a koyun.</li>
+  </ol>
+  <p>Yedekte bütün sorular ve ayarlar (yarışma adı, soru süresi, takım/sınıf listesi) vardır. Açık yarışmanın puanları ve jokerleri yedeğe girmez.</p>
+  <h2>Yedeği yükleme (yarışmayı yöneteceğiniz bilgisayarda)</h2>
+  <ol class="steps">
+    <li>Yarışmayı yöneteceğiniz adresi açın (okulda: <code>https://kaplan-arena.vercel.app</code>).</li>
+    <li><span class="btn">Soru Yönetimi</span> → "İçe Aktar": yedek dosyasını seçin (ya da metni kutuya yapıştırın) → <span class="btn">İçe Aktar</span> → onaylayın.</li>
+    <li><b>Dikkat:</b> bu bilgisayardaki mevcut sorular silinir, yedektekiler yüklenir.</li>
+    <li>Kontrol: dört sekmedeki soru sayıları, Ayarlar'daki takım listesi ve Ana Menü'deki mod kartı.</li>
+  </ol>
+  <p>Takım listesi hatalı bir yedek (2 ya da daha az takım, aynı ad iki kez) bütünüyle reddedilir; mevcut veriler değişmez. Yarışma sürerken yedek yüklemek o yarışmanın takımlarını değiştirmez.</p>
+  <div class="box tip">Soruları değiştirdikçe yeni yedek alın; yarışma günü yedek dosyasını yanınızda bulundurun. Yönetim bilgisayarı değişirse ya da tarayıcı verisi silinirse bir dakikada geri yüklenir.</div>
+  <p class="small muted">Örnek sorular: Ayarlar → Sıfırlama → "Örnek Soruları Geri Yükle" (mevcut soruları siler). Eski sürümden gelen kayıt ilk açılışta otomatik güncellenir; eski kaydın kopyası tarayıcıda <code>kaplan-arena-v1-yedek-sema1</code> adıyla saklanır.</p>
+</section>
+
+<!-- ============ 11 ============ -->
+<section class="chapter">
+  <h1>11. Ayarlar</h1>
+  <table>
+    <tr><th style="width:28%">Ayar</th><th>Açıklama</th></tr>
+    <tr><td><b>Yarışmanın adı</b></td><td>Panel ve telefonlarda görünür (en çok 60 karakter).</td></tr>
+    <tr><td><b>Takımlar / sınıflar</b></td><td>Her satıra bir ad (virgül de ayırır; fazla boşluklar temizlenir). En az 3 benzersiz ad; büyük/küçük harf farkı aynı ad sayılır. Tam 3 → Üç Kampüs ortak yarışma; 4+ → iki gruplu turnuva. Altındaki satır kayıtlı listeyle yeni yarışmanın modunu gösterir. Değişiklik açık yarışmayı etkilemez.</td></tr>
+    <tr><td><b>Soru süresi</b></td><td>5–600 saniye (varsayılan 45).</td></tr>
+    <tr><td><b>Sahne sesleri</b></td><td>Joker, son saniyeler, süre sonu, kutlama, film ve karşılama müziği. Yalnız sahneden çalar.</td></tr>
+    <tr><td><b>Ses seviyesi</b></td><td>0–100. Film ve müzik dahil bütün sahne sesleri.</td></tr>
+    <tr><td><b>Hareketleri azalt</b></td><td>Animasyonlar ve açılış filmi kapanır (işletim sistemi tercihi de dikkate alınır).</td></tr>
+    <tr><td><b>Sahnede Ses Testi</b></td><td>Etkin ses sahnesine test sesi gönderir.</td></tr>
+    <tr><td><b>Sıfırlama</b></td><td>Örnek soruları geri yükleme ya da tüm verileri silme (onaylı, geri alınamaz).</td></tr>
+  </table>
+  <p>Her takımın arması kalıcıdır; yeni ad eklemek mevcut armaları değiştirmez, yeni ad boş bir arma alır.</p>
+  <figure><img src="../ekran-goruntuleri/uc-kampus/admin-ayarlar-uc-takim-1366.webp" style="width:74%"><figcaption>Ayarlar: üç takım ve mod açıklaması</figcaption></figure>
+</section>
+
+<!-- ============ 12 ============ -->
+<section class="chapter">
+  <h1>12. Çalışma biçimleri</h1>
+  <h2>İnternetle (önerilen)</h2>
+  <p>Vercel adresi ya da <code>kaplan-arena.html</code>. Telefonlar Wi-Fi ya da mobil veriyle <code>kaplan-arena.vercel.app/katil</code> adresinden katılır. Farklı şehirlerdeki kampüsler aynı yarışmaya katılabilir.</p>
+  <h2>İnternetsiz yerel ağ (BASLAT.bat)</h2>
+  <ol class="steps">
+    <li>Klasördeki <code>BASLAT.bat</code>'a çift tıklayın, izin sorusuna <b>Evet</b> deyin (güvenlik duvarı izni).</li>
+    <li>Siyah pencere açık kalmalı; bilgisayar küçük bir web sunucusu olur (port 8080, doluysa 8090–8099).</li>
+    <li>Telefonlar <b>aynı Wi-Fi</b>'dan ekrandaki yerel adres (ör. <code>192.168.1.25:8090</code>) ve kodla katılır. Birden fazla ağ adresi varsa panelde seçilebilir.</li>
+    <li>Sahne de <span class="btn">Sahne Ekranını Aç</span> ile aynı şekilde açılır. Görseller, yazı tipleri, sesler ve videolar klasörle gelir; internet gerekmez.</li>
+  </ol>
+  <div class="box warn">Bazı okul Wi-Fi ağları cihazların birbirini görmesini engeller ("istemci yalıtımı"); o zaman yerel ağ modu çalışmaz. Uzak kampüsler yerel ağ modunda katılamaz.</div>
+  <h2>Telefonsuz</h2>
+  <p>İnternet ve yerel sunucu yoksa yarışma tek bilgisayarla oynanır; panelde "Telefon bağlantısı yok" yazar. Cevapları (doğru bilenler, tahminler) ve jokerleri yönetici panelden girer.</p>
+  <figure><img src="../ekran-goruntuleri/admin-telefonsuz-puan-1366.webp" style="width:70%"><figcaption>Telefonsuz kullanımda panelden puan girişi</figcaption></figure>
+  <h2>Aynı anda tek yarışma</h2>
+  <p>İnternet modunda aynı anda yalnız bir yarışma yürütülebilir. Başka bir yerden yönetim paneli açılıp yarışma başlatılmak istenirse "Şu anda başka bir yerde açık bir yarışma var" uyarısı çıkar ve açık panele bildirim gider. Yarışma bitince ya da açık panel 5 dakika kapalı kalırsa kilit kendiliğinden kalkar. Sahne penceresi kilit almaz.</p>
+  <p class="small">Klasör bütün olarak taşınmalıdır: <code>kaplan-arena.html</code>, <code>app/</code> ve <code>assets/</code> birlikte olmalı.</p>
+</section>
+
+<!-- ============ 13 ============ -->
+<section class="chapter">
+  <h1>13. Okulda, başka bilgisayar ve telefonlarda kullanım</h1>
+  <table>
+    <tr><th style="width:26%">Cihaz</th><th>Gereksinim</th></tr>
+    <tr><td><b>Yönetim bilgisayarı</b></td><td>Güncel Chrome ya da Edge. İnternet. Açılır pencerelere izin. Soruların yedeği içe aktarılmış olmalı (bölüm 10).</td></tr>
+    <tr><td><b>Sahne / projeksiyon</b></td><td>Aynı bilgisayarın ikinci ekranı (Win + P → Genişlet). Hoparlör bağlı. "Sesi Etkinleştir" bir kez tıklanmalı (tarayıcı ses izni).</td></tr>
+    <tr><td><b>Telefonlar</b></td><td>Herhangi bir güncel tarayıcı; uygulama kurulmaz. Okul Wi-Fi'ı, mobil veri ya da başka kampüsün ağı fark etmez (internet modunda).</td></tr>
+    <tr><td><b>Ağ</b></td><td><code>kaplan-arena.vercel.app</code> erişilebilir olmalı (okul güvenlik duvarı engellememeli). Açılış filmi 48 MB, ara döngüsü 11 MB: indikçe oynar.</td></tr>
+  </table>
+  <h2>Prova kontrol listesi</h2>
+  <ul class="check">
+    <li>Yönetim bilgisayarında site açılıyor, yedek içe aktarıldı, mod kartı doğru.</li>
+    <li>Sahne projeksiyonda, ses ve müzik hoparlörden duyuluyor; açılış filmi bir kez sonuna kadar oynadı.</li>
+    <li>Okul Wi-Fi'ından bir iPhone ve bir Android, mobil veriden bir telefon katıldı ve birer cevap gönderdi.</li>
+    <li>Her kampüsten birer telefon katıldı (uzak kampüsler internet adresiyle).</li>
+    <li>Prova <span class="btn">Yarışmayı Bitir</span> ile kapatıldı (tek yarışma kilidi kalktı).</li>
+  </ul>
+  <div class="box">
+    <b>Denenmiş olan / denenmemiş olan:</b> Otomatik testler bu projenin bilgisayarında, Chrome ile ve yerel taklit sunucusuyla koşuldu; canlı Vercel adresi ve veri sunucusu yanıt veriyor. Gerçek okul ağı, iPhone/Safari ve farklı Android telefonlar otomatik testlerde yoktur. Telefon sayfası basit bir web sayfasıdır; sorun beklenmez, ancak yarışmadan önce gerçek cihazlarla prova yapılmalıdır.
+  </div>
+</section>
+
+<!-- ============ 14 ============ -->
+<section class="chapter">
+  <h1>14. Sorun giderme</h1>
+  <table>
+    <tr><th style="width:32%">Belirti</th><th>Çözüm</th></tr>
+    <tr><td>Sahne penceresi açılmıyor</td><td>Tarayıcı açılır pencereyi engelledi. Adres çubuğundaki simgeden bu siteye izin verip <span class="btn">Sahne Ekranını Aç</span>'ı tekrarlayın.</td></tr>
+    <tr><td>Ses / müzik gelmiyor</td><td>Sahnede "Sesi Etkinleştir" tıklandı mı? Ayarlar'da "Sahne sesleri" açık ve seviye > 0 mı? Windows ses çıkışı projeksiyon/hoparlör mü? Panelin üst çubuğundaki çip "Sahne bağlı · ses etkin" demeli.</td></tr>
+    <tr><td>Eski açılış filmi oynuyor</td><td>Panel ve sahne penceresini yenileyin (F5). Video adresleri sürüm ekliyle değişir; tarayıcı önbelleği 24 saattir (bkz. bölüm 17).</td></tr>
+    <tr><td>Film oynamıyor, sabit karşılama</td><td>Hareketleri azaltma açık olabilir; ya da video yüklenemedi (ağ). Sabit karşılama bilinçli yedektir; yarışma etkilenmez.</td></tr>
+    <tr><td>Telefon "Bu kodla açık bir yarışma bulunamadı"</td><td>Kod doğru mu? Yarışma başlatıldı mı? Yerel ağ modunda telefon aynı Wi-Fi'da mı?</td></tr>
+    <tr><td>Telefon "Bağlantı yok · yeniden bağlanılıyor"</td><td>Ağ geçici koptu; kendiliğinden yeniden bağlanır. Gönderilen cevaplar korunur.</td></tr>
+    <tr><td>"Başka bir yerde açık bir yarışma var"</td><td>Tek yarışma kilidi. Diğer paneli bulup yarışmayı bitirin ya da 5 dakika bekleyin. Kilitli olan bu cihazdaki eski yarışma ise panelde <span class="btn">Bu cihazdaki eski yarışmayı kapat</span> düğmesi vardır; <span class="btn">Tekrar Kontrol Et</span> ile kilit yeniden sorgulanır.</td></tr>
+    <tr><td>Sorular kayboldu</td><td>Farklı bilgisayar/tarayıcı/adres açılmış olabilir. Yedeği içe aktarın (bölüm 10).</td></tr>
+    <tr><td>Ayarlar "En az 3 benzersiz takım/sınıf adı girin"</td><td>Listede 3'ten az ad var ya da bir ad iki kez yazılmış.</td></tr>
+    <tr><td>Süre başlamıyor</td><td>Duraklama nedeni var: joker tanıtımı (bitince devam eder), sahne kaybı, ara. Panelde nedeni yazar; <span class="btn">Devam Et</span>.</td></tr>
+    <tr><td>Yanlış takıma puan verildi</td><td>Puan ekranında <span class="btn">Geri Al</span> ya da <span class="btn">Puanları Düzelt</span> (±10). Hatalı soru için <span class="btn">Soruyu İptal Et</span>.</td></tr>
+    <tr><td>BASLAT.bat sonrası telefonlar bağlanamıyor</td><td>Güvenlik duvarı izni verildi mi? Panelde diğer ağ adresini deneyin. Okul Wi-Fi istemci yalıtımı yapıyorsa telefon erişim noktası kullanın ya da internet moduna geçin.</td></tr>
+  </table>
+</section>
+
+<!-- ============ 15 ============ -->
+<section class="chapter">
+  <h1>15. Teknik mimari</h1>
+  <p>Uygulama derleme adımı olmayan saf HTML/CSS/JavaScript'tir; aynı dosyalar file://, PowerShell yerel sunucusu ve Vercel'de değişmeden çalışır. Telefon senkronu için tek bir sunucu fonksiyonu (<code>api/ka.js</code>) ve Upstash Redis kullanılır.</p>
+  <h2>Dosya düzeni</h2>
+  <table>
+    <tr><th style="width:30%">Yol</th><th>Görev</th></tr>
+    <tr><td><code>index.html</code>, <code>kaplan-arena.html</code></td><td>Kabuk: meta, QR kütüphanesi, modül yükleme. Çift tıklamayla açılır. <code>?sahne</code> → sahne; <code>?pin</code>/<code>?katil</code> → telefon; diğer → yönetim.</td></tr>
+    <tr><td><code>app/core.js</code></td><td>DOM'suz saf mantık (UMD; Node testleri <code>require</code> eder): puan/ceza, saat ve cevap pencereleri, cevap/joker doğrulama, iptal, armalar, kayıt göçü, takım listesi doğrulaması, yarışma modları, etap sonucu.</td></tr>
+    <tr><td><code>app/shared.js</code></td><td>Ortak tanımlar: etaplar, örnek sorular, joker metinleri, <code>CINE</code> (video yolları + sürüm eki), yedek doğrulama, kalıcı kayıt.</td></tr>
+    <tr><td><code>app/admin.js</code>, <code>admin-actions.js</code>, <code>admin-ui.js</code></td><td>Yönetim paneli: yetkili yarışma durumu ve saat sahibi, eylemler, arayüz, sahne modeli, telefon durumu yayını.</td></tr>
+    <tr><td><code>app/stage.js</code>, <code>stageview.js</code></td><td>Sahne penceresi: salt görüntüleyici; model çizimi, yerel geri sayım, Doğru Bilenler/puan animasyonları, sinematik video katmanı ve karşılama müziği.</td></tr>
+    <tr><td><code>app/player.js</code></td><td>Öğrenci telefonu: komut istemcisi (cevap, joker isteği), kabul/ret durumunu admin yayınından okur.</td></tr>
+    <tr><td><code>app/net.js</code></td><td>Ağ katmanı (yoklama tabanlı KV istemcisi), web/LAN/telefonsuz algılama, tek yarışma kilidi.</td></tr>
+    <tr><td><code>app/link.js</code></td><td>Yönetim ↔ sahne pencere iletişimi.</td></tr>
+    <tr><td><code>app/audio.js</code></td><td>Web Audio ile çevrimdışı sahne sesleri (joker, tik, süre sonu, kutlama).</td></tr>
+    <tr><td><code>app/style.css</code></td><td>Bütün görünüm ("Gece Arenası" tasarımı).</td></tr>
+    <tr><td><code>api/ka.js</code></td><td>Vercel sunucu fonksiyonu: KV get/set ve kilit; Upstash Redis.</td></tr>
+    <tr><td><code>kaplan-sunucu.ps1</code>, <code>BASLAT.bat</code></td><td>İnternetsiz yerel ağ sunucusu (PowerShell HttpListener; aynı <code>/api/ka</code> protokolü, bellek içi).</td></tr>
+    <tr><td><code>assets/</code></td><td>Fontlar (Cinzel, Alegreya, Alegreya Sans; gömülü kopya), görseller, armalar, joker simgeleri, sinematik videolar.</td></tr>
+    <tr><td><code>tests/</code></td><td>Birim testleri ve <code>tests/e2e/</code> tarayıcı senaryoları.</td></tr>
+    <tr><td><code>tasarim/</code></td><td>Tasarım, raporlar, sinematik kaynaklar ve FilmCraft projeleri (Vercel'e dağıtılmaz).</td></tr>
+  </table>
+  <h2>Yetki modeli</h2>
+  <ul>
+    <li><b>Yönetim paneli tek yetkilidir:</b> süre, puan, cevap kabulü ve joker kararları yalnız panelde verilir. Sahne salt gösterimdir; telefonlar yalnız komut yazar.</li>
+    <li><b>Cevap kabulü:</b> gönderim zamanı (<code>t</code>) bu sorunun açık penceresi içinde (±250 ms tolerans), biçimi geçerli, gönderen cihaz takımın sahibi. Geçerli gönderimlerin en sonuncusu sayılır; açıklamada dondurulur.</li>
+    <li><b>Tekilleştirme:</b> puan <code>scored[qk]</code> ile bir kez uygulanır; iptal <code>cancelled[qk]</code> ile bir kez işlenir; aynı joker isteği ikinci kez işlenmez.</li>
+  </ul>
+  <h2>Saat ve duraklatma</h2>
+  <p>Saat <code>{ total, left, runAt, reasons[] }</code> biçimindedir. Yalnız soru açıkken, duraklatma nedeni yokken ve süre kalmışken çalışır. Nedenler: <code>admin</code> (elle/yeniden yükleme), <code>joker</code> (tanıtım), <code>stage</code> (sahne kaybı), <code>break</code> (karşılama/film). Bir neden kalkınca diğerleri sürüyorsa saat başlamaz. Sayfa yeniden açılınca çalışan saat durdurulur; devamı admin verir.</p>
+  <h2>Yönetim ↔ sahne iletişimi</h2>
+  <p>Sahne, panelden kullanıcı tıklamasıyla <code>window.open(…?sahne)</code> ile açılır. Birincil yol <code>postMessage</code>: sahne her saniye panele ping gönderir; panel her değişimde temizlenmiş sahne modelini gönderir. HTTP altında <code>BroadcastChannel</code> yedeği vardır. 3 saniye ping gelmezse sahne kayıp sayılır. Sahne modeli yönetim verisi içermez: hazırlıkta soru yok, doğru cevap yalnız açıklamadan sonra.</p>
+</section>
+
+<!-- ============ 16 ============ -->
+<section class="chapter pb">
+  <h1>16. Veri modeli ve ağ protokolü</h1>
+  <h2>Kalıcı kayıt (localStorage <code>kaplan-arena-v1</code>, şema 2)</h2>
+<pre>S = { schema: 2,
+  settings: { title, seconds, sound, volume, reduceMotion, classes[], lanIp, emblems{ad: n} },
+  questions: { s1[], s2[], final[], tie[] },     // {id, type:'ders'|'tahmin', text, options?, answer, unit?}
+  game: {
+    started, finished, pin, view, stage, qIndex, phase,      // phase: ready|open|locked|revealed|cancelled
+    mode: 'shared'|'tournament'|undefined,  roster[],          // başlangıçta sabitlenir
+    teams: { s1[], s2[], final[], all[] },                     // all: ortak yarışmanın tek puan kaynağı
+    clock{}, win[[başla,bitir]], jokers{ad:{double,x2}}, jdone{}, jrej{},
+    scored{qk:{delta,jk,winners}}, cancelled{qk:{reverted,refund}}, frozen{qk:{i:{v,t}}},
+    result, tie, history[], intro, evId, events[], brk } }</pre>
+  <p>Soru anahtarı <code>qk = &lt;etap&gt;_&lt;sıra&gt;_&lt;soruId&gt;</code> (eşitlikte <code>tie_&lt;etap&gt;_&lt;tur&gt;</code>); etap anahtarını içerdiği için cevaplar etaplar arasında karışmaz.</p>
+  <h2>Telefon senkronu (<code>/api/ka</code>)</h2>
+  <p>Panel ve telefonlar aynı adrese <code>POST</code> atar (gövde JSON, <code>Content-Type: text/plain</code>):</p>
+<pre>{"fn":"get","pins":["123456"],"since":0}               → {"t":&lt;ms&gt;,"rows":[{pin,p,v,r}]}
+{"fn":"set","pin":"123456","path":"state","value":{…}} → {"r":&lt;rev&gt;}
+{"fn":"lock","op":"check|acquire|release","host":"&lt;id&gt;",…} → {"t","state":"free|mine|other","info"}</pre>
+  <table>
+    <tr><th style="width:38%">KV yolu (games/&lt;pin&gt;/…)</th><th>İçerik</th></tr>
+    <tr><td><code>state</code></td><td>Panelin yayınladığı telefon durumu (görünüm, soru, süre bitişi, kabul edilen cevaplar, joker durumları, mod, <code>pk</code>).</td></tr>
+    <tr><td><code>answers/&lt;qk&gt;/&lt;i&gt;/&lt;sid&gt;</code></td><td>Telefon cevabı <code>{v, t, dev}</code>; her gönderim ayrı anahtar.</td></tr>
+    <tr><td><code>jreq/&lt;qk&gt;/&lt;i&gt;</code></td><td>Joker isteği <code>{j, t, dev}</code>.</td></tr>
+    <tr><td><code>players/&lt;pk&gt;/&lt;i&gt;</code></td><td>Cihaz sahipliği <code>{dev}</code>. <code>pk</code> turnuvada etap anahtarı, ortak yarışmada <code>all</code> (etap geçişinde korunur).</td></tr>
+    <tr><td><code>meta</code>, <code>alert</code></td><td>Yarışma bilgisi; tek yarışma kilidi uyarısı.</td></tr>
+  </table>
+  <ul>
+    <li>Her yarışma Redis'te bir hash'tir (alan = yol, değer = <code>&lt;rev&gt;|&lt;json&gt;</code>). İstemciler ~0,4 sn aralıkla <code>since</code> revizyonundan sonrasını yoklar.</li>
+    <li>Kayıtlar son yazımdan <b>3 gün</b> sonra kendiliğinden silinir. Değer üst sınırı 64 KB; yol ve PIN biçimi sunucuda doğrulanır.</li>
+    <li>Tek yarışma kilidi: aktif panel kilidi 20 sn'de bir yeniler; 5 dk haber alınmazsa kilit düşer.</li>
+    <li>Redis tanımlı değilse ve Vercel dışında çalışıyorsa sunucu bellekte tutar (yerel deneme ve testler).</li>
+  </ul>
+</section>
+
+<!-- ============ 17 ============ -->
+<section class="chapter pb">
+  <h1>17. Dağıtım (GitHub → Vercel) ve bakım</h1>
+  <table>
+    <tr><th style="width:26%">Öğe</th><th>Değer</th></tr>
+    <tr><td>Kaynak deposu</td><td><code>github.com/ersenbarlasai/kaplan-arena</code>, dal <code>main</code></td></tr>
+    <tr><td>Canlı adres</td><td><code>https://kaplan-arena.vercel.app</code> · telefon: <code>/katil</code></td></tr>
+    <tr><td>Dağıtım</td><td><code>main</code>'e her push'ta Vercel otomatik dağıtır (ayrıca elle dağıtım gerekmez).</td></tr>
+    <tr><td>Veri deposu</td><td>Vercel → Storage → Upstash for Redis (ortam değişkenleri <code>KV_REST_API_URL</code>, <code>KV_REST_API_TOKEN</code>). Gizli anahtarlar depoya konmaz (<code>.env*</code> yok sayılır).</td></tr>
+    <tr><td>Dışlananlar</td><td><code>.vercelignore</code>: <code>tasarim/</code>, <code>tests/</code>, <code>BASLAT.bat</code>, <code>kaplan-sunucu.ps1</code>, <code>OKU-BENI.txt</code> (yayına gitmez).</td></tr>
+    <tr><td>Önbellek</td><td><code>vercel.json</code>: <code>*.html</code> ve <code>/app/</code> önbelleklenmez; <code>/assets/</code> 24 saat önbelleklenir.</td></tr>
+  </table>
+  <h2>Bakım işleri</h2>
+  <ul>
+    <li><b>Video değiştirme:</b> Yeni MP4'leri <code>assets/sinematik/</code> altına aynı adla koyun ve <code>app/shared.js</code>'teki <code>CINE_V</code> değerini artırın. Aksi hâlde tarayıcılar 24 saat boyunca eski videoyu önbellekten oynatabilir.</li>
+    <li><b>Vercel adresi değişirse:</b> <code>app/net.js</code> içindeki <code>VERCEL_URL</code> satırını güncelleyin.</li>
+    <li><b>Sürüm/tarayıcı önbelleği:</b> Kod dosyaları önbelleklenmediği için push sonrası sayfayı yenilemek yeterlidir.</li>
+    <li><b>Bu kılavuzu yeniden üretme:</b> <code>tasarim/kilavuz/kilavuz.html</code> düzenlenir; <code>node tasarim/kilavuz/pdf-uret.js</code> (puppeteer-core ve Chrome gerekir) <code>tasarim/KAPLAN-ARENA-KILAVUZ.pdf</code> dosyasını yazar.</li>
+  </ul>
+  <h2>Güvenlik ve gizlilik notları</h2>
+  <ul>
+    <li>Telefonlardan kişisel veri alınmaz; cihazlar rastgele bir kimlikle (<code>localStorage</code>) tanınır.</li>
+    <li>Yarışma verileri 3 gün sonra sunucudan silinir.</li>
+    <li>Yerel sunucu yalnız uygulama dosyalarını ve izinli uzantıları sunar; klasör dışına çıkış reddedilir.</li>
+  </ul>
+</section>
+
+<!-- ============ 18 ============ -->
+<section class="chapter">
+  <h1>18. Sinematik üretim (FilmCraft)</h1>
+  <p>Açılış filmi ve ara döngüsü, OpenArt'ta üretilmiş hareketli video kliplerinden FilmCraft 0.20.1 ile kurgulandı; miks ve son dışa aktarım FilmCraft'tadır.</p>
+  <table>
+    <tr><th style="width:26%">Çıktı</th><th>Özellik</th></tr>
+    <tr><td><code>acilis-60sn.mp4</code></td><td>60,000 s / 1800 kare, H.264 1920×1080, 30 fps, ~6,1 Mbit/s; AAC 48 kHz 320 kbit/s; −16,1 LUFS, −1,4 dBTP; 48,2 MB</td></tr>
+    <tr><td><code>ara-30sn-loop.mp4</code></td><td>30,000 s / 900 kare, H.264 1920×1080, 30 fps; AAC 44,1 kHz (ses tam 30,000 s); −20,0 LUFS; 11,3 MB; kesintisiz döngü</td></tr>
+  </table>
+  <h2>Kurgu özeti (açılış)</h2>
+  <table class="small">
+    <tr><th>Süre</th><th>Sahne</th><th>Not</th></tr>
+    <tr><td>0–6</td><td>Dünya keşfi</td><td>Siyahtan açılış</td></tr>
+    <tr><td>6–12</td><td>Kaplanın yolculuğu</td><td>Çapraz geçiş</td></tr>
+    <tr><td>12–18</td><td>Kale kapısı</td><td>%85 hız; kapı aralanır, kapanmadan kesilir</td></tr>
+    <tr><td>18–24</td><td>Turnuva karşılaşması</td><td>Kılıçlar 20,208 s'de kesişir</td></tr>
+    <tr><td>24–27</td><td>Kılıç teması (yakın plan)</td><td>Kesme temas anında; kıvılcım 25,65 s</td></tr>
+    <tr><td>27–31</td><td>Kalkan teması</td><td>Kalkan 28,000 s; ikinci çarpışma 30,750 s</td></tr>
+    <tr><td>31–38</td><td>Arenaya giriş</td><td>Kesme + savurma sesi</td></tr>
+    <tr><td>38–44</td><td>Arena ihtişamı</td><td>Çapraz geçiş</td></tr>
+    <tr><td>44–48</td><td>Kaplan kükremesi</td><td>Kükreme 44,033 s; çene açık 44,0–46,9 s</td></tr>
+    <tr><td>48–60</td><td>Final: başlık, logo, künye</td><td>Künye 49,4–60 s tam okunur</td></tr>
+  </table>
+  <ul class="small">
+    <li>Kaynaklar 1920×1072 / 24 fps; %100,75 ölçek ve kare örneklemeyle 1080p/30 fps sekansa uyarlandı (kalite artışı değildir).</li>
+    <li>Temas sesleri görüntüdeki olay karesine +6 ms içinde (ayrı ses izi ölçümü). Efektler müziğin 6,8–16,6 dB üstünde; darbe ve kükremede müzik 3–6 dB kısılır.</li>
+    <li>Ara döngüsü: klip %90 hızda iki tur, tur sonlarında üstten açılan başlangıç; Chrome'da 3 tur gerçek oynatımda sarma kare aralığı 33,3 ms.</li>
+    <li>Kulakla dinleme ve gözle tam izleme otomatik olarak yapılamaz; salonda kontrol önerilir (özellikle 00:12–00:31 ve 00:44–00:48).</li>
+  </ul>
+  <h2>Yeniden üretim</h2>
+<pre>cd tasarim/sinematik/filmcraft
+node kur.js acilis        # .fcproj kurar, göreli yollar, medya çevrimiçi doğrulaması
+node kur.js ara
+bash disa-aktar.sh        # FilmCraft export (--allow-offline kullanılmaz)
+python -P dogrula.py      # ölçüm: decode, süre, LUFS/dBTP, efekt belirginliği, döngü
+node sfx-senkron.js       # temas senkronu
+node dongu-oynat.js       # ara döngüsü 3 tur gerçek oynatım (puppeteer-core)
+node poster.js            # ara posteri</pre>
+  <p class="small">Ayrıntı: <code>tasarim/sinematik/FILMCRAFT-TESLIM-RAPORU.md</code>. Kaynak klipler ve üretim kayıtları: <code>tasarim/sinematik/videolar-openart/</code>.</p>
+</section>
+
+<!-- ============ 19 ============ -->
+<section class="chapter">
+  <h1>19. Testler ve doğrulama</h1>
+  <p>Depoda <code>package.json</code> yoktur. Birim testleri Node ile, tarayıcı senaryoları Chrome + puppeteer-core ile çalışır (puppeteer-core depo dışında kurulur ve <code>NODE_PATH</code> ile gösterilir). Senaryolar canlı Redis/Vercel'e istek göndermez; <code>tests/e2e/server.js</code> bellek içi <code>/api/ka</code> ile çalışır.</p>
+<pre>node --test tests/core.test.js
+NODE_PATH=&lt;puppeteer-core node_modules&gt; node tests/e2e/run.js
+NODE_PATH=&lt;…&gt; node tests/e2e/modes.js
+NODE_PATH=&lt;…&gt; node tests/e2e/correct.js
+NODE_PATH=&lt;…&gt; node tests/e2e/uckampus.js
+NODE_PATH=&lt;…&gt; node tests/e2e/media.js</pre>
+  <table>
+    <tr><th style="width:30%">Paket</th><th>Kapsam</th><th style="width:12%">Son sonuç</th></tr>
+    <tr><td>Birim (<code>core.test.js</code>)</td><td>Puan/ceza tablosu, saat ve pencereler, cevap seçimi, joker kabul/ret, iptal, göç, takım listesi, modlar, etap sonucu</td><td>22/22</td></tr>
+    <tr><td><code>run.js</code></td><td>Ana akış: 11 sınıf turnuva, sahne, iki telefon, jokerler, duraklama, kilit, iptal, uzun adlar</td><td>65/65</td></tr>
+    <tr><td><code>modes.js</code></td><td>file:// internetsiz, PowerShell yerel ağ sunucusu, güvenlik</td><td>30/30</td></tr>
+    <tr><td><code>correct.js</code></td><td>Doğru Bilenler gösterimi, animasyon ve ses tekilleştirme</td><td>39/39</td></tr>
+    <tr><td><code>uckampus.js</code></td><td>Üç kampüs: ayarlar/yedek doğrulaması, gerçek başlatma, üç telefon, üç etap birikim, joker, iptal/geri al, eşitlik, yenileme, eski kayıt, 4 takım turnuva, file://</td><td>63/63</td></tr>
+    <tr><td><code>media.js</code></td><td>Sinematik: sahnede sesli oynatım, açılış döngüsü, karşılama müziği, Atla/Durdur, ortak duraklatma, yenileme, eksik dosya, reduced motion, file://, PowerShell Range</td><td>53/53</td></tr>
+  </table>
+  <div class="box warn">Otomatik testler gerçek okul ağında, gerçek üç kampüs arasında ve farklı telefon modellerinde yapılmış fiziksel bir provanın yerine geçmez.</div>
+  <p class="small">Test sonuç kayıtları: <code>tests/e2e/son-rapor*.json</code>. Ekran görüntüleri: <code>tasarim/ekran-goruntuleri/</code>.</p>
+</section>
+
+<!-- ============ 20 ============ -->
+<section class="chapter">
+  <h1>20. Kaynaklar, lisanslar ve künye</h1>
+  <table>
+    <tr><th style="width:28%">Öğe</th><th>Kaynak / lisans</th></tr>
+    <tr><td>Yazı tipleri</td><td>Cinzel, Alegreya, Alegreya Sans — SIL Open Font License 1.1 (<code>assets/fonts/OFL-*.txt</code>)</td></tr>
+    <tr><td>Video klipleri</td><td>Kullanıcının OpenArt hesabında üretildi (<code>tasarim/sinematik/videolar-openart/uretim-manifest.json</code>: istemler, kimlikler, SHA256)</td></tr>
+    <tr><td>Müzikler</td><td>Kullanıcının Suno oturumunda üretilen iki parça (<code>tasarim/sinematik/girdiler/MUZIK-TESLIMI.md</code>)</td></tr>
+    <tr><td>Efekt sesleri</td><td>Metal/kapı/zincir/savurma: BigSoundBank ve Freesound CC0 kaynaklarından foley (<code>ses-gercek/KAYNAK-LISANS.md</code>). Gerçek düello kaydı değildir.</td></tr>
+    <tr><td>Kükreme</td><td>Kullanıcının sağladığı dosya; kaynağı/lisansı belgelenmemiştir, CC0 değildir.</td></tr>
+    <tr><td>Logo</td><td>Kaplan Okulları resmî logosu (değiştirilmeden)</td></tr>
+  </table>
+  <h2>Künye</h2>
+  <div class="box">
+    <b>Düzenleyen:</b> Kaplan Okulları Yapayzeka Kulübü<br>
+    <b>Mentörler:</b> Ersen BARLAS · Alp Han KOÇDEMİR<br>
+    <b>Kulüp öğrencileri:</b> Emre Burak Tölegen · Burak Yoğurtçu · Halil Mert ACAR · Yekta Efe Konuk · Çınar Arda · Yusuf Emir Kuş · Ömer Araf Boncuk · Emir Karatay
+  </div>
+  <figure><img src="../sinematik/onizleme/acilis-55sn.jpg" style="width:78%"><figcaption>Açılış filminin son sahnesi: başlık, logo ve künye</figcaption></figure>
+</section>
+
+</body>
+</html>

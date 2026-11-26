@@ -192,6 +192,8 @@ silinirse 1 dakikada geri yüklenir).
 ========================================================================
 8) TEKNİK (YÖNETİCİ)
 ========================================================================
+- Ayrıntılı, resimli kılavuz (kullanım + teknik): tasarim/KAPLAN-ARENA-KILAVUZ.pdf
+  (kaynağı tasarim/kilavuz/kilavuz.html; yeniden üretim: node tasarim/kilavuz/pdf-uret.js).
 - Vercel: Storage > "Upstash for Redis" projeye bağlı olmalı (api/ka.js).
   Vercel adresi değişirse app/net.js içindeki VERCEL_URL satırını güncelleyin.
 - Testler (geliştirici):  node --test tests/*.test.js
