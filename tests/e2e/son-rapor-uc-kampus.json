@@ -1,5 +1,5 @@
 {
-  "at": "2026-11-26T03:47:31.446Z",
+  "at": "2026-11-26T04:52:06.952Z",
   "results": [
     {
       "name": "ayarlar: üç takım (boşluk/virgül/satır temizliğiyle) kaydedilir",
@@ -79,12 +79,12 @@
     {
       "name": "sahne: ortak katılım; üç takım ve birikimli puan kuralı",
       "ok": true,
-      "detail": "Orman Geçidi\n1. Etap\nOrtak Katılım\n3 takım birlikte yarışıyor · eleme yok · puanlar üç etap boyunca birikir\nTELEFONLA KATIL\nlocalhost:3092/katil\nYARIŞMA KODU\n774 173\nKampüs A\nBekleniyor\nKampüs B\nBekleniyor\nKampüs C\nBekleniyor"
+      "detail": "Orman Geçidi\n1. Etap\nOrtak Katılım\n3 takım birlikte yarışıyor · eleme yok · puanlar üç etap boyunca birikir\nTELEFONLA KATIL\nlocalhost:3092/katil\nYARIŞMA KODU\n540 277\nKampüs A\nBekleniyor\nKampüs B\nBekleniyor\nKampüs C\nBekleniyor"
     },
     {
       "name": "sahne katılım: turnuva ifadeleri yok",
       "ok": true,
-      "detail": "Orman Geçidi\n1. Etap\nOrtak Katılım\n3 takım birlikte yarışıyor · eleme yok · puanlar üç etap boyunca birikir\nTELEFONLA KATIL\nlocalhost:3092/katil\nYARIŞMA KODU\n774 173\nKampüs A\nBekleniyor\nKampüs B\nBekleniyor\nKampüs C\nBekleniyor"
+      "detail": "Orman Geçidi\n1. Etap\nOrtak Katılım\n3 takım birlikte yarışıyor · eleme yok · puanlar üç etap boyunca birikir\nTELEFONLA KATIL\nlocalhost:3092/katil\nYARIŞMA KODU\n540 277\nKampüs A\nBekleniyor\nKampüs B\nBekleniyor\nKampüs C\nBekleniyor"
     },
     {
       "name": "telefon: takım seçiminde üç takım ve kapsayıcı ifade",
@@ -109,17 +109,17 @@
     {
       "name": "ortak süre: admin ve üç telefon aynı kalan süreyi görür (±1,5 sn)",
       "ok": true,
-      "detail": "[38544,38544,38980,38980]"
+      "detail": "[38468,38467.5,38969,38969]"
     },
     {
       "name": "ortak süre: üç telefon aynı sunucu bitiş anını alır",
       "ok": true,
-      "detail": "[1795664825991,1795664825991,1795664825991]"
+      "detail": "[1795668701337.5,1795668701337.5,1795668701337.5]"
     },
     {
       "name": "cevaplar doğru kampüse bağlı; yanlış cihazdan gelen cevap reddedildi",
       "ok": true,
-      "detail": "{\"0\":{\"v\":\"C\",\"t\":1795664788678},\"1\":{\"v\":\"C\",\"t\":1795664789208},\"2\":{\"v\":\"A\",\"t\":1795664789742}}"
+      "detail": "{\"0\":{\"v\":\"C\",\"t\":1795668664015},\"1\":{\"v\":\"C\",\"t\":1795668664537},\"2\":{\"v\":\"A\",\"t\":1795668665075}}"
     },
     {
       "name": "sahne: Doğru Bilenler gösterimi (A ve B)",
@@ -199,7 +199,7 @@
     {
       "name": "ayarlar (açık yarışma): değişikliğin açık yarışmayı etkilemediği belirtilir",
       "ok": true,
-      "detail": "Kaplan Arena\nYönetim paneli\nKod 774 173\nTelefon bağlantısı açık\nSahne bağlı · ses etkin\nSahne Ekranını Aç\nSes açık\nKarşılama\nAra Döngüsü\nAna Menü\nYarışma\nSoru Yönetimi\nAyarlar\nAyarlar\nYarışmanın adı\nTakımlar / sınıflar (her satıra bir ad; en az 3)\nTam 3 takım: Üç Kampüs — Ortak Yarışma (kura ve eleme yok; üç takım üç etabın tamamında birlikte yarışır, puanlar birikir). 4 ve daha fazla: iki gruplu turnuva (kura bu listeden çekilir). Değişiklik bir sonraki yeni yarışmada geçerli olur; açık yarışma"
+      "detail": "Kaplan Arena\nYönetim paneli\nKod 540 277\nTelefon bağlantısı açık\nSahne bağlı · ses etkin\nSahne Ekranını Aç\nSes açık\nKarşılama\nAra Döngüsü\nAna Menü\nYarışma\nSoru Yönetimi\nAyarlar\nAyarlar\nYarışmanın adı\nTakımlar / sınıflar (her satıra bir ad; en az 3)\nTam 3 takım: Üç Kampüs — Ortak Yarışma (kura ve eleme yok; üç takım üç etabın tamamında birlikte yarışır, puanlar birikir). 4 ve daha fazla: iki gruplu turnuva (kura bu listeden çekilir). Değişiklik bir sonraki yeni yarışmada geçerli olur; açık yarışma"
     },
     {
       "name": "açık yarışmada ayar değişikliği modu ve katılımcıları değiştirmez",
@@ -219,7 +219,7 @@
     {
       "name": "arena geçişi joker hakkını yenilemez (doğrudan istek reddedildi)",
       "ok": true,
-      "detail": "{\"t\":1795664816013,\"j\":\"x2\",\"why\":\"Bu joker daha önce kullanıldı.\"}"
+      "detail": "{\"t\":1795668691456,\"j\":\"x2\",\"why\":\"Bu joker daha önce kullanıldı.\"}"
     },
     {
       "name": "telefon B yeniden bağlandı: aynı takım ve gönderilmiş cevap korunur",
@@ -299,7 +299,7 @@
     {
       "name": "4 takım: kura 2+2 gruba ayırır",
       "ok": true,
-      "detail": "{\"s1\":[\"9B\",\"9A\"],\"s2\":[\"9D\",\"9C\"]}"
+      "detail": "{\"s1\":[\"9A\",\"9B\"],\"s2\":[\"9D\",\"9C\"]}"
     },
     {
       "name": "4 takım: sahnede mevcut \"İlk 2 sınıf finale çıkar\" kuralı korunur",

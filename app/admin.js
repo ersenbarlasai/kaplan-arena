@@ -71,16 +71,14 @@ function pushHistory(){ const g = G(); const snap = Object.assign({}, g, { histo
 /* ---------- saat döngüsü ---------- */
 function cineStatus(){
   const c = cineState();
-  if (!c) return 'Sahnede sabit karşılama';
+  if (!c) return 'Sahnede sabit karşılama' + bgmNote();
   if (c.mode === 'loop') return 'Sahnede ara döngüsü oynuyor';
-  if (c.ended) return 'Açılış filmi bitti · sahnede sabit karşılama';
-  if (reducedMotion()) return 'Hareketleri azaltma açık · sahnede sabit karşılama';
-  const s = Math.min(CINE.opening.dur, Math.floor(c.elapsed / 1000));
-  return `Sahnede açılış filmi · 0:${String(s).padStart(2, '0')} / 1:00`;
+  if (reducedMotion()) return 'Hareketleri azaltma açık · sahnede sabit karşılama' + bgmNote();
+  const s = Math.floor(c.elapsed / 1000) % CINE.opening.dur, tur = Math.floor(c.elapsed / 1000 / CINE.opening.dur) + 1;
+  return `Sahnede açılış filmi (döngü) · 0:${String(s).padStart(2, '0')} / 1:00${tur > 1 ? ' · ' + tur + '. tur' : ''}`;
 }
+const bgmNote = () => S.settings.sound && S.settings.volume > 0 ? ' · ara müziği çalıyor' : ' · ses kapalı';
 function cineTick(){
-  const c = cineState();
-  if (c && c.ended && !ui.cineEnded){ ui.cineEnded = true; render(); return; }
   const el = document.getElementById('cine-st');
   if (el){ const t = cineStatus(); if (el.textContent !== t) el.textContent = t; }
 }
@@ -206,7 +204,7 @@ function stageModel(){
     sound:{ on:!!S.settings.sound, volume:S.settings.volume, stage:StageHost.soundStage() }, stage:{ key:st.key, name:st.name, place:st.place, img:st.img } };
   const present = ui.present || 'welcome';
   if (present === 'welcome' || (!g.started && present !== 'map')){
-    return Object.assign(m, { screen:'welcome', credits:CREDITS, resume:g.started && !g.finished, cine:cineModel() });
+    return Object.assign(m, { screen:'welcome', credits:CREDITS, resume:g.started && !g.finished, cine:cineModel(), bgm:CINE.loop.src });
   }
   if (present === 'map' || !g.started){
     const done = i => g.started && (g.stage > i || (g.stage === i && (g.view === 'stageEnd' || g.view === 'champion')) || g.finished);
@@ -279,17 +277,15 @@ function stageModel(){
   return Object.assign(m, { screen:'map', classes:[], mapStages:[] });
 }
 /* Sinematik oturumu (yalnız karşılama ekranında). Her oynatma yeni kimlik alır; sahne aynı kimliği yeniden
-   başlatmaz. Açılış süresi dolunca model boşalır (sahne sabit karşılamaya döner). */
+   başlatmaz. Açılış ve ara döngüsü, ekran değişene ya da Atla/Durdur'a kadar döngüde sürer. */
 function cineState(){
   const c = ui.cine; if (!c) return null;
-  const elapsed = Math.max(0, Date.now() - c.at);
-  const ended = c.mode === 'opening' && elapsed > (CINE.opening.dur + 1) * 1000;
-  return { mode:c.mode, id:c.id, elapsed, ended };
+  return { mode:c.mode, id:c.id, elapsed:Math.max(0, Date.now() - c.at) };
 }
 function cineModel(){
-  const c = cineState(); if (!c || c.ended) return null;
+  const c = cineState(); if (!c) return null;
   const cfg = CINE[c.mode];
-  return { mode:c.mode, id:c.id, elapsed:c.elapsed, src:cfg.src, poster:cfg.poster || '' };
+  return { mode:c.mode, id:c.id, elapsed:c.elapsed, dur:cfg.dur, src:cfg.src, poster:cfg.poster || '' };
 }
 function reducedMotion(){
   let os = false; try{ os = matchMedia('(prefers-reduced-motion: reduce)').matches; }catch(e){}

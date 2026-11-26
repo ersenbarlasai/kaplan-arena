@@ -18,17 +18,33 @@ const StageClock = {
 };
 
 /* Sinematik katmanı: #sg dışındaki tek, kalıcı <video>. Model her güncellendiğinde yeniden kurulmaz; yalnız oturum
-   kimliği değişince yeni oynatma başlar. Sesi yalnız etkin ses sahnesi açar (MP4 içindeki miks; Web Audio'dan
-   ikinci kez çalınmaz). Yükleme bitene kadar ya da hata/eksik dosyada altta sabit karşılama görünür.
-   Yeniden bağlanma/yenilemede eski açılış filmi baştan çalmaz; hareketleri azaltma açıksa açılış oynatılmaz. */
-function StageCine(box){
+   kimliği değişince yeni oynatma başlar. Açılış filmi de ara döngüsü gibi döngüde oynar; ekran değişene ya da admin
+   Atla/Durdur diyene kadar sürer. Sesi yalnız etkin ses sahnesi açar (MP4 içindeki miks; Web Audio'dan ikinci kez
+   çalınmaz). Yükleme bitene kadar ya da hata/eksik dosyada altta sabit karşılama görünür. Sahne yenilenir ya da
+   yeniden bağlanırsa film baştan değil, admin oturumunun süresine göre kaldığı yerden sürer. Hareketleri azaltma
+   açıksa açılış oynatılmaz.
+   Karşılama müziği: karşılama ekranında film oynamıyorken ara döngüsünün müziği (aynı MP4'ün sesi) ayrı bir <audio>
+   ile döngüde çalar; film başlayınca durur, film kapanınca kaldığı yerden sürer. Yalnız etkin ses sahnesi, merkezi
+   ses açık ve seviye > 0 iken. */
+function StageCine(box, bgm){
   const vid = box.querySelector('video');
   let cur = null;                        // { id, mode }
+  let lastM = null, lastSnd = false;
   const seen = new Set();                // bu pencerede başlatılmış/atlanmış oturumlar
+  function music(){
+    const m = lastM, s = (m && m.sound) || {}, vol = Math.max(0, Math.min(1, (s.volume || 0) / 100));
+    const want = !!(bgm && m && m.screen === 'welcome' && m.bgm && !cur && lastSnd && s.on && vol > 0);
+    if (!bgm) return;
+    if (!want){ if (!bgm.paused){ try{ bgm.pause(); }catch(e){} } return; }
+    if (bgm.getAttribute('src') !== m.bgm) bgm.setAttribute('src', m.bgm);
+    bgm.loop = true; bgm.volume = vol; bgm.muted = false;
+    if (bgm.paused){ const p = bgm.play(); if (p && p.catch) p.catch(() => {}); }
+  }
   function hide(){
     cur = null; box.classList.remove('on'); box.hidden = true;
     try{ vid.pause(); }catch(e){}
     if (vid.getAttribute('src')){ vid.removeAttribute('src'); vid.removeAttribute('poster'); try{ vid.load(); }catch(e){} }
+    music();
   }
   function level(m, soundStage){
     const s = (m && m.sound) || {}, vol = Math.max(0, Math.min(1, (s.volume || 0) / 100));
@@ -36,20 +52,21 @@ function StageCine(box){
     vid.muted = !(soundStage && s.on && vol > 0);
   }
   vid.addEventListener('playing', () => { if (cur) box.classList.add('on'); });
-  vid.addEventListener('ended', () => { if (cur && cur.mode === 'opening') hide(); });
   vid.addEventListener('error', () => { if (cur){ console.warn('Sinematik yüklenemedi; sabit karşılama gösteriliyor.'); hide(); } });
-  return {
-    apply(m, soundStage){
+  function apply(m, soundStage){
       const c = m && m.screen === 'welcome' ? m.cine : null;
       if (!c){ if (cur) hide(); return; }
       if (cur && cur.id === c.id){ level(m, soundStage); return; }
       if (cur) hide();
       if (seen.has(c.id)) return;
       seen.add(c.id);
-      if (c.mode === 'opening' && (m.motion || c.elapsed > 2500)) return;   // canlı başlangıç değil → sabit karşılama
+      if (c.mode === 'opening' && m.motion) return;   // hareketleri azaltma → sabit karşılama
       cur = { id:c.id, mode:c.mode };
       box.hidden = false;
-      vid.loop = c.mode === 'loop';
+      vid.loop = true;                                // açılış da döngüde: ekran değişene ya da Atla/Durdur'a kadar
+      // Yenileme/yeniden bağlanma: oturum sürmekteyse baştan değil, admin saatine göre kaldığı yerden
+      const off = c.elapsed > 2500 && c.dur ? (c.elapsed / 1000) % c.dur : 0;
+      if (off > 0) vid.addEventListener('loadedmetadata', () => { if (cur && cur.id === c.id){ try{ vid.currentTime = off; }catch(e){} } }, { once:true });
       if (c.poster) vid.setAttribute('poster', c.poster); else vid.removeAttribute('poster');
       vid.src = c.src;
       level(m, soundStage);
@@ -60,7 +77,9 @@ function StageCine(box){
         vid.muted = true;
         vid.play().catch(() => { if (cur && cur.id === c.id) hide(); });
       });
-    },
+  }
+  return {
+    apply(m, soundStage){ lastM = m; lastSnd = !!soundStage; apply(m, soundStage); music(); },
     playing: () => !!cur
   };
 }
@@ -71,6 +90,7 @@ function stageInit(){
   const app = document.getElementById('app');
   app.innerHTML = `<div class="stage-root" id="sg"></div>
     <div class="stage-cine" id="cine" hidden aria-hidden="true"><video playsinline preload="auto" disablepictureinpicture></video></div>
+    <audio id="bgm" preload="auto" loop hidden></audio>
     <div class="stage-setup" id="setup" role="dialog" aria-modal="true" aria-labelledby="setup-h">
       <div class="setup-card">
         <h2 id="setup-h">Sahne Ekranı</h2>
@@ -106,7 +126,7 @@ function stageInit(){
   document.getElementById('fs').onclick = () => { try{ document.documentElement.requestFullscreen().catch(()=>{}); }catch(e){} };
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !setup.hidden) closeSetup(); });
 
-  const cine = StageCine(document.getElementById('cine'));
+  const cine = StageCine(document.getElementById('cine'), document.getElementById('bgm'));
   function draw(){
     cine.apply(model, isSoundStage());
     const h = StageView.html(model);

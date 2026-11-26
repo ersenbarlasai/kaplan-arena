@@ -2,7 +2,6 @@
 function cineStart(mode){
   ACT.welcome();                                   // aktif yarışmayı 'break' + 'admin' ile duraklatır, sahneyi karşılamaya alır
   ui.cine = { mode, id:uid(), at:Date.now() };
-  ui.cineEnded = false;
   if (!StageHost.count()) toast('Sahne penceresi açık değil. Film sahne ekranında oynar; önce "Sahne Ekranını Aç".', 5000);
   else if (mode === 'opening' && reducedMotion()) toast('Hareketleri azaltma açık: sahnede açılış filmi yerine sabit karşılama gösterilir.', 5000);
   render(); pushStage();
@@ -20,8 +19,9 @@ const ACT = {
     }
     setScreen('welcome');
   },
-  /* ---- sinematik: açılış filmi / ara döngüsü. Aktif yarışmada ortak duraklatma kullanılır (süre ve cevap
-     kabulü birlikte durur); film bitişi, Atla veya Durdur yarışmayı ilerletmez — devam yalnız admin eylemiyle. */
+  /* ---- sinematik: açılış filmi / ara döngüsü (ikisi de ekran değişene kadar döngüde). Aktif yarışmada ortak
+     duraklatma kullanılır (süre ve cevap kabulü birlikte durur); döngü, Atla veya Durdur yarışmayı ilerletmez —
+     devam yalnız admin eylemiyle. Film yokken karşılamada sahne ara müziğini çalar. */
   cineOpening(){ cineStart('opening'); },
   cineLoop(){ cineStart('loop'); },
   cineSkip(){ if (ui.cine && ui.cine.mode === 'opening'){ ui.cine = null; render(); pushStage(); } },

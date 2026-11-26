@@ -77,12 +77,19 @@ ile aynı soruya dönülür; süreyi siz başlatırsınız. Kayıtlar silinmez.
 
 SİNEMATİK: Karşılama ekranında "Açılış Filmini Oynat" (60 sn) ve "Ara Döngüsü"
 (30 sn, sakin, kesintisiz döner) düğmeleri vardır; üst çubukta da "Ara Döngüsü"
-bulunur. Film yalnız sahne penceresinde ve sesi yalnız orada çalar; panel ve
-telefonlar sessizdir. "Atla" açılışı bitirir, "Durdur / Karşılamaya Dön" sabit
-karşılamaya döner. Yarışma sırasında açılırsa süre ve cevap kabulü durur; film
-bitse de yarışma kendiliğinden ilerlemez: "Yarışmaya Devam Et", ardından süreyi
-siz başlatırsınız. Hareketleri azaltma açıksa açılış yerine sabit karşılama
-gösterilir. Video dosyası yoksa/açılamazsa sahne sabit karşılamayla sürer.
+bulunur. İki film de döngüde oynar: siz ekranı değiştirmedikçe ya da "Atla" /
+"Durdur / Karşılamaya Dön" demedikçe sürer. Film yalnız sahne penceresinde ve
+sesi yalnız orada çalar; panel ve telefonlar sessizdir. Sahne penceresi
+yenilenirse film baştan değil kaldığı yerden sürer.
+KARŞILAMA MÜZİĞİ: Karşılama ekranında film oynamıyorken sahne, ara döngüsünün
+müziğini kesintisiz çalar (yalnız sesi etkinleştirilmiş sahnede, Ayarlar'daki
+ses açıkken; seviye aynı ayardan). Film başlayınca müzik durur, film kapanınca
+kaldığı yerden sürer; karşılamadan çıkınca durur.
+Yarışma sırasında karşılamaya ya da filme geçilirse süre ve cevap kabulü durur;
+film dönse de yarışma kendiliğinden ilerlemez: "Yarışmaya Devam Et", ardından
+süreyi siz başlatırsınız. Hareketleri azaltma açıksa açılış yerine sabit
+karşılama gösterilir. Video dosyası yoksa/açılamazsa sahne sabit karşılamayla
+sürer.
 
 ========================================================================
 3) TELEFONLA KATILIM (SINIF / TAKIM KAPTANLARI)

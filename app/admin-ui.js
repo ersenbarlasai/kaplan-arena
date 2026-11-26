@@ -51,7 +51,7 @@ function paintClocks(){
 function vWelcome(){
   const g = G(), active = g.started && !g.finished;
   const m = { screen:'welcome', credits:CREDITS, resume:active, motion:reducedMotion() };
-  const c = cineState(), playing = c && !c.ended;
+  const c = cineState(), playing = !!c;
   return `<div class="adm-welcome"><div class="stage-root">${StageView.html(m)}</div>
     ${playing ? `<span class="adm-cine-tag" aria-hidden="true">${c.mode === 'loop' ? 'Ara döngüsü' : 'Açılış filmi'} · yalnız sahnede, önizleme sessiz</span>` : ''}
     <div class="adm-welcome-ctl">

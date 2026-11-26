@@ -17,6 +17,9 @@ const vstate = st => st.evaluate(() => { const b = document.getElementById('cine
   return v ? { hidden: b.hidden, on: b.classList.contains('on'), paused: v.paused, t: v.currentTime, src: v.currentSrc || '', muted: v.muted, vol: v.volume, loop: v.loop,
     w: v.videoWidth, h: v.videoHeight, dur: v.duration, mark: v.dataset.mark || '', n: document.querySelectorAll('video').length, welcome: !!document.querySelector('.sgs-welcome') } : null; });
 const playing = (st, re, ms) => st.waitForFunction(r => { const v = document.querySelector('#cine video'); return v && !v.paused && v.currentTime > 0.4 && new RegExp(r).test(v.currentSrc); }, { timeout: ms || 20000, polling: 100 }, re);
+const bstate = st => st.evaluate(() => { const a = document.getElementById('bgm'); return a ? { paused: a.paused, muted: a.muted, t: a.currentTime, src: a.currentSrc || a.getAttribute('src') || '', vol: a.volume, loop: a.loop } : null; });
+const bgmOn = (st, ms) => st.waitForFunction(() => { const a = document.getElementById('bgm'); return a && !a.paused && a.currentTime > 0.3; }, { timeout: ms || 15000, polling: 100 });
+const bgmOff = (st, ms) => st.waitForFunction(() => { const a = document.getElementById('bgm'); return a && a.paused; }, { timeout: ms || 8000, polling: 100 });
 const stopped = (st, ms) => st.waitForFunction(() => { const b = document.getElementById('cine'), v = b.querySelector('video'); return b.hidden && v.paused; }, { timeout: ms || 10000, polling: 100 });
 async function openStage(admin){ const pp = new Promise(r => admin.once('popup', r)); await admin.click('[data-act="openStage"]'); const st = await pp; return st; }
 async function seed(admin){
@@ -49,6 +52,13 @@ async function seed(admin){
     let stage = await openStage(admin); watch(stage, 'sahne'); await stage.setViewport({ width: 1920, height: 1080 });
     await clickSel(stage, '#snd-on'); await sleep(1500);
 
+    // Karşılama müziği: film yokken sahnede ara müziği döngüde çalar
+    await bgmOn(stage);
+    let bm = await bstate(stage);
+    check('karşılamada (film yok) sahnede ara müziği çalıyor', !bm.paused && !bm.muted && bm.loop && /ara-30sn-loop\.mp4/.test(bm.src) && Math.abs(bm.vol - 0.8) < 0.01, JSON.stringify(bm));
+    check('admin sayfasında ses/video öğesi yok', (await admin.$$('audio, video')).length === 0);
+    check('admin durum satırı ara müziğini gösteriyor', /ara müziği/.test(await admin.$eval('#cine-st', e => e.textContent)));
+
     // Açılış filmi
     await act(admin, 'cineOpening');
     await playing(stage, 'acilis-60sn\\.mp4(\\?|$)');
@@ -57,6 +67,9 @@ async function seed(admin){
     check('açılış videosu 1920×1080, ~60 s', v.w === 1920 && v.h === 1080 && Math.abs(v.dur - 60) < 0.2, `${v.w}x${v.h} ${v.dur}`);
     check('admin sayfasında video öğesi yok (önizleme sessiz)', (await admin.$$('video')).length === 0);
     check('admin durum satırı açılışı gösteriyor', /açılış filmi/i.test(await admin.$eval('#cine-st', e => e.textContent)));
+    check('açılış filmi döngüde (loop)', v.loop, JSON.stringify(v));
+    await bgmOff(stage).catch(() => {});
+    check('film oynarken karşılama müziği durur (çift ses yok)', (await bstate(stage)).paused);
     await stage.evaluate(() => { document.querySelector('#cine video').dataset.mark = 'kararli'; });
     const t1 = v.t;
     await admin.evaluate(() => { for (let i = 0; i < 6; i++){ render(); pushStage(); } });
@@ -67,6 +80,11 @@ async function seed(admin){
     await admin.evaluate(() => { S.settings.sound = false; save(); render(); });
     await sleep(1500);
     check('merkezi ses kapatılınca sahne videosu susar', (await vstate(stage)).muted);
+    // Açılış sonu: durmaz, başa sarıp sürer
+    await stage.evaluate(() => { const x = document.querySelector('#cine video'); x.currentTime = x.duration - 0.6; });
+    await sleep(2200);
+    v = await vstate(stage);
+    check('açılış filmi sonda başa sarar, sahne değişmedikçe sürer', !v.paused && v.on && !v.hidden && v.t < 3, JSON.stringify(v));
     await admin.evaluate(() => { S.settings.sound = true; save(); render(); });
     await sleep(1500);
     check('ses yeniden açılınca video sesli', !(await vstate(stage)).muted);
@@ -74,12 +92,22 @@ async function seed(admin){
     await act(admin, 'cineSkip'); await stopped(stage);
     v = await vstate(stage);
     check('Atla: video durur, sabit karşılama görünür', v.hidden && v.paused && v.welcome, JSON.stringify(v));
-    // Yenileme/yeniden bağlanma: eski açılış baştan çalmaz
-    await act(admin, 'cineOpening'); await playing(stage, 'acilis-60sn'); await sleep(3000);
+    await bgmOn(stage);
+    check('Atla sonrası karşılama müziği yeniden çalar', !(await bstate(stage)).paused);
+    // Ses kapalıyken müzik çalmaz
+    await admin.evaluate(() => { S.settings.sound = false; save(); render(); });
+    await bgmOff(stage).catch(() => {});
+    check('merkezi ses kapalıyken karşılama müziği çalmaz', (await bstate(stage)).paused);
+    await admin.evaluate(() => { S.settings.sound = true; save(); render(); });
+    await bgmOn(stage);
+    // Yenileme/yeniden bağlanma: açılış baştan değil kaldığı yerden sürer
+    await act(admin, 'cineOpening'); await playing(stage, 'acilis-60sn'); await sleep(6000);
+    const el0 = await admin.evaluate(() => cineState().elapsed / 1000);
     await stage.reload(); await stage.waitForSelector('#sg .sg', { timeout: 10000 });
-    await clickSel(stage, '#snd-on'); await sleep(3000);
+    await clickSel(stage, '#snd-on');
+    await playing(stage, 'acilis-60sn', 15000);
     v = await vstate(stage);
-    check('sahne yenilenince eski açılış filmi baştan çalmaz', v.hidden && v.paused && v.welcome, JSON.stringify(v));
+    check('sahne yenilenince açılış baştan değil kaldığı yerden sürer', !v.paused && !v.hidden && v.t > 4 && v.t < el0 + 15, JSON.stringify({ v, el0 }));
     await act(admin, 'cineStop');
     // Ara döngüsü
     await act(admin, 'cineLoop'); await playing(stage, 'ara-30sn-loop\\.mp4(\\?|$)');
@@ -94,6 +122,8 @@ async function seed(admin){
     check('sahne yenilenince sakin ara döngüsü sürer', true);
     await act(admin, 'cineStop'); await stopped(stage);
     check('Durdur: sahne karşılamaya döner', (await vstate(stage)).welcome);
+    await bgmOn(stage);
+    check('Durdur sonrası karşılama müziği çalar', !(await bstate(stage)).paused);
     // Eksik dosya → sabit karşılama
     await admin.evaluate(() => { window.__src = CINE.loop.src; CINE.loop.src = 'assets/sinematik/yok-boyle-dosya.mp4'; });
     await act(admin, 'cineLoop'); await sleep(600);
@@ -109,7 +139,10 @@ async function seed(admin){
     await act(admin, 'cineStop'); await admin.evaluate(() => { S.settings.reduceMotion = false; save(); render(); });
 
     // ---- Aktif yarışma: ara ortak duraklatmayla; bitiş/Atla yarışmayı ilerletmez ----
-    await act(admin, 'begin'); await act(admin, 'newGameYes');
+    await act(admin, 'begin');
+    await bgmOff(stage).catch(() => {});
+    check('karşılamadan çıkınca (harita) müzik durur', (await bstate(stage)).paused);
+    await act(admin, 'newGameYes');
     await act(admin, 'drawGo'); await admin.waitForFunction(() => S.game.draw && ui.drawShown == null);
     await act(admin, 'drawOk'); await act(admin, 'startStage'); await act(admin, 'showQ');
     await admin.waitForFunction(() => S.game.phase === 'open' && C.isRunning(S.game), { timeout: 10000 });
@@ -140,15 +173,17 @@ async function seed(admin){
     check('Karşılama aktif soruyu duraklatır', await admin.evaluate(() => !C.isRunning(S.game) && S.game.clock.reasons.includes('break')));
     await act(admin, 'cineOpening'); await playing(stage, 'acilis-60sn');
     await stage.evaluate(() => { const x = document.querySelector('#cine video'); x.currentTime = x.duration - 0.5; });
-    await stopped(stage, 8000);
+    await sleep(2000);
     const afterEnd = await admin.evaluate(() => ({ running: C.isRunning(S.game), phase: S.game.phase, q: S.game.qIndex, screen: ui.screen }));
-    check('açılış bitişi sahneyi karşılamaya alır, yarışma duraklı kalır', !afterEnd.running && afterEnd.phase === 'open' && afterEnd.screen === 'welcome' && (await vstate(stage)).welcome, JSON.stringify(afterEnd));
+    const vEnd = await vstate(stage);
+    check('açılış döngüsü başa sarar, yarışma duraklı kalır (otomatik başlamaz)', !afterEnd.running && afterEnd.phase === 'open' && afterEnd.screen === 'welcome' && !vEnd.paused && vEnd.t < 3, JSON.stringify({ afterEnd, vEnd }));
+    await act(admin, 'cineSkip'); await stopped(stage);
     // Telefon sayfası video içermez
     const pin = await admin.evaluate(() => S.game.pin);
     const ph = await (await browser.createBrowserContext()).newPage(); watch(ph, 'telefon');
     await ph.setViewport({ width: 390, height: 844, isMobile: true });
     await ph.goto(`${BASE}/kaplan-arena.html?pin=${pin}`); await sleep(2500);
-    check('telefon sayfasında video/sinematik yok', (await ph.$$('video')).length === 0);
+    check('telefon sayfasında video/ses öğesi yok', (await ph.$$('video, audio')).length === 0);
     await ph.close();
     // Range isteği (Vercel/statik sunucu davranışı)
     const r = await fetch(BASE + '/assets/sinematik/ara-30sn-loop.mp4', { headers: { Range: 'bytes=0-99' } });

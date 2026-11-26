@@ -115,7 +115,7 @@ Kaynak: `filmcraft/dogrulama-sonuclari.json`, `sfx-senkron-sonucu.json`, `dongu-
 
 Uygulama kodu bu teslimde değişmedi; yalnız `assets/sinematik/` altındaki iki MP4 ve poster yenilendi (yollar `app/shared.js` `CINE` içinde aynı). Davranış önceki teslimdeki gibi:
 
-- Karşılama ekranında "Açılış Filmini Oynat", "Ara Döngüsü", "Atla" (açılış oynarken), "Durdur / Karşılamaya Dön"; üst çubukta "Ara Döngüsü". Aktif yarışmada ortak duraklatma (`break` + `admin`): süre ve cevap kabulü durur; film bitişi/Atla/döngü yarışmayı başlatmaz ve sürdürmez; devam yalnız admin komutuyla. Üç kampüs ortak yarışma düzeltmeleri korunur.
+- Karşılama ekranında "Açılış Filmini Oynat", "Ara Döngüsü", "Atla" (açılış oynarken), "Durdur / Karşılamaya Dön"; üst çubukta "Ara Döngüsü". Kullanıcı isteğiyle (sonradan): açılış filmi de **döngüde** oynar; ekran değişene ya da Atla/Durdur'a kadar sürer. Sahne yenilenirse film baştan değil admin oturumunun süresine göre kaldığı yerden sürer. Karşılama ekranında film yokken sahne **ara döngüsünün müziğini** (`ara-30sn-loop.mp4` sesi, ayrı `<audio>`, döngüde) çalar; film başlayınca durur, film kapanınca kaldığı yerden sürer. Aktif yarışmada ortak duraklatma (`break` + `admin`): süre ve cevap kabulü durur; film bitişi/Atla/döngü yarışmayı başlatmaz ve sürdürmez; devam yalnız admin komutuyla. Üç kampüs ortak yarışma düzeltmeleri korunur.
 - Video ve sesi yalnız etkin ses sahnesinde; admin önizlemesi ve telefonlar sessiz/videosuz. Yükleme sırasında, hata ya da eksik dosyada sabit karşılama (statik yedek). Yenileme/yeniden bağlanmada açılış baştan çalmaz. Hareketleri azaltma açıksa açılış oynatılmaz.
 - Web (Vercel), LAN (PowerShell sunucusu, 1 MB'lık byte-range parçalar), telefonsuz ve file:// akışları korunur.
 
@@ -124,7 +124,7 @@ Uygulama kodu bu teslimde değişmedi; yalnız `assets/sinematik/` altındaki ik
 | Paket | Sonuç |
 |---|---|
 | Birim (`node --test tests/core.test.js`) | 22/22 |
-| `tests/e2e/media.js` (sinematik: sahnede sesli oynatım, Atla/Durdur, ortak duraklatma, eksik dosya, reduced motion, file://, PowerShell Range, Vercel benzeri 206) | 43/43 |
+| `tests/e2e/media.js` (sinematik: sahnede sesli oynatım, açılış döngüsü, karşılama müziği, Atla/Durdur, ortak duraklatma, eksik dosya, reduced motion, file://, PowerShell Range, Vercel benzeri 206) | 53/53 |
 | `tests/e2e/modes.js` (file://, PowerShell sunucusu, güvenlik) | 30/30 |
 | `tests/e2e/uckampus.js` (üç kampüs ortak yarışma) | 63/63 |
 | `filmcraft/dongu-oynat.js` (ara, 3 tur gerçek oynatım) | geçti |
