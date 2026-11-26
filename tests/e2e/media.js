@@ -51,7 +51,7 @@ async function seed(admin){
 
     // Açılış filmi
     await act(admin, 'cineOpening');
-    await playing(stage, 'acilis-60sn\\.mp4$');
+    await playing(stage, 'acilis-60sn\\.mp4(\\?|$)');
     let v = await vstate(stage);
     check('açılış sahnede oynuyor (görünür, sesli)', v.on && !v.paused && !v.muted && Math.abs(v.vol - 0.8) < 0.01, JSON.stringify(v));
     check('açılış videosu 1920×1080, ~60 s', v.w === 1920 && v.h === 1080 && Math.abs(v.dur - 60) < 0.2, `${v.w}x${v.h} ${v.dur}`);
@@ -82,7 +82,7 @@ async function seed(admin){
     check('sahne yenilenince eski açılış filmi baştan çalmaz', v.hidden && v.paused && v.welcome, JSON.stringify(v));
     await act(admin, 'cineStop');
     // Ara döngüsü
-    await act(admin, 'cineLoop'); await playing(stage, 'ara-30sn-loop\\.mp4$');
+    await act(admin, 'cineLoop'); await playing(stage, 'ara-30sn-loop\\.mp4(\\?|$)');
     v = await vstate(stage);
     check('ara döngüsü oynuyor (loop, sesli)', v.loop && !v.muted && v.on && Math.abs(v.dur - 30) < 0.1, JSON.stringify(v));
     await stage.evaluate(() => { const x = document.querySelector('#cine video'); x.currentTime = x.duration - 0.6; });

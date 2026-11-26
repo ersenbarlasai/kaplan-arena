@@ -16,10 +16,13 @@ const CREDITS = {
   students: ['Emre Burak Tölegen', 'Burak Yoğurtçu', 'Halil Mert ACAR', 'Yekta Efe Konuk', 'Çınar Arda', 'Yusuf Emir Kuş', 'Ömer Araf Boncuk', 'Emir Karatay']
 };
 /* Sinematik (FilmCraft çıktıları). Dosya değiştirmek için yalnız buradaki yollar güncellenir. Ses MP4 içindedir;
-   yalnız etkin ses sahnesi sesli oynatır. Açılış bitince/atlanınca sabit karşılama görünür; yarışma kendiliğinden ilerlemez. */
+   yalnız etkin ses sahnesi sesli oynatır. Açılış bitince/atlanınca sabit karşılama görünür; yarışma kendiliğinden ilerlemez.
+   CINE_V: /assets/ tarayıcıda 24 saat önbelleklenir; video dosyaları değişince bu sürümü artırın ki sahneler eski kopyayı
+   oynatmasın (sunucular sorgu ekini yok sayar, dosya adı aynı kalır). */
+const CINE_V = '2-openart';
 const CINE = {
-  opening:{ src:'assets/sinematik/acilis-60sn.mp4', dur:60, label:'Açılış filmi' },
-  loop:{ src:'assets/sinematik/ara-30sn-loop.mp4', poster:'assets/sinematik/ara-poster.webp', dur:30, label:'Ara döngüsü' }
+  opening:{ src:'assets/sinematik/acilis-60sn.mp4?v=' + CINE_V, dur:60, label:'Açılış filmi' },
+  loop:{ src:'assets/sinematik/ara-30sn-loop.mp4?v=' + CINE_V, poster:'assets/sinematik/ara-poster.webp?v=' + CINE_V, dur:30, label:'Ara döngüsü' }
 };
 const JK = {
   double:{name:'Çift Cevap', short:'2 Şık', icon:'assets/joker/joker-cift-cevap.svg', desc:'İki farklı şık işaretlenir; biri doğruysa +10.'},
