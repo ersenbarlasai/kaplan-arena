@@ -78,7 +78,7 @@ Raporlar: `tests/e2e/son-rapor-*.json`. Canlı Redis/Vercel testlerde kullanılm
 ## 9. Kalan sınırlar
 
 - **Dinleme yapılmadı.** Şampiyonluk müziğinin kesiti ölçümle seçildi; müzikal uygunluk, giriş/çıkış ve döngü ek yeri kulakla onaylanmadı. Tur sonu `roundEnd` sesi sentezdir.
-- Canlı Vercel + Upstash üzerinde yeni `ctl/join/cmd` yolları push sonrası otomatik dağıtımla gelir; canlı uçta ayrıca denenmedi.
+- Push sonrası canlı kontrol (salt okunur): `kaplan-arena.vercel.app/app/core.js` yeni sürümde; `assets/sinematik/sampiyon-muzik.m4a` 200, `audio/mp4`, 741 586 bayt; bilinmeyen yarışma koduna `fn:'cmd'` → `Yarışma bulunamadı.` (Upstash üzerinde `CTL_GET_LUA` okuma yolu çalışıyor). Canlıda veri yazan `ctl/join` (BIND_LUA) denenmedi; ilk gerçek yarışmada doğrulanmalı.
 - Güncellemeden önce başlamış eski kayıtlarda denetim kaydı yoktur; o yarışmalar eski (açık) yazım davranışıyla sürer. Yeni güvenlik yeni yarışmada etkindir.
 - Kaptan kodu 4 hanedir; hatalı deneme 10'da kilitlenir (admin “Telefonu Sıfırla” ile açar). Kod, kaptanlara sözlü/kâğıtla verilmelidir.
 - Sunucu gönderim zamanını ±8/3 sn ile sınırlar; telefon saati değil sunucu saati kullanıldığı için normalde sorun olmaz.
