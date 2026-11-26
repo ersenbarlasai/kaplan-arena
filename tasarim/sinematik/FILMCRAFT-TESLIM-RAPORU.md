@@ -136,4 +136,6 @@ Uygulama kodu bu teslimde değişmedi; yalnız `assets/sinematik/` altındaki ik
 
 ## 9. Son durum
 
-- Push ve Vercel doğrulaması sonrası güncellenir.
+- Commit `9e90966` (`main`), `origin` (https://github.com/ersenbarlasai/kaplan-arena.git) üzerine normal push: `48be7d8..9e90966`. Force push/reset yapılmadı.
+- Vercel otomatik dağıtımı (ayrı elle dağıtım yapılmadı): `https://kaplan-arena.vercel.app/assets/sinematik/acilis-60sn.mp4` → 200, `video/mp4`, 48 247 276 bayt, `Accept-Ranges: bytes`, indirilen dosyanın SHA256'sı yerel dosyayla aynı; `ara-30sn-loop.mp4` Range isteği → 206 (`bytes 0-1023/11345655`); `ara-poster.webp` → 200, 161 502 bayt. Canlı yönetim paneli açılmadı (yarışma kilidini almamak için).
+- Git LFS kullanılmadı; en büyük dosya 48,2 MB (GitHub 100 MB sınırının altında). `assets/sinematik/*.mp4` ile `ciktilar/*.mp4`, `ham/` ile `secilen/` bayt-bayt aynı (git aynı nesneyi bir kez saklar). `.vercelignore` `tasarim/` klasörünü dışladığı için kaynak klipler dağıtıma gitmez.
