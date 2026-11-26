@@ -1,5 +1,7 @@
 # Üç kampüsün aynı anda yarışması — Claude görev promptu
 
+GÜNCEL KURAL DEĞİŞİKLİĞİ: Kullanıcı daha sonra eleme akışını onayladı. Yeni üç kampüs yarışmaları 3 → 3 → 2 → şampiyon; dört takım 4 → 3 → 2 → şampiyon olacak. Bu belgedeki bütün etaplarda eleme olmaması tarifi artık yeni yarışmalar için geçerli değildir. Güncel uygulama görevi `E:\PROJELER\KaplanArena\tasarim\CLAUDE-ELEME-SORU-VE-KUTLAMA-PROMPTU.md` dosyasındadır; yeni davranışta onu esas al. Bu eski dosya önceki görevin tarihçesini korur.
+
 Proje: `E:\PROJELER\KaplanArena`. İlk pilotta üç kampüs, üç ayrı takım olarak aynı anda birbirleriyle yarışacak. Mevcut uygulamayı buna uygun hale getir; yalnız öneri yazmakla kalma, kodla ve doğrula. Önce varsa geçerli AGENTS.md talimatlarını ve güncel Git durumunu oku. Kullanıcının mevcut çalışmalarını ve sinematik entegrasyonunu koru.
 
 ## İncelemede doğrulanan kök neden

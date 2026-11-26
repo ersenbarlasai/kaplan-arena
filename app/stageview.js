@@ -29,9 +29,10 @@ const StageView = (() => {
       <div class="jtx"><small>Telefonla katıl</small><div class="addr">${esc(j.addr)}</div><small>Yarışma kodu</small><div class="pin">${esc(pinTxt(j.pin))}</div></div></div>`;
   }
   // Kapsayıcı adlandırma: ortak yarışmada "takım", turnuvada mevcut "sınıf".
-  const N = (m) => m && m.mode === 'shared' ? { one:'takım', dat:'takımlara' } : { one:'sınıf', dat:'sınıflara' };
+  const N = (m) => m && (m.mode === 'shared' || m.mode === 'elim') ? { one:'takım', dat:'takımlara' } : { one:'sınıf', dat:'sınıflara' };
   function lobbyNote(m){
     const n = (m.teams || []).length;
+    if (m.mode === 'elim') return m.quota || '';
     if (m.mode !== 'shared') return m.stage.key === 'final' ? 'Şampiyon belirlenecek · puanlar sıfırdan' : 'İlk 2 sınıf finale çıkar';
     if (m.stage.key === 's1') return `${n} takım birlikte yarışıyor · eleme yok · puanlar üç etap boyunca birikir`;
     if (m.stage.key === 'final') return 'Son etap · puanlar birikir · toplam puan şampiyonu belirler';
@@ -82,7 +83,7 @@ const StageView = (() => {
   };
 
   S.lobby = (m) => `${bg(m.stage.img)}<div class="sg-dim"></div><div class="sg-frame">
-      <header class="sg-head">${stageBadge(m)}<h2 class="sg-h">${m.mode === 'shared' ? 'Ortak Katılım' : 'Katılım'}</h2><span>${esc(lobbyNote(m))}</span></header>
+      <header class="sg-head">${stageBadge(m)}<h2 class="sg-h">${m.mode === 'shared' || m.mode === 'elim' ? 'Ortak Katılım' : 'Katılım'}</h2><span>${esc(lobbyNote(m))}</span></header>
       <div class="sg-lobby">${m.join ? join(m.join, true) : '<div class="sg-plaque"><p>Telefonsuz yarışma: puanları yönetici girer.</p></div>'}
         <div class="sg-jlist n${Math.min((m.teams || []).length, 12)}">${(m.teams || []).map(t => `<div class="sg-jl ${t.joined ? 'on' : ''}">${armaHTML(t.arma, 'sg-arma', '')}<span>${esc(t.name)}</span>${m.showScores ? `<b class="sc" title="Toplam puan">${t.score}</b>` : ''}<em>${t.joined ? 'Hazır ✓' : 'Bekleniyor'}</em></div>`).join('')}</div>
       </div></div>`;
@@ -147,7 +148,9 @@ const StageView = (() => {
   };
   function board(rows, opt){
     const max = Math.max(10, ...rows.map(r => r.score));
-    return `<div class="sg-board">${rows.map((t, k) => `<div class="sg-row-b ${t.out ? 'out' : ''} ${t.win ? 'win' : ''}">
+    // Eleme yarışmasında ilk turda bütün takımlar birlikte: 8+ satırda iki sütunlu sıkı tablo (projeksiyonda taşma yok).
+    const dense = rows.length > 7;
+    return `<div class="sg-board ${dense ? 'dense' : ''}" ${dense ? `style="--rows:${Math.ceil(rows.length / 2)}"` : ''}>${rows.map((t, k) => `<div class="sg-row-b ${t.out ? 'out' : ''} ${t.win ? 'win' : ''}">
         <span class="rk r${k + 1}">${k + 1}</span>${armaHTML(t.arma, 'sg-arma', '')}<span class="nm">${esc(t.name)}${t.badge ? `<em>${esc(t.badge)}</em>` : ''}</span>
         <span class="dl">${opt && opt.delta ? delta(t) : ''}</span><span class="bar"><i style="width:${Math.round(t.score / max * 100)}%"></i></span><b class="sc" ${opt && opt.delta && t.from != null ? `data-from="${t.from}" data-to="${t.score}"` : ''}>${t.score}</b></div>`).join('')}</div>`;
   }
@@ -158,9 +161,45 @@ const StageView = (() => {
       <header class="sg-head">${stageBadge(m)}<h2 class="sg-h">${esc(m.stage.key === 'final' ? 'Final Sonuçları' : m.stage.place + ' Tamamlandı')}</h2>${m.totals ? '<span>Toplam puanlar · eleme yok</span>' : ''}</header>
       ${board(m.board || [])}
       ${m.note ? `<div class="sg-band ${m.tie ? 'lock' : 'ok'}">${esc(m.note)}</div>` : ''}</div>`;
+  /* Tur sonu gösterisi (~7 sn): başlık → altın ışık + kazanan arması → tur kazananı ve puanı → yükselen/elenen satırları.
+     Zamanlama ShowFX ile olay başlangıcına bağlanır (HTML'de geçen süre yok); bitince son tabloda bekler. */
+  S.roundEnd = (m) => {
+    const head = `<header class="sg-head">${stageBadge(m)}<h2 class="sg-h">${esc(m.title)}</h2></header>`;
+    if (m.phase === 'pending') return `${bg(m.stage.img)}<div class="sg-dim"></div><div class="sg-frame">${head}
+      <div class="sg-center"><div class="sg-plaque big"><div class="kick">${esc(m.stage.place)}</div><h2>Tur tamamlandı</h2><p>${esc(m.note)}</p></div></div></div>`;
+    if (m.phase === 'tie') return `${bg(m.stage.img)}<div class="sg-dim"></div><div class="sg-frame">${head}
+      <div class="sg-center"><div class="sg-plaque big"><div class="kick">Eşitlik</div><h2>Ek tahmin sorusu</h2>
+        <div class="sh-cands">${(m.cands || []).map(t => `<span>${armaHTML(t.arma, 'sg-arma', '')}<b>${esc(t.name)}</b></span>`).join('')}</div><p>${esc(m.note)}</p></div></div></div>`;
+    const w = m.winners || [], sh = m.show || {};
+    return `${bg(m.stage.img)}<div class="sg-dim"></div>
+      <div class="sg-show ${sh.skip ? 'done' : ''}" data-show="${esc(sh.id || '')}" data-dur="${sh.dur || 7000}">
+        <img class="sh-rays" src="assets/sinematik/isik-huzmeleri.svg" alt="" draggable="false">
+        <img class="sh-dust" src="assets/sinematik/altin-toz.svg" alt="" draggable="false">
+        <div class="sh-title"><small>${esc(m.stage.name)}</small>${esc(m.title)}</div>
+        <div class="sh-win ${w.length > 1 ? 'co' : ''}">
+          <div class="sh-crests">${w.map(t => `<div class="sh-crest"><span class="ring" aria-hidden="true"></span>${armaHTML(t.arma, 'sg-arma xl', '')}</div>`).join('')}</div>
+          <div class="sh-kick">${w.length > 1 ? 'TURUN ORTAK KAZANANLARI' : 'TURUN KAZANANI'}</div>
+          <div class="sh-names">${w.map(t => `<span><b>${esc(t.name)}</b><i>bu tur +${t.gain} puan</i></span>`).join('')}</div>
+        </div>
+        <div class="sh-list ${(m.board || []).length > 6 ? 'dense' : ''}" style="--rows:${Math.ceil((m.board || []).length / 2)}">${(m.board || []).map((t, k) => `<div class="sh-row ${t.out ? 'out' : 'up'}" style="--k:${k}">
+          ${armaHTML(t.arma, 'sg-arma', '')}<span class="nm">${esc(t.name)}</span>
+          <span class="gn"><small>bu tur</small>${t.gain >= 0 ? '+' : ''}${t.gain}</span>
+          <b class="sc"><small>toplam</small>${t.score}</b><em>${esc(t.out ? 'Elendi' : t.badge)}</em></div>`).join('')}</div>
+        <div class="sh-note">${esc(m.note)}</div>
+      </div>`;
+  };
   S.champion = (m) => {
     const p = m.podium || [];
-    const col = (t, cls) => t ? `<div class="sg-pod ${cls}">${armaHTML(t.arma, 'sg-arma', '')}<b>${esc(t.name)}</b><span>${t.score} puan</span></div>` : '<div class="sg-pod empty"></div>';
+    const col = (t, cls) => t ? `<div class="sg-pod ${cls}">${armaHTML(t.arma, 'sg-arma', '')}<b>${esc(t.name)}</b><span>${t.score} puan</span>${t.note ? `<small>${esc(t.note)}</small>` : ''}</div>` : '<div class="sg-pod empty"></div>';
+    if (m.elim) return `${bg('arena')}<div class="sg-dim light"></div><div class="sg-rays"></div><div class="sg-fxslot" data-fxslot></div>
+      <div class="sg-champ ce ${m.show && m.show.skip ? 'done' : ''}" data-show="${esc(m.show ? m.show.id : '')}">
+        <span class="ce-glow" aria-hidden="true"></span>
+        ${armaHTML(m.champ.arma, 'sg-arma xl', '')}
+        <div class="sg-plate">ŞAMPİYON</div>
+        <h1 class="sg-champ-name">${esc(m.champ.name)}</h1>
+        <div class="ce-score">${m.champ.score} puan</div>
+        <div class="sg-ribbon">Bilgiyle ilerlediniz, birlikte kazandınız.</div>
+        <div class="sg-podium">${col(p[1], 'p2')}${col(p[0], 'p1')}${col(p[2], 'p3')}</div></div>`;
     return `${bg('arena')}<div class="sg-dim light"></div><div class="sg-rays"></div><div class="sg-champ">
       ${armaHTML(m.champ.arma, 'sg-arma xl', '')}
       <div class="sg-plate">ŞAMPİYON</div>
@@ -281,6 +320,24 @@ const RevealFX = (() => {
         }
       }
     }
+  }
+  return { apply };
+})();
+
+/* ---------- ShowFX: tur sonu / şampiyonluk gösterisinin zaman ekseni ----------
+   Gösteri olay kimliği ve admin başlangıç zamanıyla sabittir. Her (yeniden) çizimde CSS animasyonları
+   --t0 = −geçen süre ile kaydırılır: yeniden çizim ya da geç bağlanan sahne gösteriyi baştan başlatmaz,
+   kaldığı yerden katılır; süre bittiyse ya da atlandıysa doğrudan son görünüm. */
+const ShowFX = (() => {
+  const S = new WeakMap();
+  function apply(root, m){
+    const el = root.querySelector('[data-show]'), sh = m && m.show;
+    let st = S.get(root); if (!st){ st = { id:null, t0:0 }; S.set(root, st); }
+    if (!el || !sh || !sh.id){ st.id = null; return; }
+    if (st.id !== sh.id){ st.id = sh.id; st.t0 = Date.now() - (sh.elapsed || 0); }
+    const el2 = Date.now() - st.t0;
+    if (sh.skip || el2 >= sh.dur || m.motion){ el.classList.add('done'); return; }
+    if (el.dataset.t0set !== sh.id){ el.dataset.t0set = sh.id; el.style.setProperty('--t0', (-el2) + 'ms'); }
   }
   return { apply };
 })();

@@ -42,16 +42,17 @@ async function openStage(admin){ const pp = new Promise(r => admin.once('popup',
     await clickSel(stage, '#snd-off');
     await stage.waitForFunction(() => document.querySelector('.sgs-map'), { timeout: 8000 });
     check('file://: ayrı sahne penceresi postMessage ile bağlandı', await admin.evaluate(() => StageHost.count() === 1));
+    await admin.evaluate(() => { window.KA_RNG = () => 0.9999999; });   // test: bankadaki sıra (ilk soru tahmin)
     await act(admin, 'newGameYes');
-    await act(admin, 'drawGo'); await admin.waitForFunction(() => S.game.draw && ui.drawShown == null);
-    await act(admin, 'drawOk'); await act(admin, 'startStage'); await act(admin, 'showQ');
+    await admin.waitForFunction(() => S.game.started && S.game.view === 'teams');
+    await act(admin, 'startStage'); await act(admin, 'showQ');
     await stage.waitForFunction(() => document.querySelector('.sgs-question'), { timeout: 8000 });
     check('file://: sahne soruyu gösterdi (telefonsuz yarışma)', true);
     await sleep(400); await stage.screenshot({ path: path.join(SHOTS, 'dosyadan-acma-sahne-1366x768.png') });
     await act(admin, 'revealAsk'); await act(admin, 'revealYes');
     await admin.evaluate(() => { ui.guesses[0] = '1350'; ui.guesses[1] = '1200'; render(); });
     await act(admin, 'showScores');
-    check('file://: telefonsuz puanlama (admin girişi)', await admin.evaluate(() => S.game.teams.s1[0].score === 10));
+    check('file://: telefonsuz puanlama (admin girişi)', await admin.evaluate(() => S.game.teams.all[0].score === 10));
     await admin.screenshot({ path: path.join(SHOTS, 'admin-telefonsuz-puan-1366.png') });
     await ctx.close();
 
@@ -74,14 +75,20 @@ async function openStage(admin){ const pp = new Promise(r => admin.once('popup',
     await a2.goto(B + '/'); await a2.waitForSelector('[data-act="begin"]');
     await sleep(1200);
     check('yerel sunucu: admin yerel ağ kipinde', await a2.evaluate(() => NET.ok && NET.mode === 'lan'));
+    await a2.evaluate(() => { window.KA_RNG = () => 0.9999999; });
     await act(a2, 'begin'); await act(a2, 'newGameYes');
     const st2 = await openStage(a2); await clickSel(st2, '#snd-off');
-    await act(a2, 'drawGo'); await a2.waitForFunction(() => S.game.draw && ui.drawShown == null); await act(a2, 'drawOk');
-    const pin = await a2.evaluate(() => S.game.pin);
+    await a2.waitForFunction(() => S.game.started && S.game.view === 'teams');
+    const pin = await a2.evaluate(() => S.game.pin), code1 = await a2.evaluate(() => S.game.codes.t1);
     const ctx3 = await browser.createBrowserContext(); const ph = await ctx3.newPage();
     await ph.setViewport({ width: 360, height: 800, isMobile: true });
     await ph.goto(`${B}/kaplan-arena.html?pin=${pin}`);
-    await clickSel(ph, '[data-pl="pick"][data-i="0"]');
+    await clickSel(ph, '[data-pl="pickElim"][data-id="t1"]');
+    await ph.waitForSelector('#pl-code');
+    await ph.evaluate(c => { const el = document.getElementById('pl-code'); el.value = c; el.dispatchEvent(new Event('input', { bubbles: true })); }, code1);
+    await clickSel(ph, '[data-pl="codeYes"]');
+    await a2.waitForFunction(() => NET.joined && NET.joined.t1, { timeout: 10000 });
+    check('yerel sunucu: telefon kaptan koduyla bağlandı (LAN /api/join)', true);
     await act(a2, 'startStage'); await act(a2, 'showQ');
     await ph.waitForSelector('#pl-num:not([disabled])', { timeout: 10000 });
     await ph.evaluate(() => { const el = document.getElementById('pl-num'); el.value = '1355'; el.dispatchEvent(new Event('input', { bubbles: true })); });
@@ -89,7 +96,7 @@ async function openStage(admin){ const pp = new Promise(r => admin.once('popup',
     await a2.waitForFunction(() => liveAccepted(0) != null, { timeout: 10000 });
     check('yerel sunucu: telefon cevabı yetkili olarak kabul edildi', true);
     await act(a2, 'revealAsk'); await act(a2, 'revealYes'); await act(a2, 'showScores');
-    check('yerel sunucu: puan uygulandı', await a2.evaluate(() => S.game.teams.s1[0].score === 10));
+    check('yerel sunucu: puan uygulandı', await a2.evaluate(() => S.game.teams.all[0].score === 10));
     await st2.waitForFunction(() => document.querySelector('.sgs-scores'), { timeout: 8000 });
     check('yerel sunucu: sahne puan tablosunu gösterdi', true);
     await ctx2.close(); await ctx3.close();

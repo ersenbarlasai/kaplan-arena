@@ -40,6 +40,7 @@ const StageAudio = (() => {
       [523.25, 659.25, 783.99, 1046.5].forEach((f, k) => tone(f, t + .25 + k * .085, .22, 'square', .09));
       tone(1318.5, t + .62, 1.1, 'triangle', .2); noise(t + .6, .5, .06, 4000);
     },
+    roundEnd(t){ [392, 493.88, 587.33, 783.99].forEach((f, k) => tone(f, t + .9 + k * .16, k === 3 ? 1.1 : .4, 'triangle', .11)); noise(t + 1.4, .5, .025, 5000); },
     stage(t){ tone(293.66, t, 1.2, 'triangle', .09); tone(440, t + .2, 1.0, 'triangle', .07); },
     champion(t){
       [523.25, 659.25, 783.99, 1046.5, 783.99, 1046.5, 1318.5].forEach((f, k) => tone(f, t + k * .14, k > 4 ? .9 : .3, 'triangle', .17));

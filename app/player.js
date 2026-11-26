@@ -1,21 +1,49 @@
 /* Kaplan Arena — öğrenci telefonu. Komut istemcisidir: cevap ve joker isteğini yazar, kabul/ret kararını
    admin'in yayımladığı durumdan okur. Telefon ses çalmaz. */
-const P = { pin:'', team:null, dev:'', st:null, view:'pin', err:'', players:{}, node:null, nodeRef:null, nodeKey:null,
+const P = { pin:'', team:null, tid:null, tok:null, codeFor:null, joinMsg:'', joining:false, verified:null, dev:'', st:null, view:'pin', err:'', players:{}, node:null, nodeRef:null, nodeKey:null,
   stateRef:null, plRef:null, plStage:null, claimedFor:null, confirmPick:null,
   draft:{ qk:null, picks:[], num:'' }, sent:null, jk:null, jkFx:{}, lastQk:null, locked:null };
 function plLoad(){
-  try{ const o = JSON.parse(localStorage.getItem('ka-player') || 'null'); if (o){ P.pin = o.pin || ''; P.team = o.team || null; } }catch(e){}
-  try{ P.dev = localStorage.getItem('ka-dev') || ''; if (!P.dev){ P.dev = uid() + uid(); localStorage.setItem('ka-dev', P.dev); } }catch(e){ P.dev = uid() + uid(); }
+  try{ const o = JSON.parse(localStorage.getItem('ka-player') || 'null'); if (o){ P.pin = o.pin || ''; P.team = o.team || null; P.tid = o.tid || null; P.tok = o.tok || null; } }catch(e){}
+  try{ P.dev = localStorage.getItem('ka-dev') || ''; if (!/^[A-Za-z0-9]{4,40}$/.test(P.dev)){ P.dev = uid() + uid(); localStorage.setItem('ka-dev', P.dev); } }catch(e){ P.dev = uid() + uid(); }
 }
-function plSave(){ try{ localStorage.setItem('ka-player', JSON.stringify({ pin:P.pin, team:P.team })); }catch(e){} }
-function myIdx(){ return P.st && P.team ? (P.st.teams || []).indexOf(P.team) : -1; }
+function plSave(){ try{ localStorage.setItem('ka-player', JSON.stringify({ pin:P.pin, team:P.team, tid:P.tid, tok:P.tok })); }catch(e){} }
+/* Yeni (eleme) yarışmada kimlik kararlı teamId'dir; ekrandaki sıra/isim kimlik değildir. Yetki sunucudadır:
+   kaptan kodu ya da daha önce alınmış oturum (tok) olmadan cevap/joker gönderilemez; elenen takım geri dönemez. */
+const elimSt = () => !!(P.st && P.st.mode === 'elim');
+const myOut = () => elimSt() && P.tid && P.st.out ? P.st.out[P.tid] || null : null;
+function myIdx(){
+  const st = P.st; if (!st) return -1;
+  if (st.mode === 'elim') return P.tid && P.tok && st.ids ? st.ids.indexOf(P.tid) : -1;
+  return P.team ? (st.teams || []).indexOf(P.team) : -1;
+}
+function plAuthFail(r){
+  const j = (r && r.j) || {};
+  if (j.out){ P.tok = null; plSave(); P.err = ''; return; }
+  if (j.relogin){ P.tok = null; P.tid = null; plSave(); P.joinMsg = j.why || 'Kaptan oturumu sona erdi; kodu yeniden girin.'; }
+}
+async function plTeamJoin(tid, code){
+  if (P.joining) return;
+  P.joining = true; P.joinMsg = ''; plRender();
+  let r;
+  try{ r = await netCall('join', { pin:P.pin, tid, dev:P.dev, code:code || undefined, tok:code ? undefined : (P.tid === tid ? P.tok : undefined) }); }
+  catch(e){ r = { code:0, j:{ why:'Bağlantı kurulamadı; tekrar deneyin.' } }; }
+  P.joining = false;
+  if (r.code === 200 && r.j.tok){
+    const i = (P.st.ids || []).indexOf(tid);
+    P.tid = tid; P.tok = r.j.tok; P.team = i >= 0 ? P.st.teams[i] : P.team; P.codeFor = null; P.codeDraft = ''; P.verified = P.pin + ':' + tid; plSave(); plOnState(); return;
+  }
+  if (r.j && r.j.out){ P.tid = tid; P.tok = null; P.codeFor = null; plSave(); P.verified = P.pin + ':' + tid; plRender(); return; }
+  if (!code && r.code !== 0){ P.tok = null; plSave(); P.codeFor = tid; }
+  P.joinMsg = (r.j && r.j.why) || 'Katılım reddedildi.'; plRender();
+}
 function plJoin(pin){
   pin = String(pin || '').replace(/\D/g, '');
   if (pin.length !== 6){ P.err = '6 haneli yarışma kodunu girin.'; P.view = 'pin'; return plRender(); }
   P.err = ''; P.view = 'loading'; plRender();
   NET.db.ref('games/' + pin + '/state').once('value').then(s => {
     if (!s.exists()){ P.err = 'Bu kodla açık bir yarışma bulunamadı. Kodu kontrol edin.'; P.view = 'pin'; return plRender(); }
-    if (P.pin !== pin) P.team = null;
+    if (P.pin !== pin){ P.team = null; P.tid = null; P.tok = null; P.verified = null; }
     P.pin = pin; plSave(); P.view = 'game';
     if (P.stateRef) P.stateRef.off();
     P.stateRef = NET.db.ref('games/' + pin + '/state');
@@ -32,12 +60,14 @@ function plOnState(){
     P.plRef = NET.db.ref(`games/${P.pin}/players/${pk}`);
     P.plRef.on('value', s => { P.players = s.val() || {}; plRender(); });
   }
+  // Eleme yarışması: kayıtlı oturum bir kez sunucuda doğrulanır (elendiyse/oturum düştüyse telefon bunu görür).
+  if (st.mode === 'elim' && P.tid && P.tok && P.verified !== P.pin + ':' + P.tid && !P.joining){ P.verified = P.pin + ':' + P.tid; plTeamJoin(P.tid, null); }
   const i = myIdx();
-  if (i >= 0 && P.claimedFor !== pk + ':' + i){
+  if (st.mode !== 'elim' && i >= 0 && P.claimedFor !== pk + ':' + i){
     P.claimedFor = pk + ':' + i;
     NET.db.ref(`games/${P.pin}/players/${pk}/${i}`).set({ dev:P.dev, t:TS() }).catch(() => {});
   }
-  const qk = st.qk || null, key = qk && i >= 0 ? qk + '/' + i : null;
+  const qk = st.qk || null, key = qk && i >= 0 ? qk + '/' + (st.mode === 'elim' ? P.tid : i) : null;
   if (P.nodeKey !== key){
     if (P.nodeRef) P.nodeRef.off();
     P.node = null; P.nodeKey = key; P.nodeRef = null;
@@ -50,7 +80,7 @@ function plOnState(){
 const plLeft = () => { const st = P.st; if (!st) return null; if (st.open && st.deadline) return Math.max(0, st.deadline - nowS()); return st.left; };
 function plCan(){
   const st = P.st, i = myIdx();
-  if (!st || i < 0 || st.phase !== 'open' || !st.open || !st.q) return false;
+  if (!st || i < 0 || st.phase !== 'open' || !st.open || !st.q || myOut()) return false;
   if (st.eligible && !st.eligible.includes(i)) return false;
   return (plLeft() || 0) > 0;
 }
@@ -70,6 +100,15 @@ function plSend(){
   else { v = [...P.draft.picks].sort().join(''); if (!KaplanCore.validAnswer(v, 'ders', jk)){ P.err = jk === 'double' ? 'Çift Cevap için iki farklı şık seçin.' : 'Bir şık seçin.'; return plRender(); } }
   const t = Math.round(nowS()), sid = 's' + t + uid().slice(0, 4);
   P.sent = { qk:st.qk, t, v, state:'sending' }; P.err = ''; plRender();
+  if (elimSt()){
+    netCall('cmd', { pin:P.pin, tok:P.tok, op:'ans', qk:st.qk, v, t }).then(r => {
+      if (!P.sent || P.sent.t !== t) return;
+      if (r.code === 200){ P.sent.state = 'ok'; }
+      else { P.sent.state = 'fail'; P.sent.why = r.j.why || ''; plAuthFail(r); }
+      plRender();
+    }, () => { if (P.sent && P.sent.t === t){ P.sent.state = 'fail'; plRender(); } });
+    return;
+  }
   NET.db.ref(`games/${P.pin}/answers/${st.qk}/${i}/${sid}`).set({ v, t, dev:P.dev })
     .then(() => { if (P.sent && P.sent.t === t){ P.sent.state = 'ok'; plRender(); } })
     .catch(() => { if (P.sent && P.sent.t === t){ P.sent.state = 'fail'; plRender(); } });
@@ -78,6 +117,12 @@ function plJokerReq(j){
   if (!plCan()) return;
   const st = P.st, i = myIdx(), t = Math.round(nowS());
   P.jk = { qk:st.qk, j, t, state:'pending' }; plRender();
+  if (elimSt()){
+    netCall('cmd', { pin:P.pin, tok:P.tok, op:'jk', qk:st.qk, j, t }).then(r => {
+      if (r.code !== 200 && P.jk && P.jk.t === t){ P.jk.state = 'fail'; P.jk.why = r.j.why || ''; plAuthFail(r); plRender(); }
+    }, () => { if (P.jk && P.jk.t === t){ P.jk.state = 'fail'; plRender(); } });
+    return;
+  }
   NET.db.ref(`games/${P.pin}/jreq/${st.qk}/${i}`).set({ j, t, dev:P.dev })
     .catch(() => { if (P.jk && P.jk.t === t){ P.jk.state = 'fail'; plRender(); } });
 }
@@ -117,7 +162,7 @@ function plJokerBar(q, can){
   };
   const rej = P.st.jrej && P.st.jrej[myIdx()];
   const rejTxt = rej && P.jk && rej.t === P.jk.t ? `<div class="ph-msg bad">Joker reddedildi: ${esc(rej.why)}</div>` : '';
-  const failTxt = P.jk && P.jk.state === 'fail' ? '<div class="ph-msg bad">Joker isteği gönderilemedi. Bağlantınızı kontrol edin.</div>' : '';
+  const failTxt = P.jk && P.jk.state === 'fail' ? `<div class="ph-msg bad">${P.jk.why ? 'Joker isteği reddedildi: ' + esc(P.jk.why) : 'Joker isteği gönderilemedi. Bağlantınızı kontrol edin.'}</div>` : '';
   return `<div class="ph-jbar">${btn('double', 0)}${btn('x2', 1)}</div><p class="ph-rule">Her joker yalnız bir kez · ${esc(PENALTY_TXT)}</p>${rejTxt}${failTxt}`;
 }
 function plQuestion(){
@@ -132,7 +177,7 @@ function plQuestion(){
   const sentTxt = (() => {
     const acc = myAccepted(), s = P.sent;
     if (s && s.state === 'sending') return '<div class="ph-msg">Gönderiliyor…</div>';
-    if (s && s.state === 'fail') return '<div class="ph-msg bad">Gönderilemedi. Bağlantınızı kontrol edip yeniden gönderin.' + (acc ? ` Geçerli cevabınız: <b>${esc(fmtV(acc.v))}</b>` : '') + '</div>';
+    if (s && s.state === 'fail') return `<div class="ph-msg bad">${s.why ? 'Gönderilemedi: ' + esc(s.why) : 'Gönderilemedi. Bağlantınızı kontrol edip yeniden gönderin.'}` + (acc ? ` Geçerli cevabınız: <b>${esc(fmtV(acc.v))}</b>` : '') + '</div>';
     if (acc) return `<div class="ph-msg ok">Gönderildi ✓ Geçerli cevabınız: <b>${esc(fmtV(acc.v))}</b>${can ? ' · süre bitene kadar değiştirip yeniden gönderebilirsiniz' : ''}</div>`;
     if (s && s.state === 'ok') return '<div class="ph-msg">Gönderildi; yönetim onayı bekleniyor…</div>';
     return '';
@@ -158,7 +203,27 @@ function plJokerSheet(j){
     <p>${esc(JK[j].desc)}</p><p><b>${esc(PENALTY_TXT)}</b></p><p>Bu joker yarışma boyunca yalnız bir kez kullanılır ve onaylandıktan sonra geri alınamaz. Kullanınca süre bütün ${plN().many} için kısa bir tanıtım boyunca durur.</p>
     <div class="row"><button class="btn" data-pl="jkNo">Vazgeç</button><button class="btn primary" data-pl="jkYes" data-j="${j}">Jokeri Kullan</button></div></div></div>`;
 }
+/* Eleme yarışması: takım seçimi + takıma özel kaptan kodu. Listede yalnız bu turun aktif takımları vardır. */
+function plPickElim(){
+  const st = P.st, ids = st.ids || [];
+  if (P.codeFor && ids.includes(P.codeFor)){
+    const i = ids.indexOf(P.codeFor);
+    return `<div class="ph-card"><h2>${esc(st.teams[i])}</h2><p>Yönetimden aldığınız <b>kaptan kodunu</b> girin. Yarışma kodu herkes için ortaktır; bu kod yalnız sizin takımınıza aittir.</p>
+      <label for="pl-code">Kaptan kodu</label><input class="ph-pin" id="pl-code" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="••••" value="${esc(P.codeDraft || '')}">
+      ${P.joinMsg ? `<div class="ph-msg bad">${esc(P.joinMsg)}</div>` : ''}
+      <div class="row"><button class="btn" data-pl="codeNo">Geri</button><button class="btn primary" data-pl="codeYes" ${P.joining ? 'disabled' : ''}>${P.joining ? 'Doğrulanıyor…' : 'Kaptan Olarak Katıl'}</button></div></div>`;
+  }
+  return `<div class="ph-card"><h2>Takımını seç</h2><p>${esc(st.place || '')} şu an bu takımlarla oynanıyor. Takımının kaptanıysan takımını seç ve kaptan kodunu gir.</p>
+    <div class="ph-plist">${(st.teams || []).map((n, i) => { const j = P.players && P.players[ids[i]], taken = j && j.dev !== P.dev;
+      return `<button class="${taken ? 'taken' : ''}" data-pl="pickElim" data-id="${esc(ids[i])}">${armaHTML(st.arma ? st.arma[i] : 0, 'sm', '')}<b>${esc(n)}</b><small>${taken ? 'Kaptan telefonu bağlı' : 'Seçmek için dokun'}</small></button>`; }).join('')}</div>
+    ${P.joinMsg ? `<div class="ph-msg bad">${esc(P.joinMsg)}</div>` : ''}<p class="muted">Kaptan değilseniz sahneden izleyebilirsiniz.</p></div>`;
+}
+function plOutCard(){
+  const o = myOut();
+  return card('wait', 'Bu turda elendiniz', `<b>${esc(o.name)}</b> yolculuğunu ${esc(o.stage)}’nde ${o.total} puanla tamamladı; yarışmaya devam edemezsiniz. Katıldığınız için teşekkürler! Sahneden izlemeye devam edebilirsiniz.`, shield('wait', '★'));
+}
 function plPick(){
+  if (elimSt()) return plPickElim();
   const st = P.st, joinedBy = i => P.players && P.players[i];
   const n = plN();
   const intro = st.mode === 'shared' ? 'Üç takım bütün etaplarda birlikte yarışıyor. Takımının kaptanıysan takımını seç.' : `${esc(st.place || st.stageName)} şu an bu sınıflarla oynanıyor. Sınıfının kaptanıysan sınıfını seç.`;
@@ -179,8 +244,9 @@ function plBody(){
     return i === st.champ ? card('good', 'ŞAMPİYONSUNUZ!', `${esc(st.title)} sona erdi. Tebrikler ${esc(P.team)}!`, shield('gold', '♛'))
                           : card('', 'Şampiyon: ' + esc(champ), `${esc(st.title)} sona erdi. Katıldığınız için teşekkürler!`, shield('wait', '★'));
   }
+  if (myOut()) return plOutCard();
   if (i < 0) return plPick();
-  const change = `<button class="linkbtn" data-pl="change">${plN().ch} değiştir</button>`;
+  const change = elimSt() ? '' : `<button class="linkbtn" data-pl="change">${plN().ch} değiştir</button>`;
   if (st.view === 'teams') return card('good', 'Hazırsınız!', `<b>${esc(P.team)}</b> olarak ${esc(st.place)} için katıldınız. Sorular başlayınca burada görünecek.`, shield('good', '✓')) + jokersLeft() + change;
   if (st.view === 'question' || st.view === 'tie'){
     if (st.eligible && !st.eligible.includes(i)) return card('', 'Eşitlik sorusu', `Bu soruyu yalnız ${st.eligible.map(x => esc(st.teams[x])).join(' ve ')} cevaplıyor.`);
@@ -217,6 +283,15 @@ function plBody(){
     else res = resCard('', shield('wait', '–'), 'Bu soruda puan yok', '');
     return res + jokersLeft() + '<div class="ph-wait">⌛ Sonraki soruyu bekle</div>';
   }
+  if (st.view === 'stageEnd' && st.mode === 'elim'){
+    const tie = (st.eligible || []).includes(i), rnd = st.rnd || {};
+    if (st.tiePending) return card('', tie ? 'Eşitlik var!' : 'Eşitlik sorusu bekleniyor', tie ? 'Sınırda eşitlik: ek tahmin sorusu geliyor, hazır olun! Toplam puanlar değişmez.' : 'Sınırdaki eşitlik çözülünce sonuç sahnede açıklanacak.');
+    if (!rnd.revealed) return card('wait', `${esc(st.place)} tamamlandı`, st.stage === 'final' ? 'Şampiyon birazdan sahnede açıklanacak.' : 'Tur sonucu birazdan sahnede açıklanacak.', shield('wait', '⌛'));
+    const w = (rnd.winners || []).map(esc).join(' ve '), gain = (rnd.gains || [])[i];
+    const wl = w ? `<br>${(rnd.winners || []).length > 1 ? 'Turun ortak kazananları' : 'Turun kazananı'}: <b>${w}</b>` : '';
+    const ord = (st.scores || []).map((s, k) => ({ s, k })).sort((a, b) => b.s - a.s), rank = ord.findIndex(o => o.k === i) + 1;
+    return card('good', rnd.all ? 'Yola devam!' : (st.next === 'Kaplan Arenası' ? 'FİNALDESİNİZ!' : 'YÜKSELDİNİZ!'), `${esc(P.team)} ${esc(st.next || '')} yolunda.${wl}<br>Bu tur ${gain >= 0 ? '+' : ''}${gain} puan · Toplam <b>${st.scores[i]}</b> · Sıralama <b>${rank}.</b>`, shield('gold', '★')) + jokersLeft();
+  }
   if (st.view === 'stageEnd' && st.mode === 'shared' && st.stage !== 'final'){
     // Ortak yarışma: eleme yok; toplam puan ve sıralama ile devam.
     const order = (st.scores || []).map((s, k) => ({ s, k })).sort((a, b) => b.s - a.s), rank = order.findIndex(o => o.k === i) + 1;
@@ -233,7 +308,7 @@ function plBody(){
   return card('', 'Bekleniyor…');
 }
 /* Kapsayıcı adlandırma: ortak yarışmada "takım", turnuvada mevcut "sınıf". */
-const plN = () => P.st && P.st.mode === 'shared' ? { one:'takım', acc:'takımını', dat:'takımına', many:'takımlar', gen:'takımının', ch:'Takımı' } : { one:'sınıf', acc:'sınıfını', dat:'sınıfına', many:'sınıflar', gen:'sınıfının', ch:'Sınıfı' };
+const plN = () => P.st && (P.st.mode === 'shared' || P.st.mode === 'elim') ? { one:'takım', acc:'takımını', dat:'takımına', many:'takımlar', gen:'takımının', ch:'Takımı' } : { one:'sınıf', acc:'sınıfını', dat:'sınıfına', many:'sınıflar', gen:'sınıfının', ch:'Sınıfı' };
 function plRender(){
   const app = document.getElementById('app');
   let h = '';
@@ -262,7 +337,7 @@ function playerInit(){
   document.body.classList.add('mode-phone');
   plLoad();
   const qp = new URLSearchParams(location.search), urlPin = (qp.get('pin') || '').replace(/\D/g, '');
-  if (urlPin && urlPin !== P.pin){ P.pin = urlPin; P.team = null; }
+  if (urlPin && urlPin !== P.pin){ P.pin = urlPin; P.team = null; P.tid = null; P.tok = null; }
   P.view = 'loading'; plRender();
   netInit().then(ok => { if (!ok){ P.view = 'nonet'; return plRender(); } P.view = 'pin'; if (P.pin && (urlPin || P.team)) plJoin(P.pin); else plRender(); });
   document.addEventListener('click', e => {
@@ -275,6 +350,9 @@ function playerInit(){
       if (j && j.dev !== P.dev){ P.confirmPick = i; plRender(); }
       else { P.team = P.st.teams[i]; P.confirmPick = null; P.claimedFor = null; plSave(); plOnState(); }
     }
+    else if (a === 'pickElim'){ P.codeFor = b.dataset.id; P.joinMsg = ''; if (P.tid === P.codeFor && P.tok) plTeamJoin(P.codeFor, null); else { plRender(); setTimeout(() => document.getElementById('pl-code')?.focus(), 30); } }
+    else if (a === 'codeNo'){ P.codeFor = null; P.joinMsg = ''; plRender(); }
+    else if (a === 'codeYes'){ const c = (document.getElementById('pl-code')?.value || '').replace(/\D/g, ''); if (c.length < 4){ P.joinMsg = 'Kaptan kodunu girin.'; return plRender(); } plTeamJoin(P.codeFor, c); }
     else if (a === 'pickYes'){ P.team = P.st.teams[P.confirmPick]; P.confirmPick = null; P.claimedFor = null; plSave(); plOnState(); }
     else if (a === 'pickNo'){ P.confirmPick = null; plRender(); }
     else if (a === 'change'){ P.team = null; plSave(); plOnState(); }
@@ -291,11 +369,12 @@ function playerInit(){
     else if (a === 'jkNo'){ P.jkConfirm = null; plRender(); }
     else if (a === 'jkYes'){ const j = b.dataset.j; P.jkConfirm = null; plJokerReq(j); }
   });
-  document.addEventListener('input', e => { if (e.target.id === 'pl-num'){ P.draft.num = e.target.value; const s = document.querySelector('[data-pl="send"]'); if (s) s.disabled = !(plCan() && e.target.value.trim()); } });
+  document.addEventListener('input', e => { if (e.target.id === 'pl-code') P.codeDraft = e.target.value; if (e.target.id === 'pl-num'){ P.draft.num = e.target.value; const s = document.querySelector('[data-pl="send"]'); if (s) s.disabled = !(plCan() && e.target.value.trim()); } });
   document.addEventListener('keydown', e => {
     if (e.key !== 'Enter') return;
     if (e.target.id === 'pl-pin') plJoin(e.target.value);
     if (e.target.id === 'pl-num') plSend();
+    if (e.target.id === 'pl-code'){ const c = e.target.value.replace(/\D/g, ''); if (c.length >= 4) plTeamJoin(P.codeFor, c); }
   });
   setInterval(() => {
     plTick();

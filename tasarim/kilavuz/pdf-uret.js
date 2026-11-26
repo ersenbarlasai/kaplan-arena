@@ -13,8 +13,8 @@ const OUT = path.join(__dirname, '..', 'KAPLAN-ARENA-KILAVUZ.pdf');
   await p.goto('file:///' + SRC.replace(/\\/g, '/'), { waitUntil: 'networkidle0' });
   await p.evaluate(async () => { await document.fonts.ready; await Promise.all([...document.images].map(i => i.complete ? 0 : new Promise(r => { i.onload = i.onerror = r; }))); });
   const broken = await p.evaluate(() => [...document.images].filter(i => !i.naturalWidth).map(i => i.getAttribute('src')));
-  // Boyut: ekran görüntüleri basmadan önce sayfa içinde en çok 1500 px genişliğe küçültülüp JPEG'e çevrilir (logo PNG kalır).
-  await p.evaluate(() => Promise.all([...document.images].filter(i => !/\.png$/i.test(i.getAttribute('src'))).map(i => new Promise(res => {
+  // Boyut: ekran görüntüleri basmadan önce sayfa içinde en çok 1500 px genişliğe küçültülüp JPEG'e çevrilir (logo PNG'si kalır).
+  await p.evaluate(() => Promise.all([...document.images].filter(i => !/logo[^/]*\.png$/i.test(i.getAttribute('src'))).map(i => new Promise(res => {
     const w = Math.min(1500, i.naturalWidth), h = Math.round(i.naturalHeight * w / i.naturalWidth);
     const c = document.createElement('canvas'); c.width = w; c.height = h; c.getContext('2d').drawImage(i, 0, 0, w, h);
     i.onload = res; i.src = c.toDataURL('image/jpeg', 0.82);

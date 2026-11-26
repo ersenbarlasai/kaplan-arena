@@ -143,12 +143,12 @@ async function seed(admin){
     await bgmOff(stage).catch(() => {});
     check('karşılamadan çıkınca (harita) müzik durur', (await bstate(stage)).paused);
     await act(admin, 'newGameYes');
-    await act(admin, 'drawGo'); await admin.waitForFunction(() => S.game.draw && ui.drawShown == null);
-    await act(admin, 'drawOk'); await act(admin, 'startStage'); await act(admin, 'showQ');
+    await admin.waitForFunction(() => S.game.started && S.game.view === 'teams');
+    await act(admin, 'startStage'); await act(admin, 'showQ');
     await admin.waitForFunction(() => S.game.phase === 'open' && C.isRunning(S.game), { timeout: 10000 });
-    await admin.evaluate(() => { S.game.teams.s1[0].score = 30; S.game.teams.s1[1].score = 20; save(); });
+    await admin.evaluate(() => { S.game.teams.all[0].score = 30; S.game.teams.all[1].score = 20; save(); });
     await sleep(1200);
-    const before = await admin.evaluate(() => ({ q: S.game.qIndex, left: C.clockLeft(S.game.clock, nowS()), scores: S.game.teams.s1.map(t => t.score), jk: JSON.stringify(S.game.jokers || {}) }));
+    const before = await admin.evaluate(() => ({ q: S.game.qIndex, left: C.clockLeft(S.game.clock, nowS()), scores: S.game.teams.all.map(t => t.score), jk: JSON.stringify(S.game.jokers || {}) }));
     await act(admin, 'cineLoop');
     await playing(stage, 'ara-30sn-loop');
     const during = await admin.evaluate(() => ({ screen: ui.screen, running: C.isRunning(S.game), reasons: S.game.clock.reasons.slice(), inWin: C.inWindow(S.game.win, nowS()), left: C.clockLeft(S.game.clock, nowS()) }));
@@ -162,7 +162,7 @@ async function seed(admin){
     check('döngü sınırı yarışmayı başlatmaz', !(await admin.evaluate(() => C.isRunning(S.game))));
     await act(admin, 'begin');
     await stopped(stage);
-    const back = await admin.evaluate(() => ({ screen: ui.screen, cine: ui.cine, running: C.isRunning(S.game), reasons: S.game.clock.reasons.slice(), q: S.game.qIndex, left: C.clockLeft(S.game.clock, nowS()), scores: S.game.teams.s1.map(t => t.score), jk: JSON.stringify(S.game.jokers || {}) }));
+    const back = await admin.evaluate(() => ({ screen: ui.screen, cine: ui.cine, running: C.isRunning(S.game), reasons: S.game.clock.reasons.slice(), q: S.game.qIndex, left: C.clockLeft(S.game.clock, nowS()), scores: S.game.teams.all.map(t => t.score), jk: JSON.stringify(S.game.jokers || {}) }));
     check('Yarışmaya Devam: sahnede video kapanır, soru aynı', back.screen === 'game' && !back.cine && back.q === before.q, JSON.stringify(back));
     check('Devam sonrası süre yalnız admin "devam" ile başlar', !back.running && back.reasons.length === 1 && back.reasons[0] === 'admin', JSON.stringify(back.reasons));
     check('puanlar ve jokerler korunur', JSON.stringify(back.scores) === JSON.stringify(before.scores) && back.jk === before.jk, JSON.stringify([before.scores, back.scores]));

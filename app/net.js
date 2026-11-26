@@ -1,6 +1,6 @@
 /* Kaplan Arena — ağ katmanı: yerel sunucu (BASLAT), internet (Vercel /api/ka) ve tek yarışma kilidi.
    Sahne penceresi bu katmanı kullanmaz; yalnız admin ve telefon. */
-const NET = { ok:false, db:null, offset:0, connected:false, ips:[], port:'', live:{qk:null, ans:{}, ref:null, fn:null}, joined:{}, plRef:null, plFn:null, plKey:null };
+const NET = { ok:false, key:null, db:null, offset:0, connected:false, ips:[], port:'', live:{qk:null, ans:{}, ref:null, fn:null}, joined:{}, plRef:null, plFn:null, plKey:null };
 const LDB = (()=>{
   let rev = -1, sid = null, tree = {}, loaded = false, pollT = null;
   const waiters = [], listeners = [];
@@ -43,7 +43,8 @@ const LDB = (()=>{
   function ref(path){ return {
     set(v){
       v = resolveTS(v); setp(tree, path, v); fire();
-      return fetch('/api/set?path=' + encodeURIComponent(path), {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(v === undefined ? null : v)})
+      const h = {'Content-Type':'application/json'}; if (NET.key) h['X-Ka-Key'] = NET.key;
+      return fetch('/api/set?path=' + encodeURIComponent(path), {method:'POST', headers:h, body:JSON.stringify(v === undefined ? null : v)})
         .then(r=>{ if (!r.ok) throw new Error('kaydedilemedi'); poll(); });
     },
     once(){ return ready().then(()=>snap(get(path))); },
@@ -151,7 +152,8 @@ const SDB = (()=>{
         const k = sp.pin + '/' + sp.rel, id = ++seq;
         pend[k] = {id, v}; rebuild();
         const done = () => { if (pend[k] && pend[k].id === id) delete pend[k]; };
-        return rpc({fn:'set', pin:sp.pin, path:sp.rel, value:v}).then(j=>{ const r = j.r;
+        const body = {fn:'set', pin:sp.pin, path:sp.rel, value:v}; if (NET.key) body.key = NET.key;
+        return rpc(body).then(j=>{ const r = j.r;
           for (const d in rows) if (d.startsWith(k + '/') && rows[d].r < r) rows[d] = {r, v:null};
           if (!rows[k] || rows[k].r < r) rows[k] = {r, v};
           done(); rebuild(); setConn(true);
@@ -170,6 +172,16 @@ const SDB = (()=>{
   return { ref, start:poll, ping };
 })();
 
+/* Yetkili komutlar (yeni yarışmalar): admin denetim kaydı (ctl), kaptan katılımı (join), telefon komutu (cmd).
+   Sunucu doğrular; dönen { code, j } içinde ret nedeni (j.why) Türkçedir. */
+async function netCall(fn, body){
+  const url = NET.mode === 'lan' ? '/api/' + fn : API_URL;
+  const payload = NET.mode === 'lan' ? body : Object.assign({ fn }, body);
+  const r = await fetch(url, {method:'POST', headers:{'Content-Type': NET.mode === 'lan' ? 'application/json' : 'text/plain'}, body:JSON.stringify(payload), cache:'no-store'});
+  let j = null; try{ j = await r.json(); }catch(e){}
+  try{ if (r.ok && NET.db && NET.db.start) setTimeout(() => NET.db.start(), 30); }catch(e){}
+  return { code:r.status, j:j || {} };
+}
 async function netInit(){
   if (NET.ok) return true;
   // 1) BASLAT ile açıldıysa: yerel sunucu (aynı Wi-Fi, internet gerekmez)

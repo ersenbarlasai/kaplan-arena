@@ -3,9 +3,9 @@ document.documentElement.lang = 'tr';
 const KEY = 'kaplan-arena-v1';
 const SUBJECTS = ['Türkçe','Matematik','Fen Bilimleri','Sosyal Bilimler','Spor'];
 const STAGES = [
-  {key:'s1', name:'1. Etap', place:'Orman Geçidi', img:'orman'},
-  {key:'s2', name:'2. Etap', place:'Kadim Kale', img:'kale'},
-  {key:'final', name:'Final', place:'Kaplan Arenası', img:'arena'}
+  {key:'s1', name:'1. Etap', place:'Orman Geçidi', img:'orman', to:'Orman Geçidi’ne', at:'Orman Geçidi’nde'},
+  {key:'s2', name:'2. Etap', place:'Kadim Kale', img:'kale', to:'Kadim Kale’ye', at:'Kadim Kale’de'},
+  {key:'final', name:'Final', place:'Kaplan Arenası', img:'arena', to:'Kaplan Arenası’na', at:'Finalde'}
 ];
 const TABS = [{key:'s1',name:'1. Etap'},{key:'s2',name:'2. Etap'},{key:'final',name:'Final'},{key:'tie',name:'Eşitlik (Yedek)'}];
 const LETTERS = ['A','B','C','D'];
@@ -24,6 +24,10 @@ const CINE = {
   opening:{ src:'assets/sinematik/acilis-60sn.mp4?v=' + CINE_V, dur:60, label:'Açılış filmi' },
   loop:{ src:'assets/sinematik/ara-30sn-loop.mp4?v=' + CINE_V, poster:'assets/sinematik/ara-poster.webp?v=' + CINE_V, dur:30, label:'Ara döngüsü' }
 };
+/* Şampiyonluk müziği: açılış bestesinin (Suno, onaylı kaynak) final bölümünden yumuşak giriş/çıkışlı ayrı kesit.
+   Yalnız etkin ses sahnesi, merkezi ses ayarıyla, tek kalıcı <audio> öğesinden ve düşük seviyede döngüde çalar. */
+const CHAMP_V = '1';
+const CHAMP = { src:'assets/sinematik/sampiyon-muzik.m4a?v=' + CHAMP_V, level:.55 };
 const JK = {
   double:{name:'Çift Cevap', short:'2 Şık', icon:'assets/joker/joker-cift-cevap.svg', desc:'İki farklı şık işaretlenir; biri doğruysa +10.'},
   x2:{name:'Çifte Puan', short:'×2', icon:'assets/joker/joker-cifte-puan.svg', desc:'Doğru cevap +20 puan.'}
@@ -33,6 +37,10 @@ const PENALTY_TXT = 'Jokerle yanlış ya da cevapsız: −10 puan (puan sıfır�
 const REASON_TXT = {joker:'Joker tanıtımı', stage:'Sahne bağlantısı bekleniyor', break:'Ara verildi', admin:'Süre durduruldu'};
 
 const uid = () => Math.random().toString(36).slice(2,10);
+/* Güvenli rastgelelik: [0,1) (soru planı karıştırması); admin anahtarı ve kaptan kodları için kriptografik kaynak. */
+function rnd01(){ try{ const a = new Uint32Array(1); crypto.getRandomValues(a); return a[0] / 4294967296; }catch(e){ return Math.random(); } }
+function randKey(n){ try{ return Array.from(crypto.getRandomValues(new Uint8Array(n || 18)), b => (b % 36).toString(36)).join(''); }catch(e){ let s = ''; while (s.length < (n || 18)) s += Math.random().toString(36).slice(2); return s.slice(0, n || 18); } }
+function captainCodes(ids){ const used = new Set(), out = {}; for (const id of ids){ let c; do { c = String(1000 + rand(9000)); } while (used.has(c)); used.add(c); out[id] = c; } return out; }
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const fmt = n => Number(n).toLocaleString('tr-TR',{maximumFractionDigits:3});
 const numStr = v => typeof v === 'number' ? String(v).replace('.', ',') : String(v ?? '');
@@ -187,7 +195,8 @@ function loadState(){
     if (!s || !s.questions || !s.game || !s.settings) return null;
     if (!s.schema || s.schema < KaplanCore.SCHEMA){
       // Göç öncesi kaydın kopyası (geri dönüş için). Üzerine yazılmaz.
-      try{ if (!localStorage.getItem(KEY + '-yedek-sema1')) localStorage.setItem(KEY + '-yedek-sema1', raw); }catch(e){}
+      const bk = KEY + '-yedek-sema' + (s.schema || 1);
+      try{ if (!localStorage.getItem(bk)) localStorage.setItem(bk, raw); }catch(e){}
     }
     const d = defaultState();
     s.settings = Object.assign({}, d.settings, { emblems:{} }, s.settings);   // armalar kaydın kendi sınıflarından atanır

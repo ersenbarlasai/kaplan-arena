@@ -8,15 +8,27 @@ const stageKey = () => STAGES[G().stage].key;
 const curTeams = () => C.teamsOf(G(), stageKey());
 /* Yarışma modu kayda yazılıdır (g.mode). Modsuz eski kayıt turnuvadır; ayardaki takım sayısına bakılmaz. */
 const shared = () => C.isShared(G());
-const gameMode = () => shared() ? 'shared' : 'tournament';
+/* Eleme yarışması (format v3, bütün yeni yarışmalar): kararlı teamId, tur katılımcıları, kalıcı karışık soru planı.
+   'shared' ve 'tournament' yalnız eski (göç edilmiş) yarışma kayıtlarında kalır. */
+const elim = () => C.isElim(G());
+const gameMode = () => elim() ? 'elim' : shared() ? 'shared' : 'tournament';
 /* Yeni yarışmada kullanılacak liste ve mod (ayarlardan; açık yarışmayı etkilemez). */
 const nextRoster = () => C.normRoster(S.settings.classes);
-const nextMode = () => C.modeFor(nextRoster().length);
+const nextMode = () => 'elim';
+const nextFormat = () => C.makeFormat(nextRoster().length);
 /* Kapsayıcı adlandırma: ortak yarışmada "takım", turnuvada mevcut "sınıf". */
-const NOUNS = { shared:{ one:'takım', many:'takımlar', Many:'Takımlar', dat:'takımlara', gen:'takımın' }, tournament:{ one:'sınıf', many:'sınıflar', Many:'Sınıflar', dat:'sınıflara', gen:'sınıfın' } };
+const NOUNS = { elim:{ one:'takım', many:'takımlar', Many:'Takımlar', dat:'takımlara', gen:'takımın' }, shared:{ one:'takım', many:'takımlar', Many:'Takımlar', dat:'takımlara', gen:'takımın' }, tournament:{ one:'sınıf', many:'sınıflar', Many:'Sınıflar', dat:'sınıflara', gen:'sınıfın' } };
 const noun = mode => NOUNS[mode || (G().started ? gameMode() : nextMode())] || NOUNS.tournament;
 /* Telefon sahipliği yolu: ortak yarışmada tüm yarışma boyunca tek kayıt (etap geçişinde cihaz-takım eşleşmesi korunur). */
-const plKey = () => shared() ? 'all' : stageKey();
+const plKey = () => shared() || elim() ? 'all' : stageKey();
+/* Kimlik: yeni yarışmada joker/ağ yolu anahtarı kararlı teamId; eski kayıtta ad / dizin. */
+const tkey = t => t.id || t.name;
+const nk = i => { const t = curTeams()[i]; return elim() ? (t ? t.id : '_') : i; };
+const idxOf = k => elim() ? curTeams().findIndex(t => t.id === k) : +k;
+/* Tek soru çözücüsü: yeni yarışmada yarışma başında oluşturulan karışık plan (g.plan), eski kayıtta soru bankası. */
+function qList(key){ const g = G(); return elim() && g.plan ? (g.plan[key] || []) : (S.questions[key] || []); }
+function qAt(key, idx){ return idx == null || idx < 0 ? null : (qList(key)[idx] || null); }
+const isLastQ = () => elim() ? C.nextUnasked(G(), stageKey(), G().qIndex + 1) < 0 : G().qIndex + 1 >= qList(stageKey()).length;
 const inQ = () => { const g = G(); return g.view === 'question' || g.view === 'tie'; };
 const isTie = () => G().view === 'tie';
 
@@ -28,22 +40,24 @@ function emblem(name){
 function currentQk(){
   const g = G(); if (!g.started) return null;
   const key = stageKey();
-  if (g.view === 'question' || (g.view === 'scoreboard' && g.last)){ const q = S.questions[key][g.qIndex]; return q ? `${key}_${g.qIndex}_${q.id}` : null; }
+  if (g.view === 'question' || (g.view === 'scoreboard' && g.last)){ const q = qAt(key, g.qIndex); return q ? `${key}_${g.qIndex}_${q.id}` : null; }
   if (g.view === 'tie' && g.tie) return `tie_${key}_${g.tieRound}`;
   return null;
 }
 function curQ(){
   const g = G();
-  if (g.view === 'question' || g.view === 'scoreboard') return S.questions[stageKey()][g.qIndex] || null;
-  if (g.view === 'tie' && g.tie) return S.questions.tie[g.tie.poolIdx] || null;
+  if (g.view === 'question' || g.view === 'scoreboard') return qAt(stageKey(), g.qIndex);
+  if (g.view === 'tie' && g.tie) return qAt('tie', g.tie.poolIdx);
   return null;
 }
 const qType = () => isTie() ? 'tahmin' : ((curQ() || {}).type || 'ders');
-function activeJk(i){ const t = curTeams()[i]; return t ? C.activeJoker(G(), t.name, currentQk()) : null; }
-function ownerOf(i){ const j = NET.joined && NET.joined[i]; return j && j.dev ? j.dev : null; }
+function activeJk(i){ const t = curTeams()[i]; return t ? C.activeJoker(G(), tkey(t), currentQk()) : null; }
+function ownerOf(i){ const j = NET.joined && NET.joined[nk(i)]; return j && j.dev ? j.dev : null; }
+/* Kabul katmanı: yalnız bu turun aktif kadrosu (eşitlikte yalnız adaylar), yetkili cihaz, pencere içi, geçerli biçim. */
 function liveAccepted(i){
-  const g = G(); if (!inQ()) return null;
-  return C.pickAnswer((NET.live.ans || {})[i], { win:g.win, qtype:qType(), jk:activeJk(i), owner:ownerOf(i) });
+  const g = G(); if (!inQ() || !curTeams()[i]) return null;
+  if (isTie() && g.tie && !g.tie.candidates.includes(i)) return null;
+  return C.pickAnswer((NET.live.ans || {})[nk(i)], { win:g.win, qtype:qType(), jk:activeJk(i), owner:ownerOf(i) });
 }
 function addEvent(kind, data){
   const g = G(); g.evId = (g.evId || 0) + 1;
@@ -61,12 +75,37 @@ function save(){
 }
 function sync(){
   if (!NET.ok || !S.game.started || !S.game.pin || LOCK.state === 'other') return;
+  NET.key = S.game.akey || null;
+  ctlSync();
   clearTimeout(syncTimer);
   syncTimer = setTimeout(() => { try{ NET.db.ref('games/' + S.game.pin + '/state').set(buildState()); }catch(e){ console.error(e); } }, 60);
 }
 function pushStage(){ clearTimeout(stageTimer); stageTimer = setTimeout(() => { const m = stageModel(); ui.model = m; StageHost.send(m); paintPreview(); }, 30); }
 function toast(m, ms){ ui.msg = m; render(); clearTimeout(toast.h); toast.h = setTimeout(() => { ui.msg = ''; render(); }, ms || 3600); }
-function pushHistory(){ const g = G(); const snap = Object.assign({}, g, { history:[] }); g.history.push(JSON.stringify(snap)); if (g.history.length > 40) g.history.shift(); }
+/* Denetim kaydı (yalnız sunucu; GET yanıtına girmez): takım kaptan kodları, aktiflik, açık soru anahtarı, aday listesi.
+   Sunucu telefon komutlarını bununla doğrular; admin kabul katmanı ayrıca aynı kontrolleri yapar. */
+let ctlLast = '';
+function ctlModel(){
+  const g = G(); if (!elim() || !g.akey || !g.started) return null;
+  const teams = {};
+  for (const t of g.teams.all) teams[t.id] = { code:g.codes[t.id], act:t.status !== 'out' && !g.finished };
+  // Kabul penceresi açıklamadan sonra da kısa süre açık kalır: süre içinde gönderilip ağda gecikmiş cevaplar sunucuya
+  // ulaşabilsin (admin yine gönderim zamanını cevap penceresiyle karşılaştırır; pencere dışı cevap sayılmaz).
+  const open = inQ() && ['open', 'locked', 'revealed'].includes(g.phase);
+  const ids = open ? (isTie() ? g.tie.candidates.map(i => curTeams()[i].id) : curTeams().map(t => t.id)) : null;
+  return { teams, qk:open ? currentQk() : null, acc:open, jk:inQ() && g.phase === 'open' && g.view === 'question', elig:ids };
+}
+function ctlSync(extra){
+  const m = ctlModel(); if (!m || !NET.ok) return Promise.resolve(false);
+  const js = JSON.stringify(m);
+  if (!extra && js === ctlLast) return Promise.resolve(true);
+  ctlLast = js;
+  return netCall('ctl', Object.assign({ pin:G().pin, key:G().akey, ctl:m }, extra || {})).then(r => {
+    if (r.code !== 200){ ctlLast = ''; if (r.code === 403) toast('Bu yarışma kodu başka bir yönetim anahtarına bağlı. Yeni yarışma başlatın.', 8000); }
+    return r.code === 200;
+  }, () => { ctlLast = ''; return false; });
+}
+function pushHistory(){ const g = G(); const snap = Object.assign({}, g, { history:[], plan:null }); g.history.push(JSON.stringify(snap)); if (g.history.length > 40) g.history.shift(); }
 
 /* ---------- saat döngüsü ---------- */
 function cineStatus(){
@@ -86,6 +125,8 @@ function adminTick(){
   cineTick();
   const g = G(); if (!g || !g.started) return;
   const now = nowS(); let changed = false;
+  // Gösteri süresi dolunca kontrol çubuğu bir kez yenilenir (Atla düğmesi kalkar); akış ilerlemez.
+  const sh = g.show; if (sh && !sh.skip && now - sh.at >= sh.dur && ui.showDone !== sh.id){ ui.showDone = sh.id; render(); }
   if (inQ() && g.phase === 'open'){
     if (g.intro && C.endIntro(g, now)) changed = true;
     if (C.tickClock(g, now) === 'timeup'){ addEvent('timeup'); changed = true; }
@@ -98,12 +139,13 @@ function clockLeftMs(){ const g = G(); return g.clock ? C.clockLeft(g.clock, now
 /* ---------- telefon durumu (KV) ---------- */
 function jkStates(){
   const qk = currentQk(), g = G();
-  return curTeams().map(t => { const r = (g.jokers || {})[t.name] || {}; return ['double', 'x2'].map(j => r[j] == null ? 0 : (r[j] === qk && inQ() ? 2 : 1)); });
+  return curTeams().map(t => { const r = (g.jokers || {})[tkey(t)] || {}; return ['double', 'x2'].map(j => r[j] == null ? 0 : (r[j] === qk && inQ() ? 2 : 1)); });
 }
 function buildState(){
   const g = G(), st = STAGES[g.stage], key = st.key, teams = curTeams(), qk = currentQk();
   const s = { v:4, title:S.settings.title, mode:gameMode(), pk:plKey(), view:g.view, stage:key, stageName:st.name, place:st.place, teams:teams.map(t => t.name), scores:teams.map(t => t.score),
-    arma:teams.map(t => emblem(t.name)), qk, phase:inQ() ? g.phase : null, q:null, qType:null, qn:0, qt:S.questions[key].length,
+    arma:teams.map(t => emblem(t.name)), ids:elim() ? teams.map(t => t.id) : null, out:elim() ? outMap() : null, quotas:elim() ? g.format.quotas : null,
+    qk, phase:inQ() ? g.phase : null, q:null, qType:null, qn:0, qt:qList(key).length,
     open:false, deadline:null, left:null, paused:[], intro:null, answer:null, ack:{}, jk:jkStates(), jrej:{}, brk:!!g.brk,
     eligible:null, lastDelta:null, lastJk:null, lastWinners:null, qualified:null, tiePending:false, champ:null, draw:null, ts:TS() };
   if (g.view === 'draw') s.draw = g.draw && ui.drawShown == null ? g.draw : null;
@@ -126,11 +168,24 @@ function buildState(){
     s.jrej = g.jrej || {};
   }
   if (g.view === 'scoreboard' && g.last){ s.lastWinners = g.last.winners; s.lastDelta = g.last.delta || null; s.lastJk = g.last.jk || null; s.answer = g.last.answer; s.qn = g.qIndex + 1; }
-  if (g.view === 'stageEnd' && g.result){ s.qualified = g.result.qualified; s.tiePending = !!g.result.tie; s.eligible = g.result.tie ? g.result.tie.candidates : null; s.next = STAGES[g.stage + 1] ? STAGES[g.stage + 1].place : null; }
+  if (elim() && g.view === 'stageEnd' && g.result){
+    // Sonuç kesinleşip açıklanmadan telefonlara yükselen/elenen bilgisi gitmez.
+    const r = g.result, done = (g.rounds[g.stage] || {}).done;
+    s.tiePending = !!r.tie; s.eligible = r.tie ? r.tie.candidates : null; s.next = STAGES[g.stage + 1] ? STAGES[g.stage + 1].place : null;
+    s.rnd = { revealed:!!r.revealed, all:!!r.all };
+    if (r.revealed && done){ s.qualified = r.qualified; s.rnd.up = done.up; s.rnd.winners = done.winners.map(id => C.teamById(g, id).name); s.rnd.gains = teams.map(t => done.gains[t.id]); }
+  }
+  else if (g.view === 'stageEnd' && g.result){ s.qualified = g.result.qualified; s.tiePending = !!g.result.tie; s.eligible = g.result.tie ? g.result.tie.candidates : null; s.next = STAGES[g.stage + 1] ? STAGES[g.stage + 1].place : null; }
   if (g.view === 'champion' && g.result) s.champ = g.result.qualified[0];
   return s;
 }
 
+/* Elenen takımlar (kalıcı arşiv): telefon "elendiniz" görünümü için. */
+function outMap(){
+  const o = {};
+  for (const t of (G().teams.all || [])) if (t.status === 'out') o[t.id] = { name:t.name, stage:STAGES[t.outStage] ? STAGES[t.outStage].place : '', total:t.outTotal };
+  return o;
+}
 /* ---------- ağ dinleme: cevaplar, joker istekleri, oyuncular ---------- */
 function netWatch(){
   if (!NET.ok || !S.game.started) return;
@@ -168,9 +223,9 @@ function processJokers(){
   const qk = currentQk(); if (!qk || NET.live.qk !== qk) return;
   const q = curQ(); let changed = false;
   for (const k in (NET.live.jreq || {})){
-    const r = NET.live.jreq[k], i = +k, t = curTeams()[i];
+    const r = NET.live.jreq[k], i = idxOf(k), t = curTeams()[i];
     if (!r || typeof r.t !== 'number' || !t || C.seenJoker(g, qk, i, r.t)) continue;
-    const ctx = { qk, qtype:q.type, isTie:false, i, name:t.name, j:r.j, t:r.t, owner:ownerOf(i), dev:r.dev, node:(NET.live.ans || {})[i] };
+    const ctx = { qk, qtype:q.type, isTie:false, i, name:tkey(t), label:t.name, j:r.j, t:r.t, owner:ownerOf(i), dev:r.dev, node:(NET.live.ans || {})[nk(i)] };
     const why = C.checkJoker(g, ctx);
     if (why) C.rejectJoker(g, ctx, why);
     else { const res = C.acceptJoker(g, ctx, nowS()); if (!res.grouped) addEvent('joker'); }
@@ -190,7 +245,7 @@ function teamList(idxs){
   const g = G(), teams = curTeams(), qk = currentQk();
   const list = idxs || teams.map((t, i) => i);
   return list.map(i => { const t = teams[i];
-    return { name:t.name, arma:emblem(t.name), score:t.score, ans:!!(inQ() && g.phase !== 'ready' && liveAccepted(i)), jk:inQ() ? C.activeJoker(g, t.name, qk) : null, joined:!!(NET.joined && NET.joined[i]) }; });
+    return { name:t.name, arma:emblem(t.name), score:t.score, ans:!!(inQ() && g.phase !== 'ready' && liveAccepted(i)), jk:inQ() ? C.activeJoker(g, tkey(t), qk) : null, joined:!!(NET.joined && NET.joined[nk(i)]) }; });
 }
 /* Puana göre sıralı; eşit puanda prio (ör. eşitlik sorusu sonucu) sırası kullanılır, yoksa kararlı takım sırası. */
 function boardRows(teams, extra, prio){
@@ -222,10 +277,10 @@ function stageModel(){
     }
     return Object.assign(m, { screen:'draw', draw:d, join:joinInfo() });
   }
-  if (g.view === 'teams') return Object.assign(m, { screen:'lobby', teams:teamList(), join:joinInfo(), showScores:shared() && g.stage > 0 });
+  if (g.view === 'teams') return Object.assign(m, { screen:'lobby', teams:teamList(), join:joinInfo(), showScores:(shared() || elim()) && g.stage > 0, quota:elim() ? lobbyQuota() : null });
   if (inQ()){
     const q = curQ(), tie = isTie();
-    const qi = tie ? null : { n:g.qIndex + 1, total:S.questions[st.key].length, type:q ? q.type : 'ders' };
+    const qi = tie ? null : { n:g.qIndex + 1, total:qList(st.key).length, type:q ? q.type : 'ders' };
     if (g.phase === 'cancelled') return Object.assign(m, { screen:'cancelled', q:qi, teams:teamList() });
     const base = { phase:g.phase, qk:currentQk(), teams:teamList(tie ? g.tie.candidates : null), paused:[] };
     if (g.clock){
@@ -243,12 +298,13 @@ function stageModel(){
   }
   if (g.view === 'scoreboard' && g.last){
     const q = curQ(), L = g.last;
-    return Object.assign(m, { screen:'scores', q:{ n:g.qIndex + 1, total:S.questions[st.key].length },
+    return Object.assign(m, { screen:'scores', q:{ n:g.qIndex + 1, total:qList(st.key).length },
       answerText:q ? (q.type === 'ders' ? `${q.answer}) ${q.options[LETTERS.indexOf(q.answer)]}` : `${fmt(q.answer)} ${q.unit || ''}`.trim()) : '',
       scoreAnim:{ id:'sc:' + (L.qk || g.qIndex) + ':' + (L.at || 0), elapsed:L.at ? Math.max(0, nowS() - L.at) : 1e9 },
       board:boardRows(curTeams(), (t, i) => { const d = L.delta ? L.delta[i] : (L.winners.includes(i) ? 10 : undefined);
         return { delta:d, jk:L.jk && L.jk[i], from:Math.max(0, t.score - (d || 0)) }; }) });
   }
+  if (elim() && g.view === 'stageEnd' && g.result) return Object.assign(m, roundEndModel());
   if (g.view === 'stageEnd' && g.result){
     const r = g.result, isFinal = st.key === 'final', tieSet = r.tie ? r.tie.candidates : [];
     const teams = curTeams();
@@ -267,14 +323,51 @@ function stageModel(){
     return Object.assign(m, { screen:'stageEnd', tie:!!r.tie, note:(r.tieNote ? r.tieNote + ' · ' : '') + note,
       board:boardRows(teams, (t, i) => ({ win:r.qualified.includes(i), out:!r.qualified.includes(i) && !tieSet.includes(i) && !r.tie, badge:r.qualified.includes(i) ? (isFinal ? 'Şampiyon' : 'Finalde') : tieSet.includes(i) ? 'Eşitlik' : '' })) });
   }
+  if (elim() && g.view === 'champion' && g.result) return Object.assign(m, champModel());
   if (g.view === 'champion' && g.result){
     const teams = curTeams(), ci = g.result.qualified[0];
     const rest = boardRows(teams, null, g.result.qualified).filter(r => r.i !== ci);
     const champ = { name:teams[ci].name, arma:emblem(teams[ci].name), score:teams[ci].score };
     return Object.assign(m, { screen:'champion', champ, podium:[champ, rest[0], rest[1]] });
   }
-  if (g.view === 'ended') return Object.assign(m, { screen:'ended', board:boardRows(curTeams()) });
+  if (g.view === 'ended') return Object.assign(m, { screen:'ended', board:boardRows(elim() ? g.teams.all : curTeams()) });
   return Object.assign(m, { screen:'map', classes:[], mapStages:[] });
+}
+/* ---------- eleme yarışması: tur sonu gösterisi ve şampiyonluk modelleri ----------
+   Gösteri kalıcı olay kimliği + admin başlangıç zamanıyla tanımlıdır; sahne yeniden çizimi/yenilenmesi baştan
+   başlatmaz (geçen süre modelde, HTML'de değil). Gösteri hiçbir zaman soru açmaz, saati çalıştırmaz, tur geçirmez. */
+function showModel(){
+  const s = G().show; if (!s) return null;
+  return { id:s.id, kind:s.kind, dur:s.dur, skip:!!s.skip, elapsed:s.skip ? s.dur : Math.max(0, nowS() - s.at) };
+}
+function lobbyQuota(){
+  const g = G(), n = curTeams().length, q = g.format.quotas[g.stage], next = STAGES[g.stage + 1];
+  if (g.stage === 2) return `${n} finalist · toplam puanla tek şampiyon`;
+  return q >= n ? `${n} takım · bu turda eleme yok · üçü de ${next.to} ilerler` : `${n} takım · toplam puanda ilk ${q} ${next.to} yükselir`;
+}
+function roundEndModel(){
+  const g = G(), st = STAGES[g.stage], r = g.result, teams = curTeams(), isFinal = st.key === 'final', next = STAGES[g.stage + 1];
+  const names = idx => idx.map(i => teams[i].name).join(', ');
+  const base = { screen:'roundEnd', title:isFinal ? 'Final Tamamlandı' : `${st.place} Tamamlandı` };
+  if (r.tie) return Object.assign(base, { phase:'tie', cands:r.tie.candidates.map(i => ({ name:teams[i].name, arma:emblem(teams[i].name) })),
+    note:isFinal ? `Birincilikte eşitlik: ${names(r.tie.candidates)} · ek tahmin sorusu sorulacak. Şampiyon eşitlik çözülünce açıklanır.`
+                 : `Yükselme sınırında eşitlik: ${names(r.tie.candidates)} · ek tahmin sorusu sorulacak. Sonuç eşitlik çözülünce açıklanır.` });
+  if (!r.revealed) return Object.assign(base, { phase:'pending', note:isFinal ? 'Şampiyon birazdan açıklanacak' : 'Tur sonucu birazdan açıklanacak' });
+  const done = (g.rounds[g.stage] || {}).done || { up:[], out:[], winners:[], gains:{} };
+  const T = id => C.teamById(g, id);
+  const winners = done.winners.map(id => ({ name:T(id).name, arma:emblem(T(id).name), gain:done.gains[id] }));
+  const board = boardRows(teams, t => { const up = done.up.includes(t.id); return { gain:done.gains[t.id], win:up, out:!up, badge:up ? next.at : 'Elendi' }; }, r.qualified);
+  const upN = done.up.map(id => T(id).name), outN = done.out.map(id => T(id).name);
+  const note = r.all ? `${upN.length === 3 ? 'Üç' : upN.length} takım da ${next.to} ilerliyor` : `${upN.join(', ')} ${next.to} yükseldi · ${outN.join(', ')} yolculuğunu burada tamamladı`;
+  return Object.assign(base, { phase:'show', show:showModel(), winners, board, note, all:!!r.all, next:next.place });
+}
+function champModel(){
+  const g = G(), teams = curTeams(), ci = g.result.qualified[0], ch = teams[ci];
+  const fin = boardRows(teams, null, g.result.qualified), second = fin.find(r => r.i !== ci) || null;
+  // Üçüncülük maçı yoktur: yalnız Kadim Kale'de tek takım elendiyse (kesinleşmiş eleme geçmişinden) gösterilir.
+  const r2 = (g.rounds[1] || {}).done, third = r2 && r2.out.length === 1 ? C.teamById(g, r2.out[0]) : null;
+  const P = (t, note) => t ? { name:t.name, arma:emblem(t.name), score:t.score, note:note || '' } : null;
+  return { screen:'champion', elim:true, champ:P(ch), podium:[P(ch, 'Şampiyon'), P(second, 'Finalist'), P(third, 'Kadim Kale’de tamamladı')], show:showModel(), music:CHAMP.src };
 }
 /* Sinematik oturumu (yalnız karşılama ekranında). Her oynatma yeni kimlik alır; sahne aynı kimliği yeniden
    başlatmaz. Açılış ve ara döngüsü, ekran değişene ya da Atla/Durdur'a kadar döngüde sürer. */
@@ -360,6 +453,12 @@ function freezeAnswers(){
 }
 function finishStage(){
   const g = G(), key = stageKey(), teams = curTeams();
+  if (elim()){
+    // Toplam puanla kontenjan; tur kazananı net kazançla. Eşitlik çözülmeden eleme/kazanan ilan edilmez.
+    const o = C.roundOutcome(g, g.stage);
+    g.result = { qualified:o.qualified, tie:o.tie, all:o.all, revealed:false };
+    g.view = 'stageEnd'; g.show = null; return;
+  }
   g.result = C.stageOutcome(gameMode(), teams.map((t, i) => ({ i, score:t.score })), key);
   g.view = 'stageEnd';
 }

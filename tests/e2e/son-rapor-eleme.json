@@ -1,0 +1,360 @@
+{
+  "at": "2026-11-26T15:24:31.308Z",
+  "results": [
+    {
+      "name": "menü: yeni yarışma kuralı 4 → 3 → 2 → şampiyon ve kontenjanlar başlatmadan önce görünür",
+      "ok": true,
+      "detail": "Kaplan Arena\nYönetim paneli\nTelefon bağlantısı açık\nSahne açık değil\nSahne Ekranını Aç\nSes açık\nKarşılama\nAra Döngüsü\nSoru Yönetimi\nAyarlar\nOrman Geçidi\n1. Etap\nKadim Kale\n2. Etap\nKaplan Arenası\nFinal\nKAPLAN ARENA\nEfsaneye Yolculuk\nTakım A\nII\nTakım B\nII\nTakım C\nII\nTakım D\nSAHNE ÖNİZLEMESİ\nAna Menü\nYarışmayı Başlat\nSoru Yönetimi\nAyarlar\nKural: Eleme Yarışması · 4 → 3 → 2 → şampiyon\n\nTakım A · Takım B · Takım C · Takım D\n\nBütün takımlar her turun sorularını aynı anda yanıtlar. Puanlar yarışma boyunca birikir (tur başında sıfırlanmaz). Yükselme ve şampiyonluk toplam puana göre belirlenir; tur kazananı o turdaki net kazançla ayrıca açıklanır. Sınırda eşitlik olursa yalnız eşit takımlara yedek ta"
+    },
+    {
+      "name": "menü: eski iki grup / dört finalist ifadesi yok",
+      "ok": true,
+      "detail": "Kaplan Arena\nYönetim paneli\nTelefon bağlantısı açık\nSahne açık değil\nSahne Ekranını Aç\nSes açık\nKarşılama\nAra Döngüsü\nSoru Yönetimi\nAyarlar\nOrman Geçidi\n1. Etap\nKadim Kale\n2. Etap\nKaplan Arenası\nFinal\nKAPLAN ARENA\nEfsaneye Yolculuk\nTakım A\nII\nTakım B\nII\nTakım C\nII\nTakım D\nSAHNE ÖNİZLEMESİ\nAna Menü\nYarışmayı Başlat\nSoru Yönetimi\nAyarlar\nKural: Eleme Yarışması · 4 → 3 → 2 → şampiyon\n\nTakım A · Takım B · Takım C · Takım D\n\nBütün takımlar her turun sorularını aynı anda yanıtlar. Puanlar yarışma boyu"
+    },
+    {
+      "name": "başlatma: format v3 kayda sabitlendi (kontenjan 3/2/1), kararlı teamId",
+      "ok": true,
+      "detail": "{\"f\":{\"v\":3,\"kind\":\"elim\",\"n\":4,\"quotas\":[3,2,1],\"stages\":[\"s1\",\"s2\",\"final\"]},\"ids\":[\"t1\",\"t2\",\"t3\",\"t4\"]}"
+    },
+    {
+      "name": "başlatma: iki grup/kura yok; dört takım aynı ilk turda",
+      "ok": true,
+      "detail": "[{\"key\":\"s1\",\"ids\":[\"t1\",\"t2\",\"t3\",\"t4\"],\"start\":{\"t1\":0,\"t2\":0,\"t3\":0,\"t4\":0},\"done\":null}]"
+    },
+    {
+      "name": "soru planı: farklı kimlikli aynı içerik (s1↔s2, tie↔tie) elendi; yarışma çapında benzersiz",
+      "ok": true,
+      "detail": "{\"d\":2,\"s2\":2,\"tie\":2}"
+    },
+    {
+      "name": "soru planı: asked kaydı yeni yarışmada boş başlar",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "ayar/soru bankası değişikliği açık yarışmanın kadrosunu ve sırasını değiştirmez",
+      "ok": true,
+      "detail": "{\"n\":4,\"s1\":3}"
+    },
+    {
+      "name": "herkese açık GET: kaptan kodları ve admin anahtarı yok",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "telefon: yanlış kaptan kodu reddedilir",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "dört kaptan telefonu kendi kodlarıyla bağlandı",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "API: bağlı cihaz başka takımın adını seçerek geçemez",
+      "ok": true,
+      "detail": "{\"code\":409,\"j\":{\"ok\":false,\"why\":\"Bu telefon başka bir takımın kaptanı olarak kayıtlı. Takım değiştirmek için yönetime başvurun.\"}}"
+    },
+    {
+      "name": "aktif takımların hepsi aynı soruyu aynı anda görür",
+      "ok": true,
+      "detail": "Suyun formülü nedir?"
+    },
+    {
+      "name": "soru gösterilince tüketildi (asked)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Orman toplamları: A 30, B 30, C 20, D 0",
+      "ok": true,
+      "detail": "[30,30,20,0]"
+    },
+    {
+      "name": "geri al: son puan geri alındı, asked geri gitmedi",
+      "ok": true,
+      "detail": "{\"ph\":\"revealed\",\"a\":3,\"sc\":[30,20,10,0]}"
+    },
+    {
+      "name": "aynı soru ikinci kez puanlanmaz",
+      "ok": true,
+      "detail": "[30,30,20,0]"
+    },
+    {
+      "name": "Orman sonu: sonuç kesin (eşitlik yok) ama açıklanmadı; eleme henüz yazılmadı",
+      "ok": true,
+      "detail": "{\"qualified\":[0,1,2],\"tie\":null,\"all\":false,\"revealed\":false}"
+    },
+    {
+      "name": "sahne: açıklamadan önce elenen/yükselen ilan edilmez",
+      "ok": true,
+      "detail": "Orman Geçidi\n1. Etap\nOrman Geçidi Tamamlandı\nORMAN GEÇİDİ\nTur tamamlandı\n\nTur sonucu birazdan açıklanacak"
+    },
+    {
+      "name": "telefon durumu: açıklamadan önce yükselen listesi gönderilmez",
+      "ok": true,
+      "detail": "{\"revealed\":false,\"all\":false}"
+    },
+    {
+      "name": "tur sonucu idempotent: çift komut tek eleme (D), elenme kalıcı",
+      "ok": true,
+      "detail": "[{\"id\":\"t4\",\"name\":\"Takım D\",\"stage\":0,\"total\":0}]"
+    },
+    {
+      "name": "tur kazananı net kazançtan: A ve B ortak kazanan",
+      "ok": true,
+      "detail": "{\"up\":[\"t1\",\"t2\",\"t3\"],\"out\":[\"t4\"],\"winners\":[\"t1\",\"t2\"],\"gains\":{\"t1\":30,\"t2\":30,\"t3\":20,\"t4\":0},\"totals\":{\"t1\":30,\"t2\":30,\"t3\":20,\"t4\":0}}"
+    },
+    {
+      "name": "sahne gösterisi: “Turun ortak kazananları”, puan özeti, yükselen/elenen satırları",
+      "ok": true,
+      "detail": "1. ETAP\nOrman Geçidi Tamamlandı\nII\nTURUN ORTAK KAZANANLARI\nTakım A\nbu tur +30 puan\nTakım B\nbu tur +30 puan\nTakım A\nBU TUR\n+30\nTOPLAM\n30\nKadim Kale’de\nII\nTakım B\nBU TUR\n+30\nTOPLAM\n30\nKadim Kale’de\nII\nTakım C\nBU TUR\n+20\nTOPLAM\n20\nKadim Kale’de\nII\nTakım D\nBU TUR\n+0\nTOPLAM\n0\nElendi\nTakım A, Takım B, Takım C Kadim Kale’ye yükseldi · Takım D yolculuğunu burada tamamladı"
+    },
+    {
+      "name": "tur gösterisi sesi bir kez çaldı",
+      "ok": true,
+      "detail": "1"
+    },
+    {
+      "name": "sahne yenilenince gösteri kaldığı yerden (negatif zaman kayması) ya da son görünümden sürer",
+      "ok": true,
+      "detail": "{\"t0\":\"-2655ms\",\"done\":false}"
+    },
+    {
+      "name": "yeniden bağlanan sahne tur gösterisi sesini tekrar çalmaz",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "gösteri otomatik soru açmaz / tura geçmez",
+      "ok": true,
+      "detail": "{\"v\":\"stageEnd\",\"s\":0}"
+    },
+    {
+      "name": "gösteriyi tekrar oynat: yeni olay kimliği, eleme/puan aynı",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "tekrar oynatma sesi bir kez",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "Atla: son sonuç doğrudan görünür",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "elenen telefon “Bu turda elendiniz; yarışmaya devam edemezsiniz” görür",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "yükselen telefon sonucu ve tur kazananını görür",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "sonraki tura geçiş idempotent: Kadim Kale kadrosu A, B, C (D yok)",
+      "ok": true,
+      "detail": "{\"key\":\"s2\",\"ids\":[\"t1\",\"t2\",\"t3\"],\"start\":{\"t1\":30,\"t2\":30,\"t3\":20},\"done\":null}"
+    },
+    {
+      "name": "telefon durumu: aktif kadroda elenen yok",
+      "ok": true,
+      "detail": "{\"ids\":[\"t1\",\"t2\",\"t3\"],\"out\":{\"t4\":{\"name\":\"Takım D\",\"stage\":\"Orman Geçidi\",\"total\":0}}}"
+    },
+    {
+      "name": "elenen telefon sayfayı yenileyince de elenmiş kalır",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "API: elenen takım kayıtlı oturumla geri katılamaz",
+      "ok": true,
+      "detail": "{\"code\":403,\"j\":{\"ok\":false,\"why\":\"Bu takım elendi; yarışmaya devam edemez.\",\"out\":true}}"
+    },
+    {
+      "name": "API: elenen takım yeni cihazla kodu girse de katılamaz",
+      "ok": true,
+      "detail": "{\"code\":403,\"j\":{\"ok\":false,\"why\":\"Bu takım elendi; yarışmaya devam edemez.\",\"out\":true}}"
+    },
+    {
+      "name": "API: elenen cihaz aktif takımın adını/kodunu kullanarak kaptanlığı ele geçiremez",
+      "ok": true,
+      "detail": "{\"code\":409,\"j\":{\"ok\":false,\"why\":\"Bu telefon başka bir takımın kaptanı olarak kayıtlı. Takım değiştirmek için yönetime başvurun.\"}}"
+    },
+    {
+      "name": "API: yeni cihaz aktif takıma yanlış kodla giremez",
+      "ok": true,
+      "detail": "{\"code\":403,\"j\":{\"ok\":false,\"why\":\"Kaptan kodu yanlış.\"}}"
+    },
+    {
+      "name": "yeni cihazın takım listesinde elenen takım yok",
+      "ok": true,
+      "detail": "t1,t2,t3"
+    },
+    {
+      "name": "API: elenen takımın eski oturumu cevap gönderemez",
+      "ok": true,
+      "detail": "{\"code\":403,\"j\":{\"ok\":false,\"why\":\"Bu takım elendi; cevap ve joker gönderemez.\",\"out\":true}}"
+    },
+    {
+      "name": "API: önceki turdan gecikmiş/yanlış soru anahtarlı yazım reddedilir",
+      "ok": true,
+      "detail": "{\"code\":409,\"j\":{\"ok\":false,\"why\":\"Bu soru için cevap kabulü kapalı.\"}}"
+    },
+    {
+      "name": "API: genel set yoluyla doğrudan cevap yazımı reddedilir",
+      "ok": true,
+      "detail": "{\"code\":403,\"j\":{\"error\":\"yetkisiz\"}}"
+    },
+    {
+      "name": "Kale toplamları: A 40, B 30, C 30 (toplamlar sıfırlanmadı)",
+      "ok": true,
+      "detail": "[40,30,30]"
+    },
+    {
+      "name": "Kale sonu: 2. sırada B/C eşitliği → eleme kesinleşmedi",
+      "ok": true,
+      "detail": "{\"qualified\":[0],\"tie\":{\"candidates\":[1,2],\"slots\":1},\"all\":false,\"revealed\":false}"
+    },
+    {
+      "name": "eşitlik çözülmeden “Tur Sonucunu Açıkla” yok",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "doğrudan komutla da eşitlik çözülmeden sonuç açıklanmaz",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "eşitlikte aday olmayan A cevap ekranı görmez",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "API: eşitlikte aday olmayan takımın cevabı reddedilir",
+      "ok": true,
+      "detail": "{\"code\":403,\"j\":{\"ok\":false,\"why\":\"Bu soruyu yalnız eşitlikteki takımlar cevaplar.\"}}"
+    },
+    {
+      "name": "eşitlik çözüldü: A ve B finalde; eşitlik sorusu tüketildi",
+      "ok": true,
+      "detail": "{\"qualified\":[0,1],\"tie\":null,\"all\":false,\"revealed\":false,\"tieNote\":\"Eşitlik sorusunu Takım B kazandı (cevap 81; Takım B: 82, Takım C: 581)\"}"
+    },
+    {
+      "name": "final kadrosu iki takım (A, B); C elendi; üçüncü takım uydurulmadı",
+      "ok": true,
+      "detail": "{\"key\":\"final\",\"ids\":[\"t1\",\"t2\"],\"start\":{\"t1\":40,\"t2\":30},\"done\":null}"
+    },
+    {
+      "name": "Kale’de elenen C telefonu elendi görünümünde",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "final: 40-40 birincilik eşitliği; şampiyon ilan edilmedi",
+      "ok": true,
+      "detail": "{\"qualified\":[],\"tie\":{\"candidates\":[0,1],\"slots\":1},\"all\":false,\"revealed\":false}"
+    },
+    {
+      "name": "sahne: eşitlik çözülmeden şampiyon gösterilmez",
+      "ok": true,
+      "detail": "Kaplan Arenası\nFinal\nFinal Tamamlandı\nEŞİTLİK\nEk tahmin sorusu\nTakım A\nII\nTakım B\n\nBirincilikte eşitlik: Takım A, Takım B · ek tahmin sorusu sorulacak. Şampiyon eşitlik çözülünce açıklanır."
+    },
+    {
+      "name": "ikinci eşitlik sorusu ilkinden farklı (tekrar yok)",
+      "ok": true,
+      "detail": "c1oa037e c9ywe51"
+    },
+    {
+      "name": "eşitlik havuzu tükendi: sonraki eşitlikte eski soru dönmez (sözlü soru)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "soru tekrarı yok: sorulan her içerik bir kez",
+      "ok": true,
+      "detail": "{\"a\":9,\"q\":7}"
+    },
+    {
+      "name": "şampiyon: A (eşitlik sorusuyla), podyum 1-2 + kesinleşmiş Kale elenmesinden 3.",
+      "ok": true,
+      "detail": "ŞAMPİYON\nTakım A\n40 puan\nBilgiyle ilerlediniz, birlikte kazandınız.\nII\nTakım B\n40 puan\nFinalist\nTakım A\n40 puan\nŞampiyon\nII\nTakım C\n30 puan\nKadim Kale’de tamamladı"
+    },
+    {
+      "name": "şampiyonluk müziği gerçek dosyadan çalıyor (döngü, düşük seviye), karşılama müziği kapalı",
+      "ok": true,
+      "detail": "{\"src\":\"http://localhost:3094/assets/sinematik/sampiyon-muzik.m4a?v=1\",\"p\":false,\"v\":0.44000000000000006,\"t\":4.128248}"
+    },
+    {
+      "name": "konfeti canvas’ı ad katmanının altında görünür parçacık çiziyor",
+      "ok": true,
+      "detail": "{\"cv\":true,\"px\":95}"
+    },
+    {
+      "name": "müzik dosyası sunuluyor (audio/mp4)",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "model/çizim güncellemesi konfetiyi yeniden başlatmaz",
+      "ok": true,
+      "detail": "1 → 1"
+    },
+    {
+      "name": "merkezi ses seviyesi müziği izler",
+      "ok": true,
+      "detail": "0.22000000000000003"
+    },
+    {
+      "name": "ses kapalıyken müzik yumuşak çıkışla durur",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "ses yeniden açılınca müzik tek öğeden sürer",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "admin ve telefon sayfalarında ses/video öğesi yok",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "“Gösteriyi Tekrar Oynat” yeni olayla bir kez konfeti başlatır",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "hareketleri azaltma: sakin görünüm, müzik ses ayarına bağlı sürer",
+      "ok": true,
+      "detail": "{\"done\":true,\"music\":true}"
+    },
+    {
+      "name": "şampiyonluk ekranından çıkınca müzik durur; tek müzik (karşılama) çalar",
+      "ok": true,
+      "detail": "{\"champ\":true,\"bgm\":true}"
+    },
+    {
+      "name": "eski devam eden kayıt: kural/puan korunur, yeni kurala sessizce dönüştürülmez",
+      "ok": true,
+      "detail": "{\"m\":\"shared\"}"
+    },
+    {
+      "name": "eski kayıt: admin açıkça bilgilendirilir; yedek kopya alındı",
+      "ok": true,
+      "detail": "Kaplan Arena\nYönetim paneli\nKod 565 656\nTelefon bağlantısı açık\nSahne açık değil\nSahne Ekranını Aç\nSes açık\nKarşılama\nAra Döngüsü\nYarışma\nSoru Yönetimi\nAyarlar\nOrman Geçidi\nTamamlandı\nKadim Kale\nŞimdi\nKaplan Arenası\nFinal\nKAPLAN ARENA\nEfsaneye Yolculuk\nTELEFONLA KATIL\nlocalhost:3094/katil\nYARIŞMA KO"
+    },
+    {
+      "name": "tarayıcı sayfa hatası yok",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

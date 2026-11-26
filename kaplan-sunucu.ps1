@@ -12,9 +12,9 @@ $utf8 = New-Object System.Text.UTF8Encoding($false)
 $pathRe = '^[A-Za-z0-9_\-]+(/[A-Za-z0-9_\-]+)*$'
 $db = New-Object 'System.Collections.Generic.Dictionary[string,string]'
 # Statik dosyalar: yalnız app/*.js|css ve assets/ altındaki görsel/font/lisans/video dosyaları; gizli dosya ve '..' kabul edilmez.
-$staticRe = '^/(app/[A-Za-z0-9_\-]+\.(js|css)|assets/([A-Za-z0-9_\-]+/)*[A-Za-z0-9_\-]+(\.[A-Za-z0-9_\-]+)*\.(webp|png|svg|woff2|css|txt|mp4))$'
+$staticRe = '^/(app/[A-Za-z0-9_\-]+\.(js|css)|assets/([A-Za-z0-9_\-]+/)*[A-Za-z0-9_\-]+(\.[A-Za-z0-9_\-]+)*\.(webp|png|svg|woff2|css|txt|mp4|m4a))$'
 $rootFull = [System.IO.Path]::GetFullPath($root).TrimEnd([System.IO.Path]::DirectorySeparatorChar) + [System.IO.Path]::DirectorySeparatorChar
-$mime = @{ '.js'='text/javascript; charset=utf-8'; '.css'='text/css; charset=utf-8'; '.webp'='image/webp'; '.png'='image/png'; '.svg'='image/svg+xml'; '.woff2'='font/woff2'; '.txt'='text/plain; charset=utf-8'; '.mp4'='video/mp4' }
+$mime = @{ '.js'='text/javascript; charset=utf-8'; '.css'='text/css; charset=utf-8'; '.webp'='image/webp'; '.png'='image/png'; '.svg'='image/svg+xml'; '.woff2'='font/woff2'; '.txt'='text/plain; charset=utf-8'; '.mp4'='video/mp4'; '.m4a'='audio/mp4' }
 $rev = 0
 
 function Get-LanIPs {
@@ -92,7 +92,7 @@ if (-not $listener) {
 
 Clear-Host
 Write-Host ''
-Write-Host '   KAPLAN ARENA SUNUCUSU CALISIYOR  (Surum 8)' -ForegroundColor Yellow
+Write-Host '   KAPLAN ARENA SUNUCUSU CALISIYOR  (Surum 9)' -ForegroundColor Yellow
 Write-Host "   Klasor: $root"
 Write-Host '   ------------------------------------------------'
 Write-Host "   Yarisma ekrani: http://localhost:$port/"
@@ -110,6 +110,120 @@ Write-Host '   Yarisma bitene kadar bu pencereyi KAPATMAYIN.'
 Write-Host ''
 
 if ($env:KAPLAN_NO_BROWSER -ne '1') { Start-Process "http://localhost:$port/" }
+
+# ---- yarisma yetkisi (yeni yarismalar; api/ka.js ile ayni kurallar) ----
+# Ozel kayitlar /api/db yanitina girmez: $ctl[pin] denetim kaydi, $bind[pin] kaptan baglari ("dev|sha256(oturum)").
+# Denetim kaydi olan yarismada /api/set yalniz admin anahtariyla (X-Ka-Key); telefonlar yalniz /api/join ve /api/cmd.
+$ctl = @{}
+$bind = @{}
+$sha = [System.Security.Cryptography.SHA256]::Create()
+function Get-Sha([string]$s) { return (($sha.ComputeHash($utf8.GetBytes($s)) | ForEach-Object { $_.ToString('x2') }) -join '') }
+function Get-NowMs { return [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds() }
+function Read-Body($req) {
+  if ($req.ContentLength64 -gt 131072) { return $null }
+  $reader = New-Object System.IO.StreamReader($req.InputStream, $utf8)
+  $body = $reader.ReadToEnd(); $reader.Close()
+  try { return (ConvertFrom-Json -InputObject $body) } catch { return $null }
+}
+function Write-Db([string]$key, [string]$json) {
+  $remove = @()
+  foreach ($k in $db.Keys) { if ($k -eq $key -or $k.StartsWith($key + '/')) { $remove += $k } }
+  foreach ($k in $remove) { [void]$db.Remove($k) }
+  if ($json -ne 'null') { $db[$key] = $json }
+  $script:rev++
+}
+function Send-Json($res, $obj, [int]$code = 200) { Send-Text $res (ConvertTo-Json -InputObject $obj -Compress -Depth 6) 'application/json' $code }
+function Send-Deny($res, [int]$code, [string]$why, $extra) {
+  $o = [ordered]@{ ok = $false; why = $why }
+  if ($extra) { foreach ($k in $extra.Keys) { $o[$k] = $extra[$k] } }
+  Send-Json $res $o $code
+}
+function Get-Dev([string]$v) { return ($v -split '\|')[0] }
+function Get-Tok([string]$v) { $p = $v -split '\|'; if ($p.Length -gt 1) { return $p[1] } else { return '' } }
+
+function Invoke-Ctl($req, $res) {
+  $b = Read-Body $req
+  if (-not $b -or [string]$b.pin -notmatch '^\d{6}$' -or [string]$b.key -notmatch '^[A-Za-z0-9]{16,64}$') { Send-Deny $res 400 'gecersiz istek'; return }
+  $pin = [string]$b.pin; $cur = $ctl[$pin]
+  if ($cur -and $cur.adm -ne (Get-Sha ([string]$b.key))) { Send-Deny $res 403 'yetkisiz'; return }
+  $teams = @{}
+  if ($b.ctl -and $b.ctl.teams) {
+    foreach ($p in $b.ctl.teams.PSObject.Properties) {
+      if ($p.Name -notmatch '^t\d{1,3}$' -or [string]$p.Value.code -notmatch '^\d{4,8}$') { Send-Deny $res 400 'gecersiz takim'; return }
+      $teams[$p.Name] = @{ code = [string]$p.Value.code; act = [bool]$p.Value.act }
+    }
+  }
+  if ($teams.Count -eq 0 -and $cur) { $teams = $cur.teams }
+  $qk = $null; if ($b.ctl -and [string]$b.ctl.qk -match '^[A-Za-z0-9_\-]{1,120}$') { $qk = [string]$b.ctl.qk }
+  $elig = $null; if ($b.ctl -and $null -ne $b.ctl.elig) { $elig = @($b.ctl.elig | ForEach-Object { [string]$_ } | Where-Object { $_ -match '^t\d{1,3}$' }) }
+  $ctl[$pin] = @{ adm = (Get-Sha ([string]$b.key)); teams = $teams; qk = $qk; acc = [bool]($b.ctl -and $b.ctl.acc); jk = [bool]($b.ctl -and $b.ctl.jk); elig = $elig }
+  if (-not $bind.ContainsKey($pin)) { $bind[$pin] = @{} }
+  $n = 0
+  if ($b.reset) {
+    foreach ($t in @($b.reset)) {
+      $t = [string]$t; if ($t -notmatch '^t\d{1,3}$') { continue }
+      [void]$bind[$pin].Remove($t); [void]$bind[$pin].Remove('f:' + $t)
+      Write-Db "games/$pin/players/all/$t" 'null'; $n++
+    }
+  }
+  Send-Json $res ([ordered]@{ ok = $true; r = $n })
+}
+
+function Invoke-Join($req, $res) {
+  $b = Read-Body $req
+  if (-not $b -or [string]$b.pin -notmatch '^\d{6}$' -or [string]$b.tid -notmatch '^t\d{1,3}$' -or [string]$b.dev -notmatch '^[A-Za-z0-9]{4,40}$') { Send-Deny $res 400 'gecersiz istek'; return }
+  $pin = [string]$b.pin; $tid = [string]$b.tid; $dev = [string]$b.dev; $c = $ctl[$pin]
+  if (-not $c) { Send-Deny $res 404 'Bu kodla açık bir yarışma bulunamadı.'; return }
+  $t = $c.teams[$tid]
+  if (-not $t) { Send-Deny $res 404 'Takım bu yarışmada yok.'; return }
+  if (-not $t.act) { Send-Deny $res 403 'Bu takım elendi; yarışmaya devam edemez.' @{ out = $true }; return }
+  $bd = $bind[$pin]; $cur = [string]$bd[$tid]
+  $now = Get-NowMs
+  if ($b.tok -and $cur -and (Get-Tok $cur) -eq (Get-Sha ([string]$b.tok)) -and (Get-Dev $cur) -eq $dev) {
+    Write-Db "games/$pin/players/all/$tid" ('{"dev":"' + $dev + '","t":' + $now + '}')
+    Send-Json $res ([ordered]@{ ok = $true; tok = [string]$b.tok }); return
+  }
+  if ([int]$bd['f:' + $tid] -ge 10) { Send-Deny $res 429 'Çok fazla hatalı kod denendi. Yönetimden bu takım için cihaz sıfırlaması isteyin.'; return }
+  if ([string]$b.code -ne $t.code) { $bd['f:' + $tid] = [int]$bd['f:' + $tid] + 1; Send-Deny $res 403 'Kaptan kodu yanlış.'; return }
+  foreach ($f in @($bd.Keys)) {
+    if ($f -ne $tid -and -not $f.StartsWith('f:') -and (Get-Dev ([string]$bd[$f])) -eq $dev) { Send-Deny $res 409 'Bu telefon başka bir takımın kaptanı olarak kayıtlı. Takım değiştirmek için yönetime başvurun.'; return }
+  }
+  if ($cur -and (Get-Dev $cur) -ne $dev) { Send-Deny $res 409 'Bu takıma başka bir kaptan telefonu bağlı. Telefon değişikliği için yönetimden cihaz sıfırlaması isteyin.'; return }
+  $tok = [guid]::NewGuid().ToString('N')
+  $bd[$tid] = $dev + '|' + (Get-Sha $tok)
+  Write-Db "games/$pin/players/all/$tid" ('{"dev":"' + $dev + '","t":' + $now + '}')
+  Send-Json $res ([ordered]@{ ok = $true; tok = $tok })
+}
+
+function Invoke-Cmd($req, $res) {
+  $b = Read-Body $req
+  if (-not $b -or [string]$b.pin -notmatch '^\d{6}$' -or -not $b.tok -or [string]$b.qk -notmatch '^[A-Za-z0-9_\-]{1,120}$' -or @('ans', 'jk') -notcontains [string]$b.op) { Send-Deny $res 400 'gecersiz istek'; return }
+  $pin = [string]$b.pin; $c = $ctl[$pin]
+  if (-not $c) { Send-Deny $res 404 'Yarışma bulunamadı.'; return }
+  $bd = $bind[$pin]; $th = Get-Sha ([string]$b.tok); $tid = $null
+  foreach ($f in @($bd.Keys)) { if (-not $f.StartsWith('f:') -and (Get-Tok ([string]$bd[$f])) -eq $th) { $tid = $f; break } }
+  if (-not $tid) { Send-Deny $res 401 'Kaptan oturumu geçersiz. Takımınızı yeniden seçip kodu girin.' @{ relogin = $true }; return }
+  $t = $c.teams[$tid]
+  if (-not $t -or -not $t.act) { Send-Deny $res 403 'Bu takım elendi; cevap ve joker gönderemez.' @{ out = $true }; return }
+  if (-not $c.acc -or $c.qk -ne [string]$b.qk) { Send-Deny $res 409 'Bu soru için cevap kabulü kapalı.'; return }
+  if ($null -ne $c.elig -and $c.elig -notcontains $tid) { Send-Deny $res 403 'Bu soruyu yalnız eşitlikteki takımlar cevaplar.'; return }
+  $now = Get-NowMs; $tt = 0.0
+  if (-not [double]::TryParse([string]$b.t, [System.Globalization.NumberStyles]::Float, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$tt) -or $tt -lt ($now - 8000) -or $tt -gt ($now + 3000)) { Send-Deny $res 400 'Gönderim zamanı geçersiz; sayfayı yenileyin.'; return }
+  $t0 = [int64][math]::Round($tt); $dev = Get-Dev ([string]$bd[$tid]); $qk = [string]$b.qk
+  if ([string]$b.op -eq 'ans') {
+    $v = $b.v
+    $ok = ($v -is [string] -and $v -cmatch '^[ABCD]{1,2}$') -or (($v -is [int] -or $v -is [long] -or $v -is [double] -or $v -is [decimal]) -and [math]::Abs([double]$v) -lt 1e15)
+    if (-not $ok) { Send-Deny $res 400 'Geçersiz cevap.'; return }
+    $sid = 's' + $t0 + [guid]::NewGuid().ToString('N').Substring(0, 6)
+    Write-Db "games/$pin/answers/$qk/$tid/$sid" (ConvertTo-Json -InputObject ([ordered]@{ v = $v; t = $t0; dev = $dev }) -Compress)
+    Send-Json $res ([ordered]@{ ok = $true; t = $t0 }); return
+  }
+  if (-not $c.jk) { Send-Deny $res 409 'Bu soruda joker kullanılamaz.'; return }
+  $j = [string]$b.j
+  if (@('double', 'x2') -notcontains $j) { Send-Deny $res 400 'Geçersiz joker.'; return }
+  Write-Db "games/$pin/jreq/$qk/$tid" ('{"j":"' + $j + '","t":' + $t0 + ',"dev":"' + $dev + '"}')
+  Send-Json $res ([ordered]@{ ok = $true; t = $t0 })
+}
 
 while ($listener.IsListening) {
   try { $ctx = $listener.GetContext() } catch { break }
@@ -141,6 +255,11 @@ while ($listener.IsListening) {
         Send-Text $res '{"ok":false}' 'application/json' 400
         continue
       }
+      # Denetim kaydi olan yarismada genel yazim yalniz admin anahtariyla (telefonlar /api/join ve /api/cmd kullanir).
+      if ($key -match '^games/(\d{6})(/|$)' -and $ctl.ContainsKey($Matches[1]) -and $ctl[$Matches[1]].adm -ne (Get-Sha ([string]$req.Headers['X-Ka-Key']))) {
+        Send-Text $res '{"ok":false,"why":"yetkisiz"}' 'application/json' 403
+        continue
+      }
       $reader = New-Object System.IO.StreamReader($req.InputStream, $utf8)
       $body = $reader.ReadToEnd().Trim()
       $reader.Close()
@@ -150,13 +269,12 @@ while ($listener.IsListening) {
         Send-Text $res '{"ok":false}' 'application/json' 400
         continue
       }
-      $remove = @()
-      foreach ($k in $db.Keys) { if ($k -eq $key -or $k.StartsWith($key + '/')) { $remove += $k } }
-      foreach ($k in $remove) { [void]$db.Remove($k) }
-      if ($body -ne 'null') { $db[$key] = $body }
-      $rev++
+      Write-Db $key $body
       Send-Text $res '{"ok":true}' 'application/json'
     }
+    elseif ($p -eq '/api/ctl' -and $req.HttpMethod -eq 'POST') { Invoke-Ctl $req $res }
+    elseif ($p -eq '/api/join' -and $req.HttpMethod -eq 'POST') { Invoke-Join $req $res }
+    elseif ($p -eq '/api/cmd' -and $req.HttpMethod -eq 'POST') { Invoke-Cmd $req $res }
     elseif ($p -eq '/api/info') {
       $ips = @(Get-LanIPs)
       $ipsJson = (@($ips | ForEach-Object { '"' + $_ + '"' })) -join ','

@@ -1,15 +1,15 @@
 {
-  "at": "2026-11-26T04:50:38.896Z",
+  "at": "2026-11-26T15:40:32.607Z",
   "results": [
     {
-      "name": "1. etapta 11 sınıf",
+      "name": "1. turda 11 takım birlikte",
       "ok": true,
       "detail": "11"
     },
     {
       "name": "S1: doğru şık önce altınla belirginleşir, arma ~1,3 sn sonra girer",
       "ok": true,
-      "detail": "[1121,1,true]"
+      "detail": "[1134,1,true]"
     },
     {
       "name": "S1: tek doğru bilen gösterildi",
@@ -159,7 +159,7 @@
     {
       "name": "S8: ses kapalıyken hiçbir ses çalmadı",
       "ok": true,
-      "detail": "[{\"k\":\"reveal\",\"ok\":false,\"t\":1795668620722},{\"k\":\"entry\",\"ok\":false,\"t\":1795668621999},{\"k\":\"entry\",\"ok\":false,\"t\":1795668622701}]"
+      "detail": "[{\"k\":\"reveal\",\"ok\":false,\"t\":1795707614069},{\"k\":\"entry\",\"ok\":false,\"t\":1795707615346},{\"k\":\"entry\",\"ok\":false,\"t\":1795707616050}]"
     },
     {
       "name": "S8: ses kapalıyken gösterim yine çalıştı",

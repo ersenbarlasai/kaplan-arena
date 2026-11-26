@@ -1,4 +1,5 @@
-// Kaplan Arena — "Üç Kampüs — Ortak Yarışma" uçtan uca testi: gerçek admin akışı + ayrı sahne + üç öğrenci telefonu.
+// Kaplan Arena — üç kampüs pilotu uçtan uca testi (eleme yarışması 3 → 3 → 2 → şampiyon): gerçek admin akışı + ayrı sahne +
+// üç kaptan telefonu (kaptan koduyla). Orman Geçidi'nde eleme yok ama tur kazananı açıklanır; Kadim Kale'den ilk 2 finale.
 // Çalıştırma: NODE_PATH=<puppeteer-core node_modules> node tests/e2e/uckampus.js
 // Canlı Redis/Vercel kullanılmaz: tests/e2e/server.js bellek kipindeki /api/ka ile çalışır. Bu test yerel taklit
 // sunucusudur; gerçek kampüsler arası internet bağlantısının yerine geçmez.
@@ -43,7 +44,8 @@ const scores = page => page.evaluate(() => curTeams().map(t => t.score));
 async function waitG(page, fn, arg, timeout){ await page.waitForFunction(fn, { timeout: timeout || 20000, polling: 100 }, arg); }
 async function shot(page, name, w, h){ if (w) await page.setViewport({ width:w, height:h }); await sleep(500); await page.screenshot({ path: path.join(SHOTS, name + '.png') }); }
 const textOf = page => page.evaluate(() => document.body.innerText);
-const noTournamentWords = t => !/[İi]lk 2|4 finalist|finale çık|Finale çıkan|puanlar sıfırdan|iki etaba ayrılacak|Finaldesiniz|FİNALDESİNİZ/i.test(t);
+// Eski iki gruplu turnuva ifadeleri (yeni yarışmada “ilk 2 finale” doğru kuraldır; iki grup/4 finalist/sıfırlama değildir).
+const noTournamentWords = t => !/4 finalist|Finale çıkanlar|puanlar sıfırdan|iki etaba ayrılacak|İki Gruplu|kura ile/i.test(t);
 
 async function setClasses(admin, txt){
   await act(admin, 'settings');
@@ -60,6 +62,13 @@ async function importText(admin, txt){
   const asked = await admin.evaluate(() => ui.confirm === 'import');
   if (asked) await clickSel(admin, '[data-act="importYes"]');
   return admin.evaluate(() => ({ msg: ui.msg, classes: S.settings.classes.slice(), nq: S.questions.s1.length }));
+}
+async function joinTeam(ph, tid, code){
+  await ph.waitForSelector(`[data-pl="pickElim"][data-id="${tid}"]`, { timeout: 15000 });
+  await pl(ph, 'pickElim', { id: tid });
+  await ph.waitForSelector('#pl-code');
+  await ph.evaluate(c => { const el = document.getElementById('pl-code'); el.value = c; el.dispatchEvent(new Event('input', { bubbles: true })); }, code);
+  await pl(ph, 'codeYes');
 }
 async function pickSend(page, letters){ await page.waitForSelector('[data-pl="pick-opt"]:not([disabled])'); for (const L of letters) await pl(page, 'pick-opt', { v: L }); await pl(page, 'send'); }
 async function useJoker(admin, page, j){
@@ -96,6 +105,7 @@ async function reveal(admin){
         tie: [T('Everest Dağı kaç metredir?', 8849, 'm'), T('Türkiye kaç ilden oluşur?', 81, '')]
       };
       S.settings.seconds = 40; save();
+      window.KA_RNG = () => 0.9999999;   // test: soru sırası bankadaki sırayla
     });
     await act(admin, 'begin');
 
@@ -109,7 +119,7 @@ async function reveal(admin){
     r = await setClasses(admin, 'Kampüs A\nKampüs B\nkampüs  a');
     check('ayarlar: tekrar eden ad (büyük/küçük harf, boşluk farkı) reddedilir', JSON.stringify(r.classes) === JSON.stringify(TEAMS) && /iki kez/.test(r.msg), JSON.stringify(r));
     const setTxt = await textOf(admin);
-    check('ayarlar: üç takımda Üç Kampüs modu ve puan biriktirme kuralı anlatılır', /Üç Kampüs — Ortak Yarışma/.test(setTxt) && /birikir/.test(setTxt), setTxt.slice(0, 400));
+    check('ayarlar: üç takımda 3 → 3 → 2 → şampiyon kuralı ve puan biriktirme anlatılır', /3 → 3 → 2 → şampiyon/.test(setTxt) && /birikir/.test(setTxt), setTxt.slice(0, 400));
     await shot(admin, 'admin-ayarlar-uc-takim-1366', 1366, 900);
 
     /* ---------- 2) Yedek: dışa/içe aktarma ---------- */
@@ -131,8 +141,8 @@ async function reveal(admin){
     /* ---------- 3) Ana menü: mod ve kural yeni yarışmadan önce görünür ---------- */
     await act(admin, 'menu');
     const menuTxt = await textOf(admin);
-    check('menü: "Üç Kampüs — Ortak Yarışma" modu ve puan biriktirme kuralı başlatmadan önce görünür', /Üç Kampüs — Ortak Yarışma/.test(menuTxt) && /birikir/.test(menuTxt) && /eleme (yok|olmaz)/i.test(menuTxt), menuTxt.slice(0, 600));
-    check('menü: turnuva ifadeleri (ilk 2 finale, 4 finalist, puanlar sıfırdan) görünmez', noTournamentWords(menuTxt), menuTxt.slice(0, 600));
+    check('menü: 3 → 3 → 2 → şampiyon, Orman’da eleme yok, puan biriktirme kuralı başlatmadan önce görünür', /3 → 3 → 2 → şampiyon/.test(menuTxt) && /birikir/.test(menuTxt) && /eleme yok/i.test(menuTxt) && /ilk 2/.test(menuTxt), menuTxt.slice(0, 700));
+    check('menü: eski turnuva ifadeleri (iki grup, 4 finalist, puanlar sıfırdan) görünmez', noTournamentWords(menuTxt), menuTxt.slice(0, 600));
     await shot(admin, 'admin-menu-uc-kampus-1366', 1366, 768);
 
     /* ---------- 4) Gerçek başlatma: 2+1 gruba ayrılmaz ---------- */
@@ -140,8 +150,8 @@ async function reveal(admin){
     await waitG(admin, () => S.game.started);
     let g = await G(admin);
     const pin = g.pin;
-    check('başlatma: mod yarışma kaydına "shared" olarak sabitlendi', g.mode === 'shared', g.mode);
-    check('başlatma: üç takım tek ortak listede; 2+1 gruba ayrılmadı', g.teams.all && g.teams.all.map(t => t.name).join('|') === TEAMS.join('|') && !(g.teams.s1 || []).length && !(g.teams.s2 || []).length && !g.draw, JSON.stringify(g.teams));
+    check('başlatma: eleme formatı kayda sabitlendi (3 → 3 → 2 → 1)', g.mode === 'elim' && JSON.stringify(g.format.quotas) === '[3,2,1]', JSON.stringify(g.format));
+    check('başlatma: üç takım tek ortak listede; 2+1 gruba ayrılmadı', g.teams.all && g.teams.all.map(t => t.name).join('|') === TEAMS.join('|') && !(g.teams.s1 || []).length && !(g.teams.s2 || []).length && !g.draw && g.rounds[0].ids.length === 3, JSON.stringify(g.teams));
     check('başlatma: doğrudan ortak katılım ekranı, puanlar sıfır', g.view === 'teams' && g.teams.all.every(t => t.score === 0));
 
     const popupP = new Promise(res => admin.once('popup', res));
@@ -152,7 +162,7 @@ async function reveal(admin){
     await waitG(admin, () => StageHost.count() > 0);
     await sleep(600);
     const lobbyTxt = await textOf(stage);
-    check('sahne: ortak katılım; üç takım ve birikimli puan kuralı', TEAMS.every(n => lobbyTxt.includes(n)) && /birikir/.test(lobbyTxt), lobbyTxt.slice(0, 400));
+    check('sahne: ortak katılım; üç takım ve bu turda eleme olmadığı', TEAMS.every(n => lobbyTxt.includes(n)) && /eleme yok/.test(lobbyTxt), lobbyTxt.slice(0, 400));
     check('sahne katılım: turnuva ifadeleri yok', noTournamentWords(lobbyTxt), lobbyTxt.slice(0, 400));
     await shot(stage, 'sahne-katilim-1920');
 
@@ -163,7 +173,7 @@ async function reveal(admin){
       const ctx = await browser.createBrowserContext(), p = await ctx.newPage(); watch(p, 'telefon' + 'ABC'[i]);
       await p.setViewport(Object.assign({ isMobile: true, hasTouch: true }, vps[i]));
       await p.goto(`${BASE}/kaplan-arena.html?pin=${pin}`);
-      await p.waitForSelector('[data-pl="pick"]');
+      await p.waitForSelector('[data-pl="pickElim"]');
       phones.push(p);
     }
     const [phA, phB, phC] = phones;
@@ -171,12 +181,12 @@ async function reveal(admin){
     check('telefon: takım seçiminde üç takım ve kapsayıcı ifade', TEAMS.every(n => pickTxt.includes(n)) && /[Tt]akım/.test(pickTxt), pickTxt.slice(0, 300));
     await shot(phA, 'telefon-takim-secimi-390');
     await shot(phB, 'telefon-takim-secimi-360');
-    for (let i = 0; i < 3; i++) await pl(phones[i], 'pick', { i });
-    await waitG(admin, () => NET.joined && NET.joined[0] && NET.joined[1] && NET.joined[2]);
+    for (let i = 0; i < 3; i++) await joinTeam(phones[i], 't' + (i + 1), g.codes['t' + (i + 1)]);
+    await waitG(admin, () => NET.joined && NET.joined.t1 && NET.joined.t2 && NET.joined.t3);
     check('üç telefon ayrı takımlarını aldı', true);
     let kv = await kvState(pin);
-    check('ağ yükü: telefon durumunda üç takım ve mod', kv.st.teams.length === 3 && kv.st.mode === 'shared', JSON.stringify({ teams: kv.st.teams, mode: kv.st.mode }));
-    const devs = await Promise.all(phones.map(p => p.evaluate(() => P.dev)));
+    check('ağ yükü: telefon durumunda üç takım, kararlı kimlikler ve mod', kv.st.teams.length === 3 && kv.st.mode === 'elim' && kv.st.ids.join() === 't1,t2,t3', JSON.stringify({ teams: kv.st.teams, mode: kv.st.mode }));
+    const toks = await Promise.all(phones.map(p => p.evaluate(() => P.tok)));
 
     /* ---------- 6) 1. etap, soru 1 (şıklı): Çifte Puan, ortak süre, yanlış cihaz reddi ---------- */
     await act(admin, 'startStage');
@@ -198,7 +208,9 @@ async function reveal(admin){
     await pickSend(phA, ['C']); await pickSend(phB, ['C']); await pickSend(phC, ['A']);
     await sleep(700);
     kv = await kvState(pin);
-    await api({ fn:'set', pin, path:`answers/${kv.st.qk}/2/sINTRUDER`, value:{ v:'C', t: kv.t, dev:'yabanci-cihaz' } });
+    const intr = [await api({ fn:'set', pin, path:`answers/${kv.st.qk}/t3/sINTRUDER`, value:{ v:'C', t: kv.t, dev:'yabanci-cihaz' } }),
+      await api({ fn:'join', pin, tid:'t3', code:'0000', dev:'yabanciCihaz' }), await api({ fn:'cmd', pin, tok:'sahte', op:'ans', qk:kv.st.qk, v:'C', t:kv.t })];
+    check('yabancı cihaz: doğrudan yazım, yanlış kod ve sahte oturum sunucuda reddedildi', intr.every(x => x.ok !== true && !x.r), JSON.stringify(intr));
     await sleep(900);
     await reveal(admin);
     g = await G(admin);
@@ -243,13 +255,18 @@ async function reveal(admin){
     await act(admin, 'next');
     await waitG(admin, () => S.game.view === 'stageEnd');
     g = await G(admin);
-    check('1. etap sonu: eleme yok, eşitlik sorusu yok, üç takım devam', !g.result.tie && g.result.qualified.length === 3, JSON.stringify(g.result));
-    await sleep(500);
+    check('1. tur sonu: eleme yok (3 → 3), eşitlik sorusu yok', !g.result.tie && g.result.all && g.result.qualified.length === 3, JSON.stringify(g.result));
+    await act(admin, 'revealRound');
+    await waitG(admin, () => S.game.result.revealed);
+    g = await G(admin);
+    check('1. tur: elemesiz turda da tur kazananı açıklanır (A, +20)', JSON.stringify(g.rounds[0].done.winners) === '["t1"]' && g.rounds[0].done.out.length === 0, JSON.stringify(g.rounds[0].done));
+    await act(admin, 'showSkip');
+    await sleep(700);
     const end1 = await textOf(stage);
-    check('sahne 1. etap sonu: üç takımın toplam puanı ve devam mesajı; turnuva ifadeleri yok', /Orman Geçidi Tamamlandı/i.test(end1) && /devam/i.test(end1) && noTournamentWords(end1), end1.slice(0, 500));
+    check('sahne 1. tur sonu: tur kazananı, toplamlar ve “Üç takım da Kadim Kale’ye ilerliyor”', /Orman Geçidi Tamamlandı/i.test(end1) && /TURUN KAZANANI/.test(end1) && /Üç takım da Kadim Kale’ye ilerliyor/.test(end1) && !/Elendi/.test(end1), end1.slice(0, 500));
     await shot(stage, 'sahne-etap1-sonu-1920');
     const ph1 = await textOf(phC);
-    check('telefon 1. etap sonu: toplam ve devam', /Toplam/.test(ph1) && /devam/i.test(ph1) && noTournamentWords(ph1), ph1.slice(0, 300));
+    check('telefon 1. tur sonu: toplam, tur kazananı ve devam', /Toplam/.test(ph1) && /devam/i.test(ph1) && /Turun kazananı/.test(ph1), ph1.slice(0, 300));
     await shot(phC, 'telefon-etap-sonu-412');
 
     /* ---------- 8) yeniden yükleme: mod, katılımcılar, puanlar korunur ---------- */
@@ -258,14 +275,14 @@ async function reveal(admin){
     await act(admin, 'begin');
     await waitG(admin, () => ui.screen === 'game');
     g = await G(admin);
-    check('admin yenileme: mod/katılımcı/puan/aşama korunur', g.mode === 'shared' && g.view === 'stageEnd' && g.teams.all.map(t => t.score).join() === '20,10,0', JSON.stringify({ mode: g.mode, view: g.view, t: g.teams.all }));
+    check('admin yenileme: mod/katılımcı/puan/aşama korunur', g.mode === 'elim' && g.view === 'stageEnd' && g.result.revealed && g.teams.all.map(t => t.score).join() === '20,10,0', JSON.stringify({ mode: g.mode, view: g.view, t: g.teams.all }));
     await waitG(admin, () => StageHost.count() > 0, null, 8000);
     check('admin yenileme: sahne yeniden bağlandı', true);
     await act(admin, 'advance');
     await waitG(admin, () => S.game.view === 'teams' && S.game.stage === 1);
     await sleep(900);
     check('2. etap katılım: puanlar sıfırlanmadı (20/10/0)', JSON.stringify(await scores(admin)) === '[20,10,0]', JSON.stringify(await scores(admin)));
-    check('2. etap: telefonlar yeniden seçim yapmadan bağlı kaldı', await admin.evaluate(() => !!(NET.joined && NET.joined[0] && NET.joined[1] && NET.joined[2])));
+    check('2. tur: telefonlar yeniden seçim yapmadan bağlı kaldı', await admin.evaluate(() => !!(NET.joined && NET.joined.t1 && NET.joined.t2 && NET.joined.t3)));
     await shot(stage, 'sahne-etap2-katilim-1920');
 
     /* ---------- 9) açık yarışmada ayar değişikliği yarışmayı dönüştürmez ---------- */
@@ -275,7 +292,7 @@ async function reveal(admin){
     await act(admin, 'start');
     await waitG(admin, () => ui.screen === 'game');
     g = await G(admin);
-    check('açık yarışmada ayar değişikliği modu ve katılımcıları değiştirmez', /kaydedildi/.test(r.msg) && g.mode === 'shared' && g.teams.all.map(t => t.name).join('|') === TEAMS.join('|'), JSON.stringify({ r, mode: g.mode }));
+    check('açık yarışmada ayar değişikliği modu ve katılımcıları değiştirmez', /kaydedildi/.test(r.msg) && g.mode === 'elim' && g.teams.all.map(t => t.name).join('|') === TEAMS.join('|'), JSON.stringify({ r, mode: g.mode }));
     await setClasses(admin, TEAMS.join('\n'));
     await act(admin, 'start');
 
@@ -288,10 +305,10 @@ async function reveal(admin){
     await sleep(500);
     check('telefon A: 1. etapta kullanılan Çifte Puan 2. etapta "kullanıldı"', await phA.evaluate(() => { const b = document.querySelector('[data-pl="jkAsk"][data-j="x2"]'); return !!b && b.disabled && /KULLANILDI/.test(b.textContent); }));
     kv = await kvState(pin);
-    await api({ fn:'set', pin, path:`jreq/${kv.st.qk}/0`, value:{ j:'x2', t: kv.t, dev: devs[0] } });
+    await api({ fn:'cmd', pin, tok:toks[0], op:'jk', qk:kv.st.qk, j:'x2', t:kv.t });
     await waitG(admin, () => S.game.jrej && S.game.jrej[0], null, 6000);
     g = await G(admin);
-    check('arena geçişi joker hakkını yenilemez (doğrudan istek reddedildi)', /daha önce kullanıldı/.test(g.jrej[0].why) && g.jokers['Kampüs A'].x2.startsWith('s1_'), JSON.stringify(g.jrej[0]));
+    check('arena geçişi joker hakkını yenilemez (doğrudan istek reddedildi)', /daha önce kullanıldı/.test(g.jrej[0].why) && g.jokers.t1.x2.startsWith('s1_'), JSON.stringify(g.jrej[0]));
     await useJoker(admin, phB, 'double');
     await useJoker(admin, phC, 'x2');
     await pickSend(phB, ['A', 'B']); await pickSend(phC, ['B']); await pickSend(phA, ['D']);
@@ -306,24 +323,44 @@ async function reveal(admin){
     await act(admin, 'next');
     await waitG(admin, () => S.game.view === 'stageEnd');
     g = await G(admin);
-    check('2. etap eşitliğinde gereksiz eleme/eşitlik sorusu çıkmaz', !g.result.tie && g.result.qualified.length === 3 && !(await admin.$('[data-act="startTie"]')), JSON.stringify(g.result));
+    check('2. tur 20/20/20: iki finalist kontenjanında üçlü sınır eşitliği → eleme kesinleşmeden eşitlik sorusu', g.result.tie && JSON.stringify(g.result.tie.candidates) === '[0,1,2]' && g.result.tie.slots === 2 && !g.rounds[1].done, JSON.stringify(g.result));
+    const pend = await textOf(stage);
+    check('sahne: eşitlik çözülmeden elenen ilan edilmez', !/Elendi/.test(pend) && /eşitlik/i.test(pend), pend.slice(0, 300));
+    await act(admin, 'startTie'); await act(admin, 'showQ');
+    await Promise.all(phones.map(p => p.waitForSelector('#pl-num:not([disabled])')));
+    await typeNum(phA, '8800'); await pl(phA, 'send');
+    await typeNum(phB, '8000'); await pl(phB, 'send');
+    await typeNum(phC, '5000'); await pl(phC, 'send');
+    await waitG(admin, () => [0, 1, 2].every(i => !!liveAccepted(i)), null, 8000);
+    await reveal(admin);
+    await act(admin, 'resolveTie');
+    await waitG(admin, () => S.game.view === 'stageEnd' && !S.game.result.tie);
+    await act(admin, 'revealRound');
+    await waitG(admin, () => S.game.result.revealed);
+    g = await G(admin);
+    check('Kadim Kale sonucu: A ve B finale, C elendi (3 → 2)', JSON.stringify(g.rounds[1].done.up.slice().sort()) === '["t1","t2"]' && g.teams.all[2].status === 'out', JSON.stringify(g.rounds[1].done));
+    await phC.waitForFunction(() => /Bu turda elendiniz/.test(document.body.innerText), { timeout: 10000 });
+    check('telefon C: “Bu turda elendiniz; yarışmaya devam edemezsiniz”', /devam edemezsiniz/.test(await textOf(phC)));
+    await shot(phC, 'telefon-elendi-412');
+    await act(admin, 'showSkip');
     await act(admin, 'advance');
     await waitG(admin, () => S.game.view === 'teams' && S.game.stage === 2);
 
     /* ---------- 11) final: sıfırlanmaz, lider eşitliği yalnız liderlerle çözülür ---------- */
     await act(admin, 'startStage');
     await waitG(admin, () => S.game.view === 'question');
-    check('final öncesi puanlar sıfırlanmaz (20/20/20)', JSON.stringify(await scores(admin)) === '[20,20,20]', JSON.stringify(await scores(admin)));
+    check('final öncesi puanlar sıfırlanmaz; finalde iki takım (20/20)', JSON.stringify(await scores(admin)) === '[20,20]', JSON.stringify(await scores(admin)));
     const finTxt = await textOf(stage);
     check('sahne final: "puanlar sıfırdan" yazmaz', noTournamentWords(finTxt), finTxt.slice(0, 300));
     await act(admin, 'showQ');
-    await Promise.all(phones.map(p => p.waitForSelector('[data-pl="pick-opt"]')));
-    await pickSend(phA, ['C']); await pickSend(phB, ['C']); await pickSend(phC, ['A']);
+    await Promise.all([phA, phB].map(p => p.waitForSelector('[data-pl="pick-opt"]')));
+    check('elenen C telefonu final sorusunu cevaplayamaz', !(await phC.$('[data-pl="pick-opt"]')) && /elendiniz/.test(await textOf(phC)));
+    await pickSend(phA, ['C']); await pickSend(phB, ['C']);
     await sleep(800);
     await reveal(admin);
     await act(admin, 'showScores');
     await waitG(admin, () => S.game.view === 'scoreboard');
-    check('final: 30/30/20', JSON.stringify(await scores(admin)) === '[30,30,20]', JSON.stringify(await scores(admin)));
+    check('final: 30/30', JSON.stringify(await scores(admin)) === '[30,30]', JSON.stringify(await scores(admin)));
     await act(admin, 'next');
     await waitG(admin, () => S.game.view === 'stageEnd');
     g = await G(admin);
@@ -335,18 +372,16 @@ async function reveal(admin){
     await act(admin, 'showQ');
     await phA.waitForSelector('#pl-num');
     await sleep(500);
-    check('eşitlik sorusu: lider olmayan takım cevaplamaz', /yalnız/.test(await textOf(phC)), (await textOf(phC)).slice(0, 200));
-    await typeNum(phA, '8800'); await pl(phA, 'send');
-    await typeNum(phB, '8000'); await pl(phB, 'send');
+    check('final eşitlik sorusu farklı (Kale’deki eşitlik sorusu tekrar gelmez)', await admin.evaluate(() => curQ().text) === 'Türkiye kaç ilden oluşur?', await admin.evaluate(() => curQ() && curQ().text));
+    await typeNum(phA, '80'); await pl(phA, 'send');
+    await typeNum(phB, '70'); await pl(phB, 'send');
     await sleep(900);
     await reveal(admin);
     await act(admin, 'resolveTie');
     await waitG(admin, () => S.game.view === 'stageEnd' && !S.game.result.tie);
     g = await G(admin);
-    check('eşitlik çözüldü: A birinci; normal toplamlar değişmedi (30/30/20)', g.result.qualified[0] === 0 && JSON.stringify(await scores(admin)) === '[30,30,20]', JSON.stringify({ q: g.result.qualified, s: await scores(admin) }));
-    const order = await admin.evaluate(() => ui.model.board.map(b => b.name));
-    check('final sonuç tablosu: eşitliği kazanan önce sıralanır', order[0] === 'Kampüs A' && order[2] === 'Kampüs C', JSON.stringify(order));
-    await act(admin, 'advance');
+    check('eşitlik çözüldü: A birinci; normal toplamlar değişmedi (30/30)', g.result.qualified[0] === 0 && JSON.stringify(await scores(admin)) === '[30,30]', JSON.stringify({ q: g.result.qualified, s: await scores(admin) }));
+    await act(admin, 'revealRound');
     await waitG(admin, () => S.game.view === 'champion');
     await sleep(800);
     const champTxt = await textOf(stage);
@@ -354,6 +389,8 @@ async function reveal(admin){
     await shot(stage, 'sahne-sampiyon-1920');
     await sleep(800);
     check('telefon A: ŞAMPİYONSUNUZ; telefon B: Şampiyon: Kampüs A', /ŞAMPİYONSUNUZ/.test(await textOf(phA)) && /Şampiyon: Kampüs A/.test(await textOf(phB)));
+    const pod = await stage.evaluate(() => [...document.querySelectorAll('.sg-pod:not(.empty) b')].map(b => b.textContent));
+    check('podyum: şampiyon A, finalist B, üçüncü kesinleşmiş Kale elenmesinden C', pod.join('|') === 'Kampüs B|Kampüs A|Kampüs C', JSON.stringify(pod));
     await shot(phA, 'telefon-sampiyon-390');
     await shot(admin, 'admin-sampiyon-1366', 1366, 768);
 
@@ -380,16 +417,8 @@ async function reveal(admin){
     await old.evaluate(() => ACT.newGameYes());
     await waitG(old, () => S.game.started && S.game.mode, null, 8000).catch(() => {});
     const tg = await G(old);
-    check('4 takım: yeni yarışma iki gruplu turnuva modunda kura ile açılır', tg.mode === 'tournament' && tg.view === 'draw', JSON.stringify({ mode: tg.mode, view: tg.view }));
-    if (tg.mode === 'tournament'){
-      await act(old, 'drawGo'); await waitG(old, () => S.game.draw && ui.drawShown == null);
-      const dg = await G(old);
-      check('4 takım: kura 2+2 gruba ayırır', dg.draw.s1.length === 2 && dg.draw.s2.length === 2, JSON.stringify(dg.draw));
-      await act(old, 'drawOk');
-      const tTxt = await old.evaluate(() => StageView.html(ui.model));
-      check('4 takım: sahnede mevcut "İlk 2 sınıf finale çıkar" kuralı korunur', /İlk 2 sınıf finale çıkar/.test(tTxt));
-      await old.evaluate(() => ACT.endYes());
-    }
+    check('4 takım: yeni yarışma eleme formatında (4 → 3 → 2 → 1), kura/iki grup yok', tg.mode === 'elim' && tg.view === 'teams' && JSON.stringify(tg.format.quotas) === '[3,2,1]' && tg.rounds[0].ids.length === 4 && !tg.draw, JSON.stringify({ mode: tg.mode, view: tg.view }));
+    await old.evaluate(() => ACT.endYes());
 
     /* ---------- 13) file:// telefonsuz: üç takım ortak yarışma ---------- */
     const ctxF = await browser.createBrowserContext(), fp = await ctxF.newPage(); watch(fp, 'file');
@@ -408,7 +437,7 @@ async function reveal(admin){
     await act(fp, 'showScores');
     await waitG(fp, () => S.game.view === 'scoreboard', null, 6000).catch(() => {});
     const fg = await G(fp);
-    check('file:// telefonsuz: üç takım ortak yarışma, admin puanı girer', fg.mode === 'shared' && fg.teams.all[1].score === 10, JSON.stringify(fg.teams.all));
+    check('file:// telefonsuz: üç takım eleme yarışması, admin puanı girer', fg.mode === 'elim' && fg.teams.all[1].score === 10, JSON.stringify(fg.teams.all));
     await fp.evaluate(() => ACT.endYes());
 
     check('tarayıcı sayfa hatası yok', errors.length === 0, errors.slice(0, 6).join(' | '));

@@ -1,4 +1,4 @@
-// Kaplan Arena çekirdek mantık testleri — çalıştırma: node --test tests/
+// Kaplan Arena çekirdek mantık testleri — çalıştırma: node --test tests/*.test.js
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const C = require('../app/core.js');
@@ -210,7 +210,7 @@ test('göç: eski kayıt korunur, şema 2 alanları eklenir, çalışan saat dur
     game: { started: true, view: 'question', shown: true, revealed: false, stage: 0, teams: { s1: [{ name: '9A', score: 20 }], s2: [], final: [] } }
   };
   const s = C.migrate(JSON.parse(JSON.stringify(old)), { now: 1000 });
-  assert.equal(s.schema, 2);
+  assert.equal(s.schema, C.SCHEMA);
   assert.equal(s.settings.title, 'Okul Yarışması');
   assert.deepEqual(s.questions, old.questions);
   assert.equal(s.game.teams.s1[0].score, 20);
@@ -294,4 +294,136 @@ test('göç: ortak listedeki takımların armaları korunur', () => {
   const s = { settings: { classes: ['9A', '9B', '9C', '9D'], emblems: {} }, game: { mode: 'shared', teams: { all: [team('Kampüs A', 0), team('Kampüs B', 0), team('Kampüs C', 0)] } } };
   C.migrate(s, { now: 1 });
   for (const n of ['Kampüs A', 'Kampüs B', 'Kampüs C']) assert.equal(typeof s.settings.emblems[n], 'number');
+});
+
+/* ---------- eleme yarışması (format v3) ---------- */
+function elimGame(names) {
+  const g = { mode: 'elim', format: C.makeFormat(names.length), stage: 0, teams: { all: names.map((n, k) => ({ id: 't' + (k + 1), name: n, score: 0, status: 'active' })) }, rounds: [] };
+  C.newRound(g, 0, g.teams.all.map(t => t.id));
+  return g;
+}
+function setScores(g, arr) { C.roundTeams(g, g.stage).forEach((t, i) => { t.score = arr[i]; }); }
+function finishAndAdvance(g) {
+  const o = C.roundOutcome(g, g.stage);
+  assert.equal(o.tie, null, 'eşitlik beklenmiyordu');
+  assert.equal(C.commitRound(g, g.stage, o.qualified), true);
+  const up = g.rounds[g.stage].done.up;
+  if (g.stage < 2) { C.newRound(g, g.stage + 1, up); g.stage++; }
+  return { o, up };
+}
+
+test('kontenjanlar: 3 → 3 → 2 → 1, 4 → 3 → 2 → 1, kalabalıkta max(3, ⌈n/2⌉)', () => {
+  assert.deepEqual(C.quotasFor(3), [3, 2, 1]);
+  assert.deepEqual(C.quotasFor(4), [3, 2, 1]);
+  assert.deepEqual(C.quotasFor(5), [3, 2, 1]);
+  assert.deepEqual(C.quotasFor(7), [4, 2, 1]);
+  assert.deepEqual(C.quotasFor(11), [6, 2, 1]);
+  assert.equal(C.quotasFor(2), null);
+});
+
+test('dört takım: 4 aynı turda → 3 → 2 → tek şampiyon; elenen üst turlarda yok, puanlar birikir', () => {
+  const g = elimGame(['A', 'B', 'C', 'D']);
+  assert.equal(C.teamsOf(g, 's1').length, 4);
+  setScores(g, [40, 30, 20, 10]);
+  let r = finishAndAdvance(g);
+  assert.deepEqual(r.up, ['t1', 't2', 't3']);
+  assert.equal(C.teamById(g, 't4').status, 'out');
+  assert.deepEqual(C.teamsOf(g, 's2').map(t => t.id), ['t1', 't2', 't3']);
+  C.snapRound(g, 1);
+  // Kale: toplamlar sıfırlanmaz; tur kazananı net kazançla (C +40), yükselme toplamla (A 50, C 60)
+  setScores(g, [50, 35, 60]);
+  r = finishAndAdvance(g);
+  assert.deepEqual(r.o.winners, [2]);
+  assert.deepEqual([...r.up].sort(), ['t1', 't3']);
+  assert.ok(!C.teamsOf(g, 'final').some(t => t.id === 't4' || t.id === 't2'));
+  C.snapRound(g, 2);
+  const fin = C.roundTeams(g, 2).map(t => t.id);   // yükselme sırası: C (60), A (50)
+  assert.deepEqual(fin, ['t3', 't1']);
+  setScores(g, [65, 70]);
+  r = finishAndAdvance(g);
+  assert.deepEqual(r.up, ['t1'], 'şampiyon final sonu toplam puanla');
+  assert.equal(g.rounds[1].done.out.length, 1, 'üçüncü yalnız Kale elenmesinden bulunur');
+});
+
+test('üç takım: Orman elemesiz (3 → 3) ama tur kazananı açıklanır; Kale sonrası 2 finalist', () => {
+  const g = elimGame(['A', 'B', 'C']);
+  setScores(g, [10, 30, 20]);
+  let r = finishAndAdvance(g);
+  assert.equal(r.o.all, true);
+  assert.deepEqual(r.o.winners, [1]);
+  assert.equal(r.up.length, 3);
+  assert.ok(g.teams.all.every(t => t.status === 'active'));
+  C.snapRound(g, 1);
+  setScores(g, [40, 30, 30]);
+  const o = C.roundOutcome(g, 1);
+  assert.deepEqual(o.qualified, [0]);
+  assert.deepEqual(o.tie, { candidates: [1, 2], slots: 1 }, 'sınır eşitliğinde eleme kesinleşmez');
+  assert.equal(g.rounds[1].done, null);
+});
+
+test('kalabalık başlangıç (7 takım): 7 → 4 → 2 → 1; sınır eşitliği yalnız sınırdaki takımlarla', () => {
+  const g = elimGame(['A', 'B', 'C', 'D', 'E', 'F', 'G']);
+  setScores(g, [70, 60, 50, 40, 40, 20, 10]);
+  const o = C.roundOutcome(g, 0);
+  assert.deepEqual(o.qualified, [0, 1, 2]);
+  assert.deepEqual(o.tie, { candidates: [3, 4], slots: 1 });
+  // eşitlik çözüldü: D yükselir
+  assert.equal(C.commitRound(g, 0, [0, 1, 2, 3]), true);
+  assert.equal(C.commitRound(g, 0, [0, 1, 2, 4]), false, 'ikinci kesinleştirme etkisiz (idempotent)');
+  assert.deepEqual(g.rounds[0].done.up, ['t1', 't2', 't3', 't4']);
+  assert.equal(g.teams.all.filter(t => t.status === 'out').length, 3);
+  assert.equal(g.elimLog.length, 3);
+});
+
+test('tur kazananı eşitse ortak kazananlar; kümülatif eleme kuralı değişmez', () => {
+  const g = elimGame(['A', 'B', 'C', 'D']);
+  g.teams.all.forEach((t, i) => { t.score = [0, 0, 0, 0][i]; });
+  setScores(g, [30, 30, 10, 0]);
+  const o = C.roundOutcome(g, 0);
+  assert.deepEqual(o.winners, [0, 1]);
+  assert.deepEqual(o.qualified, [0, 1, 2]);
+});
+
+test('soru planı: Fisher–Yates (enjekte rastgelelik), bankalar arası ve farklı id\'li aynı içerik tekrarlanmaz', () => {
+  const D = (id, t, o) => ({ id, type: 'ders', subject: 'Türkçe', text: t, options: o, answer: 'A' });
+  const T = (id, t, a) => ({ id, type: 'tahmin', text: t, answer: a, unit: '' });
+  const qs = {
+    s1: [D('a', 'İki artı iki kaç?', ['4', '5', '6', '7']), T('b', 'Kızılırmak kaç km?', 1355), D('c', 'Başkent?', ['Ankara', 'İzmir', 'Bursa', 'Van'])],
+    s2: [D('x', '  iki ARTI iki kaç ', ['7', '6', '5', '4']), T('y', 'Everest kaç m?', 8849)],
+    final: [T('z', 'kızılırmak  kaç KM', 1355), T('w', 'Türkiye kaç il?', 81)],
+    tie: [T('t1', 'Everest kaç m?', 8849), T('t2', 'Boğaz kaç km?', 31)]
+  };
+  let seed = 7; const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
+  const a = C.buildPlan(qs, rnd);
+  seed = 7; const b = C.buildPlan(qs, rnd);
+  assert.deepEqual(a.plan.s1.map(q => q.id), b.plan.s1.map(q => q.id), 'aynı tohum → aynı sıra (testte enjekte)');
+  assert.equal(a.dups, 3);
+  const all = ['s1', 's2', 'final', 'tie'].flatMap(k => a.plan[k].map(q => q.cid));
+  assert.equal(new Set(all).size, all.length, 'yarışma çapında benzersiz');
+  assert.equal(a.plan.s2.length + a.plan.final.length + a.plan.tie.length, 3);
+  // karıştırma gerçekten sıra değiştirir (çok sayıda örnekte hem ilk hem son konum değişir)
+  const firsts = new Set(); for (let k = 0; k < 40; k++) firsts.add(C.shuffle([1, 2, 3, 4, 5], Math.random)[0]);
+  assert.ok(firsts.size >= 3);
+});
+
+test('sorulan soru kalıcı tüketilir; planAppend sorulmuş/plandaki içeriği eklemez; nextUnasked atlar', () => {
+  const T = (id, t) => ({ id, type: 'tahmin', text: t, answer: 1, unit: '' });
+  const g = { plan: C.buildPlan({ s1: [T('a', 'Bir'), T('b', 'İki')], s2: [], final: [], tie: [T('c', 'Üç')] }, () => 0).plan, asked: {} };
+  const q0 = g.plan.s1[0];
+  assert.equal(C.markAsked(g, q0, { at: 1 }), true);
+  assert.equal(C.markAsked(g, q0, { at: 2 }), false);
+  assert.equal(C.nextUnasked(g, 's1', 0), 1);
+  assert.equal(C.markAsked(g, g.plan.s1[1]), true);
+  assert.equal(C.nextUnasked(g, 's1', 0), -1, 'tükenen havuz eski soruları döndürmez');
+  assert.equal(C.planAppend(g, 'tie', [T('n1', '  bir '), T('n2', 'Üç'), T('n3', 'Dört')], () => 0), 1, 'yalnız yeni benzersiz soru eklenir');
+  assert.equal(g.plan.tie[g.plan.tie.length - 1].text, 'Dört');
+});
+
+test('göç: şema 3; eski turnuva/ortak kayıt dönüştürülmez, puan silinmez', () => {
+  const s = { settings: { classes: ['A', 'B', 'C', 'D'] }, game: { started: true, mode: 'shared', stage: 1, view: 'teams', teams: { all: [{ name: 'A', score: 30 }] } } };
+  C.migrate(s);
+  assert.equal(s.schema, 3);
+  assert.equal(s.game.mode, 'shared');
+  assert.equal(s.game.teams.all[0].score, 30);
+  assert.equal(s.game.plan, undefined);
 });

@@ -191,20 +191,26 @@
 
 <!-- ============ 4 ============ -->
 <section class="chapter">
-  <h1>4. Yarışma modları ve puan kuralları</h1>
-  <p>Mod, <b>yeni yarışma başlatılırken</b> Ayarlar'daki takım sayısına göre kendiliğinden seçilir ve o yarışmanın kaydına sabitlenir. Sonradan Ayarlar'da listeyi değiştirmek açık yarışmayı etkilemez; değişiklik bir sonraki yeni yarışmada geçerli olur. Ayarlar en az 3 benzersiz, boş olmayan ad ister.</p>
+  <h1>4. Eleme kuralı ve puanlar</h1>
+  <p>Kural, <b>yeni yarışma başlatılırken</b> Ayarlar'daki takım sayısına göre belirlenir ve kontenjanlarıyla birlikte o yarışmanın kaydına sabitlenir. Sonradan Ayarlar'da listeyi değiştirmek açık yarışmayı etkilemez. Ayarlar en az 3 benzersiz, boş olmayan ad ister. Kura ve iki ayrı grup yoktur: her turda o turun bütün aktif takımları aynı soruları aynı anda yanıtlar.</p>
   <table>
-    <tr><th style="width:22%"></th><th>Üç Kampüs — Ortak Yarışma</th><th>İki Gruplu Turnuva</th></tr>
-    <tr><td><b>Ne zaman</b></td><td>Ayarlarda tam <b>3</b> takım</td><td><b>4 ve daha fazla</b> sınıf</td></tr>
-    <tr><td><b>Kura</b></td><td>Yok; doğrudan ortak katılım</td><td>Liste kura ile iki etaba bölünür</td></tr>
-    <tr><td><b>Etaplar</b></td><td>Üç takım üç etabın tamamında birlikte</td><td>1. grup Orman Geçidi, 2. grup Kadim Kale; final ayrı</td></tr>
-    <tr><td><b>Eleme</b></td><td>Yok</td><td>Her etabın ilk 2'si finale çıkar (toplam 4 finalist)</td></tr>
-    <tr><td><b>Puanlar</b></td><td>Başta sıfır; yeni soruda ve yeni etapta <b>sıfırlanmaz</b>, üç etap boyunca birikir</td><td>Her etap sıfırdan; finalde puanlar sıfırdan başlar</td></tr>
-    <tr><td><b>Şampiyon</b></td><td>Son etap sonunda en yüksek toplam</td><td>Final etabının birincisi</td></tr>
-    <tr><td><b>Eşitlik</b></td><td>Yalnız birincilikteki eşitlik; yalnız eşit liderlere yedek tahmin sorusu</td><td>Finale çıkış sınırında ve final birinciliğinde</td></tr>
-    <tr><td><b>Telefon sahipliği</b></td><td>Yarışma boyunca bir kez seçilir</td><td>Etap bazında kaydedilir (her etabın takımları farklıdır)</td></tr>
+    <tr><th style="width:22%">Başlangıç</th><th>Orman Geçidi</th><th>Kadim Kale</th><th>Kaplan Arenası</th></tr>
+    <tr><td><b>3 takım</b> (üç kampüs)</td><td>3 takım · eleme yok, üçü de geçer</td><td>3 takım · toplamda ilk 2 finale</td><td>2 takım · tek şampiyon</td></tr>
+    <tr><td><b>4 takım</b></td><td>4 takım · toplamda ilk 3 geçer</td><td>3 takım · ilk 2 finale</td><td>2 takım · tek şampiyon</td></tr>
+    <tr><td><b>Daha fazla</b></td><td>n takım · en az 3 (yarısı kadar) geçer</td><td>ilk 2 finale</td><td>2 takım · tek şampiyon</td></tr>
   </table>
-  <figure><img src="../ekran-goruntuleri/uc-kampus/admin-menu-uc-kampus-1366.webp" style="width:76%"><figcaption>Ana Menü'de mod kartı: kural yarışma başlamadan önce açıkça gösterilir</figcaption></figure>
+  <ul>
+    <li><b>Puanlar birikir:</b> tur başında sıfırlanmaz. Yükselme ve şampiyonluk <b>toplam</b> puanla belirlenir.</li>
+    <li><b>Turun kazananı</b> o turdaki net kazançla ayrıca açıklanır; eşitse “Turun ortak kazananları”. Tur kazananı olmak eleme kuralını değiştirmez.</li>
+    <li><b>Eşitlik:</b> yükselme sınırında ya da final birinciliğinde yalnız eşit takımlara yedek tahmin sorusu sorulur; eşitlik çözülmeden kimse elenmez, şampiyon ilan edilmez.</li>
+    <li><b>Elenen</b> takım sonraki turlara katılamaz; puanı arşivde kalır. Şampiyon podyumunda üçüncü yalnız Kadim Kale'de tek takım elendiyse gösterilir (üçüncülük maçı yoktur).</li>
+    <li><b>Sorular</b> yarışma başında karıştırılır ve bir yarışmada bir kez sorulur (başka bölümde ya da başka kimlikle girilmiş aynı soru da). İptal edilen soru tekrar gelmez.</li>
+  </ul>
+  <figure><img src="../ekran-goruntuleri/eleme/admin-menu-eleme-1366.webp" style="width:76%"><figcaption>Ana Menü'de kural kartı ve kontenjanlar yarışma başlamadan önce görünür</figcaption></figure>
+  <h2>Tur sonu ve şampiyonluk</h2>
+  <p>Son sorudan sonra <span class="btn">Turu Bitir</span> sonucu kesinleştirir (eşitlik varsa önce <span class="btn">Eşitlik Sorusuna Geç</span>). <span class="btn">Tur Sonucunu Açıkla</span> sahnede yaklaşık 7 saniyelik gösteriyi başlatır: tur kazananı, puan özeti, yükselen ve elenen takımlar. Gösteri soru açmaz, süreyi başlatmaz, tura geçmez; <span class="btn">Atla</span> sonucu hemen gösterir, <span class="btn">Gösteriyi Tekrar Oynat</span> puanı değiştirmeden yeniden oynatır. İlerlemek için <span class="btn">Sonraki Tura Geç</span>. Finalde düğme <span class="btn">Şampiyonu Açıkla</span>dır: şampiyonluk ekranı, konfeti ve şampiyonluk müziği (yalnız sahnede, ses ayarına bağlı, düşük seviyede).</p>
+  <figure><img src="../ekran-goruntuleri/eleme/sahne-tur-sonu-son-tablo-1920.webp" style="width:76%"><figcaption>Tur sonu gösterisinin son tablosu (ortak kazananlar, bu tur / toplam, yükselen ve elenen)</figcaption></figure>
+  <div class="box">Güncellemeden önce başlamış eski kurallı bir yarışma (ortak yarışma ya da iki gruplu turnuva) puanları korunarak o kuralla sürer; ana menü bunu açıkça yazar. Yeni kural yeni yarışma başlatılınca uygulanır.</div>
   <h2>Puan tablosu</h2>
   <table>
     <tr><th>Durum</th><th style="width:22%">Puan</th></tr>
@@ -217,11 +223,11 @@
   </table>
   <h2>Üç kampüs pilotu</h2>
   <ol class="steps">
-    <li>Ayarlar → "Takımlar / sınıflar" alanına üç kampüs adını her satıra bir ad olarak yazın → <span class="btn">Ayarları Kaydet</span>. Alttaki satır "Üç Kampüs — Ortak Yarışma" demelidir.</li>
-    <li>Ana Menü'de "Mod: Üç Kampüs — Ortak Yarışma" kartını ve puan kuralını okuyun → <span class="btn">Yarışmayı Başlat</span>.</li>
-    <li>Uzak kampüsler internet adresinden (kaplan-arena.vercel.app/katil) QR/kodla katılır; yerel ağ adresi gerekmez.</li>
+    <li>Ayarlar → "Takımlar / sınıflar" alanına üç kampüs adını her satıra bir ad olarak yazın → <span class="btn">Ayarları Kaydet</span>. Alttaki satır "Eleme Yarışması · 3 → 3 → 2 → şampiyon" demelidir.</li>
+    <li>Ana Menü'deki kural kartını okuyun → <span class="btn">Yarışmayı Başlat</span>.</li>
+    <li>Panelde “Kaptan kodları” kutusundaki her kodu yalnız o kampüsün kaptanına iletin.</li>
+    <li>Uzak kampüsler internet adresinden (kaplan-arena.vercel.app/katil) QR/yarışma koduyla katılır, takımını seçip kaptan kodunu girer.</li>
   </ol>
-  <p class="small muted">Modu olmayan eski kayıtlar ve süren turnuvalar turnuva olarak açılır; ayardaki takım sayısına bakılmaz.</p>
 </section>
 
 <!-- ============ 5 ============ -->
@@ -305,7 +311,9 @@
   <ol class="steps">
     <li>Katılım ekranında sahnede QR kod ve 6 haneli yarışma kodu görünür.</li>
     <li>Kaptan QR'ı okutur ya da <code>kaplan-arena.vercel.app/katil</code> adresine gidip kodu girer.</li>
-    <li>Kendi takımını/sınıfını seçer. Başka telefon bağlı bir takım seçilirse uyarı çıkar; "Bu Telefonla Devam Et" denirse önceki telefonun komutları geçersiz olur.</li>
+    <li>Kendi takımını seçer ve yönetimden aldığı <b>kaptan kodunu</b> (takıma özel 4 hane) girer. Yarışma kodu herkes için ortaktır; takım kimliğini kaptan kodu doğrular.</li>
+    <li>Bir takıma bağlı telefon varken başka telefon o takıma geçemez; bir telefon da başka bir takıma geçemez. Kaptanın telefonu değişecekse panelde o takımın yanındaki <span class="btn">Telefonu Sıfırla</span> kullanılır, yeni telefon aynı kodla bağlanır.</li>
+    <li>Elenen takımın telefonu “Bu turda elendiniz” görür; yenileme, kodu yeniden girme ya da başka telefon bunu değiştirmez, cevap ve joker sunucuda da reddedilir.</li>
     <li>Soru açılınca şık seçilir ya da tahmin yazılır, <span class="btn">Cevabı Gönder</span>'e basılır. <b>Şık seçmek cevap göndermez.</b></li>
   </ol>
   <ul>
@@ -383,7 +391,7 @@
   <table>
     <tr><th style="width:28%">Ayar</th><th>Açıklama</th></tr>
     <tr><td><b>Yarışmanın adı</b></td><td>Panel ve telefonlarda görünür (en çok 60 karakter).</td></tr>
-    <tr><td><b>Takımlar / sınıflar</b></td><td>Her satıra bir ad (virgül de ayırır; fazla boşluklar temizlenir). En az 3 benzersiz ad; büyük/küçük harf farkı aynı ad sayılır. Tam 3 → Üç Kampüs ortak yarışma; 4+ → iki gruplu turnuva. Altındaki satır kayıtlı listeyle yeni yarışmanın modunu gösterir. Değişiklik açık yarışmayı etkilemez.</td></tr>
+    <tr><td><b>Takımlar / sınıflar</b></td><td>Her satıra bir ad (virgül de ayırır; fazla boşluklar temizlenir). En az 3 benzersiz ad; büyük/küçük harf farkı aynı ad sayılır. Kayıtlı listeyle yeni yarışmanın eleme akışı (ör. 4 → 3 → 2 → şampiyon) altındaki satırda görünür. Değişiklik açık yarışmayı etkilemez.</td></tr>
     <tr><td><b>Soru süresi</b></td><td>5–600 saniye (varsayılan 45).</td></tr>
     <tr><td><b>Sahne sesleri</b></td><td>Joker, son saniyeler, süre sonu, kutlama, film ve karşılama müziği. Yalnız sahneden çalar.</td></tr>
     <tr><td><b>Ses seviyesi</b></td><td>0–100. Film ve müzik dahil bütün sahne sesleri.</td></tr>

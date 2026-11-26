@@ -4,7 +4,7 @@ const http = require('http'), fs = require('fs'), path = require('path');
 const root = path.resolve(__dirname, '..', '..');
 const handler = require(path.join(root, 'api', 'ka.js'));
 const TYPES = { '.html':'text/html; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.css':'text/css; charset=utf-8', '.json':'application/json',
-  '.webp':'image/webp', '.png':'image/png', '.svg':'image/svg+xml', '.woff2':'font/woff2', '.txt':'text/plain; charset=utf-8', '.mp4':'video/mp4' };
+  '.webp':'image/webp', '.png':'image/png', '.svg':'image/svg+xml', '.woff2':'font/woff2', '.txt':'text/plain; charset=utf-8', '.mp4':'video/mp4', '.m4a':'audio/mp4' };
 function start(port){
   const srv = http.createServer((req, res) => {
     const u = new URL(req.url, 'http://x');
@@ -12,7 +12,7 @@ function start(port){
     if (u.pathname === '/katil' || u.pathname === '/katil/') { res.writeHead(307, { Location:'/kaplan-arena.html?katil' }); return res.end(); }
     let rel; try{ rel = decodeURIComponent(u.pathname); }catch(e){ res.writeHead(400); return res.end(); }
     if (rel === '/') rel = '/index.html';
-    if (/(^|\/)\./.test(rel) || !/^\/(index\.html|kaplan-arena\.html|katil\/index\.html|app\/[\w.-]+\.(js|css)|assets\/[\w/.-]+\.(webp|png|svg|woff2|css|txt|mp4))$/.test(rel)) { res.writeHead(404); return res.end('404'); }
+    if (/(^|\/)\./.test(rel) || !/^\/(index\.html|kaplan-arena\.html|katil\/index\.html|app\/[\w.-]+\.(js|css)|assets\/[\w/.-]+\.(webp|png|svg|woff2|css|txt|mp4|m4a))$/.test(rel)) { res.writeHead(404); return res.end('404'); }
     const f = path.resolve(root, '.' + rel);
     if (!f.startsWith(root + path.sep) || !fs.existsSync(f)) { res.writeHead(404); return res.end('404'); }
     const type = TYPES[path.extname(f)] || 'application/octet-stream';

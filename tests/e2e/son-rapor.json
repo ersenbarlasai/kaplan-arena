@@ -1,5 +1,5 @@
 {
-  "at": "2026-11-26T04:48:53.272Z",
+  "at": "2026-11-26T15:37:46.729Z",
   "results": [
     {
       "name": "karşılama: künye eksiksiz ve sıralı",
@@ -14,7 +14,7 @@
     {
       "name": "yarışma başladı ve 6 haneli kod üretildi",
       "ok": true,
-      "detail": "545209"
+      "detail": "980047"
     },
     {
       "name": "sahne: ses etkinleştirme/test adımı",
@@ -25,6 +25,11 @@
       "name": "admin sahneyi tanıdı ve etkin ses sahnesi seçildi",
       "ok": true,
       "detail": ""
+    },
+    {
+      "name": "yeni yarışma: kura/iki grup yok, 11 takım aynı ilk turda",
+      "ok": true,
+      "detail": "[{\"key\":\"s1\",\"ids\":[\"t1\",\"t2\",\"t3\",\"t4\",\"t5\",\"t6\",\"t7\",\"t8\",\"t9\",\"t10\",\"t11\"],\"start\":{\"t1\":0,\"t2\":0,\"t3\":0,\"t4\":0,\"t5\":0,\"t6\":0,\"t7\":0,\"t8\":0,\"t9\":0,\"t10\":0,\"t11\":0},\"done\":null}]"
     },
     {
       "name": "iki telefon sınıflarını aldı",
@@ -89,7 +94,7 @@
     {
       "name": "kabul edilen: son geçerli gönderim (1350); duraklamadaki ve süre sonrası 1355 sayılmadı",
       "ok": true,
-      "detail": "{\"0\":{\"v\":1350,\"t\":1795668399785},\"1\":{\"v\":1400,\"t\":1795668399409}}"
+      "detail": "{\"0\":{\"v\":1350,\"t\":1795707331283},\"1\":{\"v\":1400,\"t\":1795707330903}}"
     },
     {
       "name": "açıklamada puan gösterilmez",
@@ -164,7 +169,7 @@
     {
       "name": "iptal: puan etkisi geri alındı",
       "ok": true,
-      "detail": "[10,10,0,0,0,0]"
+      "detail": "[10,10,0,0,0,0,0,0,0,0,0]"
     },
     {
       "name": "iptal: bu sorudaki joker iade edildi, önceki jokerler korundu",
@@ -177,6 +182,11 @@
       "detail": ""
     },
     {
+      "name": "iptal edilen (sorulmuş) soru bu yarışmada tüketilmiş kalır",
+      "ok": true,
+      "detail": ""
+    },
+    {
       "name": "iptal durumu sahne ve telefonda",
       "ok": true,
       "detail": ""
@@ -184,7 +194,7 @@
     {
       "name": "eşzamanlı jokerler tek tanıtımda birleşti",
       "ok": true,
-      "detail": "{\"id\":15,\"pauseAt\":1795668466504.5,\"until\":1795668470004.5,\"items\":[{\"i\":0,\"name\":\"9B\",\"j\":\"double\"},{\"i\":3,\"name\":\"12B\",\"j\":\"x2\"}]}"
+      "detail": "{\"id\":14,\"pauseAt\":1795707401956.5,\"until\":1795707405456.5,\"items\":[{\"i\":0,\"name\":\"9A\",\"j\":\"double\"},{\"i\":3,\"name\":\"10A\",\"j\":\"x2\"}]}"
     },
     {
       "name": "admin telefonsuz sınıf için joker kullandı",
@@ -257,9 +267,9 @@
       "detail": ""
     },
     {
-      "name": "2. etapta herkes 0 → eşitlik",
+      "name": "1. tur sonu: toplamda sınırdaki takımlar eşit → eleme kesinleşmeden eşitlik sorusu",
       "ok": true,
-      "detail": ""
+      "detail": "{\"qualified\":[0,1,5],\"tie\":{\"candidates\":[2,3,4,6,7,8,9,10],\"slots\":3},\"all\":false,\"revealed\":false}"
     },
     {
       "name": "eşitlik sorusunda joker yok",
@@ -267,14 +277,19 @@
       "detail": ""
     },
     {
-      "name": "finale 4 sınıf çıktı",
+      "name": "Kadim Kale’ye 6 takım yükseldi; elenen 5 takım kadroda yok",
       "ok": true,
-      "detail": ""
+      "detail": "[\"t1\",\"t2\",\"t6\",\"t8\",\"t9\",\"t7\"]"
+    },
+    {
+      "name": "finale tam 2 takım çıktı",
+      "ok": true,
+      "detail": "[\"t1\",\"t2\"]"
     },
     {
       "name": "finalde haklar korunur: C iki jokeri de kullanmış, B Çifte Puanı (iade edilen) kullanabilir",
       "ok": true,
-      "detail": "[[1,0],[1,1],[0,0],[0,0]]"
+      "detail": "[[1,0],[1,1]]"
     },
     {
       "name": "Final: Çifte Puan doğru +20",
@@ -292,9 +307,9 @@
       "detail": ""
     },
     {
-      "name": "eski kayıt göçü: veri korunur, şema 2, yedek kopya",
+      "name": "eski kayıt göçü: veri korunur, şema 3, yedek kopya",
       "ok": true,
-      "detail": "{\"schema\":2,\"title\":\"Eski Yarışma\",\"q\":\"Eski soru\",\"score\":30,\"phase\":\"open\",\"reasons\":[\"admin\",\"break\"],\"em\":13,\"backup\":true}"
+      "detail": "{\"schema\":3,\"title\":\"Eski Yarışma\",\"q\":\"Eski soru\",\"score\":30,\"phase\":\"open\",\"reasons\":[\"admin\",\"break\"],\"em\":13,\"backup\":true}"
     },
     {
       "name": "yedek dışa aktarma arma eşleşmesini içerir",

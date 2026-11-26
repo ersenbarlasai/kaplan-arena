@@ -19,7 +19,7 @@ const pl = (p, n, d) => clickSel(p, sel('pl', n, d));
 const G = p => p.evaluate(() => JSON.parse(JSON.stringify(S.game)));
 const waitG = (p, fn, ms) => p.waitForFunction(fn, { timeout: ms || 20000, polling: 100 });
 const shot = async (p, n, w, h) => { if (w) await p.setViewport({ width: w, height: h }); await sleep(350); await p.screenshot({ path: path.join(SHOTS, n + '.png') }); };
-const scores = p => p.evaluate(() => S.game.teams.s1.map(t => t.score));
+const scores = p => p.evaluate(() => curTeams().map(t => t.score));
 const played = (st, k) => st.evaluate(kind => window.__snd.filter(x => x.k === kind && x.ok).length, k);
 const inCount = st => st.evaluate(() => document.querySelectorAll('.sg-cor-item.in').length);
 const corNames = st => st.evaluate(() => [...document.querySelectorAll('.sg-cor-item')].map(e => e.dataset.cor));
@@ -48,26 +48,38 @@ async function hookAudio(st){ await st.evaluate(() => { window.__snd = []; const
         D('Azaltılmış hareket: Halkalı gezegen?', o, 'D'),
         D('Ses kapalı: Kızıl gezegen?', o, 'A'),
         D('On bir sınıf doğru: En büyük gezegen?', o, 'B') ], s2: [D('x', o, 'A')], final: [D('y', o, 'A')], tie: [T('z', 1)] };
-      S.settings.classes = ['9-A', '9-B', '9-C', '9-D', '10-A', '10-B', '10-C', '10-D', '11-A Fen Bilimleri', '11-B', '11-C', '12-A', '12-B', '12-C', '12-D', '9-E', '9-F', '10-E', '10-F', '11-D', '11-E', '12-E'];
+      // Eleme yarışmasında ilk turda bütün takımlar birlikte: 11 takımlık sahne testi için 11 ad.
+      S.settings.classes = ['9-A', '9-B', '9-C', '9-D', '10-A', '10-B', '10-C', '10-D', '11-A Fen Bilimleri', '11-B', '11-C'];
       S.settings.seconds = 60; S.settings.reduceMotion = true; syncEmblems(); save();
+      window.KA_RNG = () => 0.9999999;   // test: senaryo sırası bankadaki sırayla
     });
     await act(admin, 'begin'); await act(admin, 'newGameYes');
     const pp = new Promise(r => admin.once('popup', r)); await admin.click('[data-act="openStage"]');
     let stage = await pp; watch(stage, 'sahne'); await stage.setViewport({ width: 1920, height: 1080 });
     await hookAudio(stage); await clickSel(stage, '#snd-on'); await sleep(1500);
-    await act(admin, 'drawGo'); await waitG(admin, () => S.game.draw && ui.drawShown == null); await act(admin, 'drawOk');
+    await waitG(admin, () => S.game.started && S.game.view === 'teams');
     await admin.evaluate(() => { S.settings.reduceMotion = false; save(); });
     const pin = await admin.evaluate(() => S.game.pin);
-    const teams = (await G(admin)).teams.s1.map(t => t.name);
-    check('1. etapta 11 sınıf', teams.length === 11, teams.length);
+    const teams = (await G(admin)).teams.all.map(t => t.name), codes = (await G(admin)).codes;
+    check('1. turda 11 takım birlikte', teams.length === 11 && (await G(admin)).rounds[0].ids.length === 11, teams.length);
     const ctxB = await browser.createBrowserContext(), ctxC = await browser.createBrowserContext();
     const phB = await ctxB.newPage(), phC = await ctxC.newPage(); watch(phB, 'telB'); watch(phC, 'telC');
     for (const p of [phB, phC]) await p.setViewport({ width: 390, height: 844, isMobile: true });
     await phB.goto(`${BASE}/kaplan-arena.html?pin=${pin}`); await phC.goto(`${BASE}/kaplan-arena.html?pin=${pin}`);
-    await pl(phB, 'pick', { i: 0 }); await pl(phC, 'pick', { i: 1 });
-    await waitG(admin, () => NET.joined && NET.joined[0] && NET.joined[1]);
+    for (const [p, tid] of [[phB, 't1'], [phC, 't2']]){
+      await pl(p, 'pickElim', { id: tid }); await p.waitForSelector('#pl-code');
+      await p.evaluate(c => { const el = document.getElementById('pl-code'); el.value = c; el.dispatchEvent(new Event('input', { bubbles: true })); }, codes[tid]);
+      await pl(p, 'codeYes');
+    }
+    await waitG(admin, () => NET.joined && NET.joined.t1 && NET.joined.t2);
     await hookAudio(admin).catch(() => {});
-    const answerApi = async (i, v) => { const k = await kv(pin); await api({ fn:'set', pin, path:`answers/${k.st.qk}/${i}/s${i}x`, value:{ v, t: k.t, dev:'tel' + i } }); };
+    // Telefonu sahnede olmayan takımlar: kaptanı kendi koduyla (API) bağlanır ve cevabını sunucu komutuyla gönderir.
+    const toks = {};
+    const answerApi = async (i, v) => {
+      const tid = 't' + (i + 1);
+      if (!toks[tid]) toks[tid] = (await api({ fn:'join', pin, tid, code:codes[tid], dev:'tel' + (i + 1) + 'x' })).tok;
+      const k = await kv(pin); await api({ fn:'cmd', pin, tok:toks[tid], op:'ans', qk:k.st.qk, v, t:k.t });
+    };
     const phoneAns = async (p, letters) => { for (const L of letters) await pl(p, 'pick-opt', { v: L }); await pl(p, 'send'); };
     const openQ = async () => { await act(admin, 'showQ'); await waitG(admin, () => S.game.phase === 'open' && C.isRunning(S.game)); await sleep(900); };
     const reveal = async () => { await act(admin, 'revealAsk'); await act(admin, 'revealYes'); return Date.now(); };

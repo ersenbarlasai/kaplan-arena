@@ -40,6 +40,7 @@ function paintPreview(){
   if (el.dataset.h !== h){ el.dataset.h = h; el.innerHTML = h; paintQR(el); }
   StageClock.paint(el, ui.model);
   RevealFX.apply(el, ui.model, null);   // önizleme sessizdir
+  ShowFX.apply(el, ui.model);           // tur sonu gösterisi: önizleme aynı zaman eksenini izler, ses/konfeti yok
 }
 function paintClocks(){
   const el = document.getElementById('adm-clock');
@@ -74,6 +75,7 @@ function vMenu(){
   const c = k => S.questions[k].length;
   const roster = inProgress && g.roster ? g.roster : nextRoster(), rerr = inProgress ? '' : C.rosterError(roster);
   const mode = inProgress ? gameMode() : nextMode(), nc = inProgress && shared() ? curTeams().length : roster.length;
+  const fmt3 = inProgress ? (elim() ? g.format : null) : (rerr ? null : nextFormat());
   let status = '';
   if (inProgress){
     const st = STAGES[g.stage];
@@ -97,18 +99,27 @@ function vMenu(){
       ${modeCard(mode, roster, rerr, inProgress)}
       <div class="panel rules">
         <h3>Yolculuk</h3>
-        <ol class="adm-route">${STAGES.map((s, i) => mode === 'shared'
+        <ol class="adm-route">${mode === 'elim' && fmt3 ? routeElim(fmt3) : STAGES.map((s, i) => mode === 'shared'
           ? `<li><b>${esc(s.place)}</b> <span>${nc} takım birlikte · ${c(s.key)} soru${s.key === 'final' ? ' · toplam puan şampiyonu belirler' : ' · eleme yok, puanlar birikir'}</span></li>`
           : `<li><b>${esc(s.place)}</b> <span>${s.key === 's1' ? Math.ceil(nc / 2) + ' sınıf' : s.key === 's2' ? Math.floor(nc / 2) + ' sınıf' : '4 sınıf'} · ${c(s.key)} soru${s.key === 'final' ? ' · puanlar sıfırdan' : ' · ilk 2 finale'}</span></li>`).join('')}</ol>
-        <p>${S.settings.seconds} sn süre · her soru 10 puan · 2 joker (Çift Cevap, Çifte Puan) tüm yarışmada birer kez${mode === 'shared' ? ', etap geçişinde yenilenmez' : ''} · ${esc(PENALTY_TXT)}</p>
+        <p>${S.settings.seconds} sn süre · her soru 10 puan · 2 joker (Çift Cevap, Çifte Puan) tüm yarışmada birer kez${mode === 'shared' || mode === 'elim' ? ', tur geçişinde yenilenmez' : ''} · ${esc(PENALTY_TXT)}</p>
+        ${mode === 'elim' ? '<p class="muted">Sorular yarışma başında karıştırılır; aynı soru (farklı bölüm ya da farklı kimlikle girilmiş olsa da) bu yarışmada bir kez sorulur.</p>' : ''}
         <p class="muted">Akış tamamen sizin kontrolünüzde: Soruyu Göster → Cevabı Açıkla → Puanları Göster → Sonraki Soru.</p>
       </div>
     </section>
     ${modal('end', 'Yarışmayı bitir', 'Yarışma şimdi sona erecek ve telefonlara "Yarışma sona erdi" mesajı gidecek. Bitirilsin mi?', 'endYes', 'Yarışmayı Bitir')}
-    ${modal('newgame', 'Yeni yarışma', 'Devam eden yarışmanın kurası, puanları ve jokerleri silinecek; yeni bir kod oluşturulacak. Sorular olduğu gibi kalır.', 'newGameYes', 'Yeni Yarışma Başlat')}
+    ${modal('newgame', 'Yeni yarışma', 'Devam eden yarışmanın puanları ve jokerleri silinecek; yeni bir kod, yeni kaptan kodları ve yeni karışık soru sırası oluşturulacak. Soru bankası olduğu gibi kalır.', 'newGameYes', 'Yeni Yarışma Başlat')}
   </main>`;
 }
 
+/* Eleme yarışması yolculuğu: kontenjanlar yarışma başında kayda sabitlenir. */
+function routeElim(f){
+  const n = f.n, q = f.quotas;
+  const cnt = [n, q[0], q[1]];
+  return STAGES.map((s, i) => `<li><b>${esc(s.place)}</b> <span>${cnt[i]} takım birlikte · ${qCount(s.key)} soru · ${i === 2 ? 'toplam puanla tek şampiyon' : q[i] >= cnt[i] ? 'eleme yok, hepsi ' + STAGES[i + 1].to + ' ilerler' : 'toplamda ilk ' + q[i] + ' ' + STAGES[i + 1].to}</span></li>`).join('');
+}
+const qCount = k => { const g = G(); return elim() && g.started && !g.finished && g.plan ? g.plan[k].length : S.questions[k].length; };
+const ELIM_RULE = 'Bütün takımlar her turun sorularını aynı anda yanıtlar. Puanlar yarışma boyunca birikir (tur başında sıfırlanmaz). Yükselme ve şampiyonluk toplam puana göre belirlenir; tur kazananı o turdaki net kazançla ayrıca açıklanır. Sınırda eşitlik olursa yalnız eşit takımlara yedek tahmin sorusu sorulur. Elenen takım sonraki turlara katılamaz.';
 /* Yarışma modu kartı: yeni yarışmadan önce kuralı açıkça gösterir; açık yarışmada kayıttaki modu gösterir. */
 const SHARED_RULE = 'Üç takım Orman Geçidi, Kadim Kale ve Kaplan Arenası boyunca aynı anda yarışır; eleme yok. Puanlar yarışma başında sıfırdır, yeni soruda ya da yeni etapta sıfırlanmaz, üç etap boyunca birikir. Son etap sonunda en yüksek toplam puan şampiyonu belirler; birincilikte eşitlik olursa yalnız eşit liderlere yedek tahmin sorusu sorulur.';
 function modeCard(mode, roster, rerr, inProgress){
@@ -116,6 +127,16 @@ function modeCard(mode, roster, rerr, inProgress){
   if (rerr) return `<div class="panel adm-mode bad"><h3>Takım listesi eksik</h3><p>${esc(rerr)} Ayarlar ekranından en az 3 benzersiz takım/sınıf adı girin.</p></div>`;
   const diff = inProgress && JSON.stringify(nextRoster()) !== JSON.stringify(roster)
     ? '<p class="muted">Ayarlardaki takım listesi değişti; bu değişiklik açık yarışmayı etkilemez, yeni yarışmada geçerli olur.</p>' : '';
+  if (mode === 'elim'){
+    const f = inProgress ? G().format : nextFormat(), q = f.quotas;
+    const flow = [f.n, q[0], q[1], 1].join(' → ').replace(/ → 1$/, ' → şampiyon');
+    return `<div class="panel adm-mode elim"><h3>Kural: Eleme Yarışması · ${flow}</h3>
+      <p class="adm-mode-names">${names}</p><p>${esc(ELIM_RULE)}</p>
+      <p class="muted">${inProgress ? 'Bu yarışmanın kuralları, kontenjanları, katılımcıları ve soru sırası başlangıçta kayda sabitlendi.' : `Orman Geçidi: ${f.n} takım → Kadim Kale: ${q[0]} → Kaplan Arenası: ${q[1]} → tek şampiyon. Yarışma başlatılınca bu kontenjanlar kayda sabitlenir.`}</p>${diff}</div>`;
+  }
+  if (inProgress && (mode === 'shared' || mode === 'tournament')){
+    return `<div class="panel adm-mode legacy"><h3>Eski kurallarla süren yarışma</h3><p>Bu yarışma güncellemeden önce ${mode === 'shared' ? '“Üç Kampüs — Ortak Yarışma” (eleme yok)' : '“İki Gruplu Turnuva”'} kuralıyla başlatıldı ve puanları korunarak o kuralla sürer. Yeni eleme kuralları (4 → 3 → 2 → şampiyon, 3 → 3 → 2 → şampiyon), rastgele tekrarsız sorular ve kaptan kodları yeni yarışma başlatıldığında uygulanır.</p>${diff}</div>`;
+  }
   if (mode === 'shared') return `<div class="panel adm-mode shared"><h3>Mod: Üç Kampüs — Ortak Yarışma</h3>
     <p class="adm-mode-names">${names}</p><p>${esc(SHARED_RULE)}</p>
     <p class="muted">${inProgress ? 'Bu yarışmanın modu ve katılımcıları başlangıçta kayda sabitlendi.' : 'Ayarlarda tam 3 takım olduğu için bu mod kendiliğinden seçildi. 4 ve daha fazla takımda iki gruplu turnuva kullanılır.'}</p>${diff}</div>`;
@@ -151,14 +172,16 @@ function controlBar(){
     else if (ui.drawShown != null) info = 'Kura çekiliyor…';
     else acts = b('drawOk', 'Onayla ve Orman Geçidi’ne Geç', 'primary big') + b('redrawAsk', 'Kurayı Yeniden Çek');
   } else if (v === 'teams'){
-    const n = S.questions[stageKey()].length;
+    const n = elim() ? (C.nextUnasked(g, stageKey(), 0) < 0 ? 0 : qList(stageKey()).filter(q => !C.isAsked(g, q)).length) : S.questions[stageKey()].length;
     title = `${STAGES[g.stage].place}: ${shared() ? 'Ortak katılım' : 'Katılım'}`;
     if (shared()) info = g.stage === 0 ? 'Üç takım birlikte · puanlar etaplar boyunca birikir' : 'Puanlar korunuyor · üç takım birlikte devam ediyor';
-    acts = b('startStage', stageKey() === 'final' ? 'Finali Başlat' : 'Etabı Başlat', 'primary big', n ? '' : 'disabled');
-    if (!n) info = 'Bu etapta soru yok. Soru Yönetimi ekranından soru ekleyin.';
+    if (elim()){ title = `${STAGES[g.stage].place}: katılım`; info = lobbyQuota() + ` · ${n} soru`; }
+    acts = b('startStage', stageKey() === 'final' ? 'Finali Başlat' : elim() ? 'Turu Başlat' : 'Etabı Başlat', 'primary big', n ? '' : 'disabled');
+    if (!n) info = elim() ? 'Bu turda sorulmamış soru kalmadı. Soru Yönetimi’nde soru ekleyip aşağıdan “Yeni Soruları Ekle” deyin.' : 'Bu etapta soru yok. Soru Yönetimi ekranından soru ekleyin.';
+    if (elim()) acts += b('planAdd', 'Yeni Soruları Ekle', '', `data-k="${stageKey()}"`);
   } else if (inQ()){
     const tie = isTie(), ph = g.phase, running = C.isRunning(g);
-    title = tie ? 'Eşitlik sorusu' : `Soru ${g.qIndex + 1} / ${S.questions[stageKey()].length}`;
+    title = tie ? 'Eşitlik sorusu' : `Soru ${g.qIndex + 1} / ${qList(stageKey()).length}`;
     info = PHASE_TXT[ph] || '';
     if (ph === 'open' && !running && g.clock && g.clock.reasons.length) info = 'Süre durdu: ' + g.clock.reasons.map(r => REASON_TXT[r] || r).join(', ');
     if (ph === 'ready') acts = b('showQ', 'Soruyu Göster', 'primary big');
@@ -168,9 +191,20 @@ function controlBar(){
     if (ph === 'cancelled') acts = b('next', 'Sonraki Soru', 'primary big');
     if (!tie && ph !== 'cancelled') acts += b('cancelAsk', 'Soruyu İptal Et', 'danger ghost');
   } else if (v === 'scoreboard'){
-    const isLast = g.qIndex + 1 >= S.questions[stageKey()].length;
+    const isLast = isLastQ();
     title = `Soru ${g.qIndex + 1} puanları`;
-    acts = b('next', isLast ? 'Etap Sonucunu Göster' : 'Sonraki Soru', 'primary big') + b('scoreEdit', ui.scoreEdit ? 'Düzeltmeyi Bitir' : 'Puanları Düzelt') + b('undo', 'Geri Al', '', g.history.length ? '' : 'disabled') + b('cancelAsk', 'Soruyu İptal Et', 'danger ghost');
+    acts = b('next', isLast ? (elim() ? 'Turu Bitir' : 'Etap Sonucunu Göster') : 'Sonraki Soru', 'primary big') + b('scoreEdit', ui.scoreEdit ? 'Düzeltmeyi Bitir' : 'Puanları Düzelt') + b('undo', 'Geri Al', '', g.history.length ? '' : 'disabled') + b('cancelAsk', 'Soruyu İptal Et', 'danger ghost');
+  } else if (v === 'stageEnd' && elim()){
+    const r = g.result, isFinal = stageKey() === 'final', next = STAGES[g.stage + 1];
+    title = isFinal ? 'Final tamamlandı' : `${STAGES[g.stage].place} tamamlandı`;
+    if (r && r.tie){ info = 'Sınırda eşitlik: sonuç ve elenen, eşitlik çözülmeden açıklanmaz'; acts = b('startTie', 'Eşitlik Sorusuna Geç', 'primary big'); }
+    else if (r && !r.revealed){ info = isFinal ? 'Toplam puanla şampiyon kesinleşti; açıklanmayı bekliyor' : 'Sonuç kesinleşti; sahnede açıklanmayı bekliyor'; acts = b('revealRound', isFinal ? 'Şampiyonu Açıkla' : 'Tur Sonucunu Açıkla', 'primary big'); }
+    else if (r){
+      const sh = showModel(), running = sh && !sh.skip && sh.elapsed < sh.dur;
+      info = running ? 'Tur sonu gösterisi oynuyor · sonraki tura geçiş sizde' : 'Sonuç açıklandı · ekran bekliyor';
+      acts = b('advance', `Sonraki Tura Geç (${next.place})`, 'primary big') + (running ? b('showSkip', 'Atla') : '') + b('showReplay', 'Gösteriyi Tekrar Oynat');
+    }
+    acts += b('undo', 'Geri Al', '', g.history.length ? '' : 'disabled');
   } else if (v === 'stageEnd'){
     const r = g.result, isFinal = stageKey() === 'final';
     title = isFinal ? 'Final sonucu' : `${STAGES[g.stage].place} tamamlandı`;
@@ -178,7 +212,7 @@ function controlBar(){
     if (shared() && isFinal && r && r.tie) info = 'Birincilikte eşitlik: yalnız eşit liderler ek tahmin sorusunu cevaplar';
     acts = r && r.tie ? b('startTie', 'Eşitlik Sorusuna Geç', 'primary big') : b('advance', isFinal ? 'Şampiyonu Göster' : g.stage === 0 ? 'Kadim Kale’ye Geç' : shared() ? 'Kaplan Arenası’na Geç' : 'Finale Geç', 'primary big');
     acts += b('undo', 'Geri Al', '', g.history.length ? '' : 'disabled');
-  } else if (v === 'champion'){ title = 'Şampiyonluk'; acts = b('confetti', 'Kutlamayı Tekrarla') + b('menu', 'Ana Menü'); }
+  } else if (v === 'champion'){ title = 'Şampiyonluk'; const sh = elim() ? showModel() : null; acts = (sh && !sh.skip && sh.elapsed < sh.dur ? b('showSkip', 'Atla') : '') + b('confetti', elim() ? 'Gösteriyi Tekrar Oynat' : 'Kutlamayı Tekrarla') + b('menu', 'Ana Menü'); }
   else if (v === 'ended'){ title = 'Yarışma sona erdi'; acts = b('menu', 'Ana Menü', 'primary') + b('newGameAsk', 'Yeni Yarışma'); }
   const clk = inQ() && g.phase !== 'ready' && g.phase !== 'cancelled' ? `<div class="adm-clock ${C.isRunning(g) ? 'run' : ''}"><b id="adm-clock">${Math.ceil(clockLeftMs() / 1000)}</b><small>sn</small></div>` : '';
   return `<div class="adm-ctl"><div class="t"><b>${title}</b><span>${esc(info)}</span></div>${clk}<div class="a">${acts}</div></div>`;
@@ -194,7 +228,8 @@ function questionPanel(){
   const q = curQ(), tie = isTie();
   if (!q && !tie) return '';
   const showKey = ui.showKey || g.phase === 'revealed';
-  if (tie && !q) return `<div class="panel"><h3>Eşitlik sorusu</h3><div class="notice">Yedek eşitlik sorusu kalmadı. Sözlü bir tahmin sorusu sorun; cevabı açıkladıktan sonra doğru cevabı aşağıya yazın.</div></div>`;
+  if (tie && !q) return `<div class="panel"><h3>Eşitlik sorusu</h3><div class="notice">Yedek eşitlik sorusu kalmadı${elim() ? ' (sorulmuş sorular tekrar kullanılmaz)' : ''}. Sözlü, yeni bir tahmin sorusu sorun; cevabı açıkladıktan sonra doğru cevabı aşağıya yazın.${elim() && g.phase === 'ready' ? ' Ya da Soru Yönetimi › Eşitlik bölümüne yeni soru ekleyip buradan ekleyin.' : ''}</div>
+    ${elim() && g.phase === 'ready' ? '<div class="row"><button class="btn" data-act="planAdd" data-k="tie">Yeni Eşitlik Sorularını Ekle</button><button class="btn" data-act="tieRetry">Eklenen Soruyu Kullan</button></div>' : ''}</div>`;
   const body = q.type === 'ders'
     ? `<ol class="adm-opts">${q.options.map((o, i) => `<li class="${showKey && LETTERS[i] === q.answer ? 'ok' : ''}"><b>${LETTERS[i]}</b> ${esc(o)}</li>`).join('')}</ol>`
     : `<p class="adm-ans">Doğru cevap: ${showKey ? `<b>${fmt(q.answer)} ${esc(q.unit || '')}</b>` : '<i>gizli</i>'}</p>`;
@@ -204,7 +239,7 @@ function questionPanel(){
     ${g.phase === 'ready' ? '<p class="muted">Bu aşamada soru sahneye ve telefonlara gönderilmez.</p>' : ''}</div>`;
 }
 function jkCell(i){
-  const g = G(), t = curTeams()[i], r = (g.jokers || {})[t.name] || {}, qk = currentQk(), q = curQ();
+  const g = G(), t = curTeams()[i], r = (g.jokers || {})[tkey(t)] || {}, qk = currentQk(), q = curQ();
   return ['double', 'x2'].map(j => {
     const used = r[j] != null, here = used && r[j] === qk;
     if (here) return `<span class="jkc on" title="${JK[j].name} bu soruda etkin"><img src="${JK[j].icon}" alt="">${JK[j].short}</span>`;
@@ -222,13 +257,15 @@ function teamsPanel(){
     if (inQ() && g.phase !== 'ready'){
       if (g.phase === 'revealed'){ const f = (g.frozen[currentQk()] || {})[i]; st = f ? `<span class="ans">${esc(typeof f.v === 'number' ? fmt(f.v) : f.v)}</span>` : '<span class="muted">—</span>'; }
       else st = a ? '<span class="ans ok">✓ cevap</span>' : '<span class="muted">bekleniyor</span>';
-    } else if (g.view === 'teams') st = NET.joined && NET.joined[i] ? '<span class="ans ok">bağlandı</span>' : '<span class="muted">bekleniyor</span>';
+    } else if (g.view === 'teams') st = NET.joined && NET.joined[nk(i)] ? '<span class="ans ok">bağlandı</span>' : '<span class="muted">bekleniyor</span>';
     return `<div class="adm-team">${armaHTML(emblem(t.name), 'sm', '')}<span class="nm">${esc(t.name)}${t.from ? `<small>${esc(t.from)}</small>` : ''}</span>
       <span class="st">${st}${rej ? `<em class="rej" title="${esc(rej.why)}">joker reddedildi</em>` : ''}</span>
       ${showJk ? `<span class="jks">${jkCell(i)}</span>` : ''}
       ${g.view === 'scoreboard' && ui.scoreEdit ? `<button class="btn small" data-act="adj" data-i="${i}" data-v="-10">−10</button>` : ''}<b class="sc">${t.score}</b>${g.view === 'scoreboard' && ui.scoreEdit ? `<button class="btn small" data-act="adj" data-i="${i}" data-v="10">+10</button>` : ''}</div>`;
   }).join('');
-  return `<div class="panel"><h3>${noun().Many} <small>${NET.ok ? `${teams.filter((t, i) => NET.joined && NET.joined[i]).length}/${teams.length} telefon bağlı` : 'telefonsuz'}</small></h3><div class="adm-teams">${rows}</div>
+  const outs = elim() ? (g.teams.all || []).filter(t => t.status === 'out') : [];
+  return `<div class="panel"><h3>${noun().Many} <small>${elim() ? 'bu turun aktif kadrosu · ' : ''}${NET.ok ? `${teams.filter((t, i) => NET.joined && NET.joined[nk(i)]).length}/${teams.length} telefon bağlı` : 'telefonsuz'}</small></h3><div class="adm-teams">${rows}</div>
+    ${outs.length ? `<p class="muted adm-outs">Elenenler (arşiv): ${outs.map(t => `${esc(t.name)} · ${esc(STAGES[t.outStage].place)} · ${t.outTotal} puan`).join(' — ')}</p>` : ''}
     ${g.view === 'question' && g.phase === 'open' ? '<p class="muted">Telefonu olmayan ' + noun().one + ' için jokeri buradan, süre işlerken kullanabilirsiniz. Kabul edilen joker geri alınamaz.</p>' : ''}</div>`;
 }
 function correctionPanel(){
@@ -246,15 +283,26 @@ function correctionPanel(){
     ${tie && !curQ() ? `<div class="fld"><label for="tie-ans">Doğru cevap</label><input class="field" id="tie-ans" inputmode="decimal" value="${esc(ui.tieAns || '')}" placeholder="Örneğin 1453"></div>` : ''}
     <p class="muted">Ondalık için virgül (42,195). Boş bırakılan ${noun().one} cevap vermemiş sayılır.</p></div>`;
 }
+/* Kaptan kodları: yalnız admin panelinde (sahneye/telefon durumuna gitmez). Her takımın kaptanı kendi kodunu girer. */
+function codesPanel(){
+  const g = G(); if (!elim() || !NET.ok || g.finished) return '';
+  const open = ui.codesOpen || g.view === 'teams';
+  const rows = (g.teams.all || []).map(t => { const out = t.status === 'out', on = !out && NET.joined && NET.joined[t.id];
+    return `<div class="adm-code ${out ? 'out' : ''}">${armaHTML(emblem(t.name), 'xs', '')}<span class="nm">${esc(t.name)}</span><b class="cd">${out ? '—' : esc(g.codes[t.id])}</b>
+      <span class="st">${out ? 'elendi' : on ? '<span class="ans ok">bağlı</span>' : '<span class="muted">bekleniyor</span>'}</span>
+      ${!out && on ? `<button class="btn small ghost" data-act="devResetAsk" data-id="${t.id}">Telefonu Sıfırla</button>` : ''}</div>`; }).join('');
+  return `<div class="panel adm-codes"><h3>Kaptan kodları <button class="btn small ghost" data-act="codesToggle">${open ? 'Gizle' : 'Göster'}</button></h3>
+    ${open ? `<p class="muted">Her takımın kaptanına yalnız kendi kodunu verin. Yarışma kodu herkes için ortaktır; takım seçimi bu kodla doğrulanır. Elenen takım geri katılamaz.</p><div class="adm-code-list">${rows}</div>` : ''}</div>`;
+}
 function stagePanel(){
   const g = G();
-  if (g.view === 'draw' || g.view === 'teams') return `<div class="panel">${joinCard()}</div>`;
+  if (g.view === 'draw' || g.view === 'teams') return `<div class="panel">${joinCard()}</div>${codesPanel()}`;
   if (g.view === 'scoreboard' && g.last && g.last.detail){
     const L = g.last, teams = curTeams();
     return `<div class="panel"><h3>Tahminler · doğru cevap ${fmt(L.answer)} ${esc(L.unit || '')}</h3><div class="tscroll"><table class="gtable"><thead><tr><th>${shared() ? 'Takım' : 'Sınıf'}</th><th>Tahmin</th><th>Fark</th></tr></thead><tbody>
       ${teams.map((t, i) => `<tr class="${L.winners.includes(i) ? 'win' : ''}"><td>${esc(t.name)}</td><td>${L.detail.guesses[i] == null ? '—' : fmt(L.detail.guesses[i])}</td><td>${L.detail.dists[i] == null ? '—' : fmt(L.detail.dists[i])}</td></tr>`).join('')}</tbody></table></div></div>`;
   }
-  return '';
+  return codesPanel();
 }
 function vGame(){
   const g = G();
@@ -267,7 +315,8 @@ function vGame(){
     ${modal('reveal', 'Cevabı şimdi açıkla', 'Süre henüz dolmadı. Açıklarsanız süre durur ve bütün ' + (shared() ? 'takımların' : 'sınıfların') + ' cevapları kilitlenir.', 'revealYes', 'Cevabı Açıkla')}
     ${modal('cancelq', 'Soruyu iptal et', 'Bu sorudan hiçbir ' + noun().one + ' puan ya da ceza almaz; uygulanmış puan etkisi geri alınır ve bu soruda kullanılan jokerler iade edilir. Önceki sorular etkilenmez.', 'cancelYes', 'Soruyu İptal Et')}
     ${modal('redraw', 'Kurayı yeniden çek', 'Kura sonucu silinip yeniden çekilecek.', 'redrawYes', 'Yeniden Çek')}
-    ${modal('newgame', 'Yeni yarışma', 'Devam eden yarışmanın kurası, puanları ve jokerleri silinecek.', 'newGameYes', 'Yeni Yarışma Başlat')}
+    ${modal('newgame', 'Yeni yarışma', 'Devam eden yarışmanın puanları ve jokerleri silinecek.', 'newGameYes', 'Yeni Yarışma Başlat')}
+    ${(ui.confirm || '').startsWith('dev:') ? (() => { const t = C.teamById(g, ui.confirm.slice(4)); return modal(ui.confirm, `${esc(t ? t.name : '')} · kaptan telefonunu sıfırla`, 'Bu takımın bağlı telefonu yetkisini kaybeder; yeni telefon aynı kaptan koduyla bağlanabilir. Puan ve jokerler değişmez. Elenen takımlar için kullanılamaz.', 'devResetYes', 'Telefonu Sıfırla', `data-id="${t ? t.id : ''}"`); })() : ''}
     ${jkModal}
   </main>`;
 }
@@ -278,8 +327,8 @@ function vSettings(){
     <div class="page-h"><h2>Ayarlar</h2></div>
     <div class="section">
       <div class="fld"><label for="set-title">Yarışmanın adı</label><input class="field" id="set-title" maxlength="60" value="${esc(S.settings.title)}"></div>
-      <div class="fld"><label for="set-classes">Takımlar / sınıflar (her satıra bir ad; en az 3)</label><textarea class="field" id="set-classes" style="min-height:140px">${esc(S.settings.classes.join('\n'))}</textarea><span class="hint">Tam 3 takım: <b>Üç Kampüs — Ortak Yarışma</b> (kura ve eleme yok; üç takım üç etabın tamamında birlikte yarışır, puanlar birikir). 4 ve daha fazla: iki gruplu turnuva (kura bu listeden çekilir). Değişiklik bir sonraki yeni yarışmada geçerli olur${G().started && !G().finished ? '; açık yarışmayı etkilemez' : ''}. Her adın arması kalıcıdır; yeni ad boş bir arma alır.</span></div>
-      <div class="adm-mode-now ${nextMode()}" role="status">Kayıtlı listeyle yeni yarışma: <b>${C.rosterError(nextRoster()) ? 'başlatılamaz (en az 3 benzersiz ad gerekir)' : nextMode() === 'shared' ? 'Üç Kampüs — Ortak Yarışma · eleme yok, puanlar üç etap boyunca birikir' : 'İki Gruplu Turnuva · ' + nextRoster().length + ' sınıf'}</b></div>
+      <div class="fld"><label for="set-classes">Takımlar / sınıflar (her satıra bir ad; en az 3)</label><textarea class="field" id="set-classes" style="min-height:140px">${esc(S.settings.classes.join('\n'))}</textarea><span class="hint">Bütün takımlar her turda birlikte yarışır; puanlar birikir. 3 takım: Orman Geçidi’nde eleme yok, Kadim Kale’den ilk 2 finale (3 → 3 → 2 → şampiyon). 4 takım: 4 → 3 → 2 → şampiyon. Daha kalabalıkta ilk tur sonunda en az 3 (yarısı) takım kalır. Değişiklik bir sonraki yeni yarışmada geçerli olur${G().started && !G().finished ? '; açık yarışmayı etkilemez' : ''}. Her adın arması kalıcıdır; yeni ad boş bir arma alır.</span></div>
+      <div class="adm-mode-now ${nextMode()}" role="status">Kayıtlı listeyle yeni yarışma: <b>${C.rosterError(nextRoster()) ? 'başlatılamaz (en az 3 benzersiz ad gerekir)' : (() => { const f = nextFormat(); return `Eleme Yarışması · ${f.n} → ${f.quotas[0]} → ${f.quotas[1]} → şampiyon · puanlar birikir`; })()}</b></div>
       <div class="arma-list">${S.settings.classes.map(n => `<span>${armaHTML(emblem(n), 'xs', '')}${esc(n)}</span>`).join('')}</div>
       <div class="fld"><label for="set-sec">Soru süresi (saniye)</label><input class="field" id="set-sec" type="number" min="5" max="600" value="${S.settings.seconds}" style="max-width:160px"></div>
     </div>
@@ -328,7 +377,7 @@ function vManage(){
     <div class="page-h"><h2>Soru Yönetimi</h2></div>
     <div class="tabs" role="tablist">${TABS.map(t=>`<button role="tab" class="${ui.tab===t.key?'on':''}" data-act="tab" data-k="${t.key}">${t.name}<span class="ct">${S.questions[t.key].length}</span></button>`).join('')}</div>
     <div class="summary ${sumWarn?'warn':''}">${isTie ? `Eşitlik durumunda sırayla kullanılan yedek tahmin soruları. Şu an ${list.length} soru var.`
-      : `${nT} tahmin + ${nD} ders = ${list.length} soru${sumWarn?' · Önerilen: 5 tahmin + 5 ders':''}. Sorular bu sırayla sorulur.`}</div>
+      : `${nT} tahmin + ${nD} ders = ${list.length} soru${sumWarn?' · Önerilen: 5 tahmin + 5 ders':''}. Yeni yarışmada sorular karışık sırayla ve bir kez sorulur.`}${G().started && !G().finished && elim() ? ' Açık yarışma, başlangıçta alınan kopyayı kullanır; buradaki değişiklikler o yarışmayı kendiliğinden değiştirmez (eklemek için yarışma ekranında “Yeni Soruları Ekle”).' : ''}</div>
     <div class="qlist">${rows}</div>
     <div class="row">
       ${isTie ? '' : `<button class="btn primary" data-act="addQ" data-t="ders">+ Ders Sorusu</button>`}
@@ -390,6 +439,7 @@ function hostInit(){
     if (g.rv && g.rv.qk === currentQk()){ ui.sel = [...(g.rv.sel || [])]; ui.guesses = Object.assign({}, g.rv.guesses || {}); ui.touched = true; }
     else { const f = g.frozen[currentQk()]; if (f) prefillFrom(f); }
   }
+  NET.key = g.akey || null;
   StageHost.init(onStageLink);
   netInit().then(async ok => { if (!ok) return render(); await lockSync(true); render(); sync(); });
   document.addEventListener('click', e => {
@@ -417,6 +467,6 @@ function hostInit(){
     if (e.key === 'Escape' && (ui.edit || ui.confirm || ui.joinOpen)){ ui.edit = null; ui.confirm = null; ui.joinOpen = false; render(); }
   });
   setInterval(adminTick, 200);
-  setInterval(() => { const g = G(); if (g.started && g.clock && g.clock.runAt != null){ g.clock.savedAt = nowS(); try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} } pushStage(); }, 1000);
+  setInterval(() => { const g = G(); if (g.started && g.clock && g.clock.runAt != null){ g.clock.savedAt = nowS(); try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} } pushStage(); if (g.started && LOCK.state !== 'other') ctlSync(); }, 1000);
   save(); render();
 }

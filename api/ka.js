@@ -4,6 +4,9 @@
 //   {"fn":"get","pins":["123456"],"since":0}          -> {"t":<ms>,"rows":[{pin,p,v,r}]}
 //   {"fn":"set","pin":"123456","path":"state","value":{...}}  -> {"r":<rev>}
 //   {"fn":"lock","op":"check|acquire|release","host":"<id>",...} -> {"t","state":"free|mine|other","info"}
+//   {"fn":"ctl","pin","key","ctl":{teams,qk,acc,elig,jk},"reset":[tid]}  -> admin denetim kaydi (yeni yarismalar)
+//   {"fn":"join","pin","tid","code"|"tok","dev"}  -> {"ok","tok"}  kaptan katilimi (takima ozel kod)
+//   {"fn":"cmd","pin","tok","op":"ans|jk","qk","v"|"j","t"} -> {"ok"}  cevap / joker istegi (sunucu dogrular)
 //
 // Tek yarisma kurali: ayni anda yalnizca bir yarisma ekrani (host) aktif yarisma yurutebilir.
 // Aktif ekran kilidi 20 sn'de bir yeniler; 5 dk haber alinmazsa kilit kendiliginden duser.
@@ -199,6 +202,159 @@ async function doLock(b) {
   return { state: 'other', info: { title: info.title || '', where: info.where || '', since: info.since || 0, seen: info.seen || 0 } };
 }
 
+// ---- yarisma yetkisi (yeni yarismalar) ----
+// Ozel kayitlar herkese acik hash'e (GET) girmez:
+//   ka:c:<pin>  denetim kaydi (JSON): { adm:<sha256(admin anahtari)>, teams:{tid:{code,act}}, qk, acc, elig:[tid]|null, jk }
+//   ka:b:<pin>  kaptan baglari (hash): tid -> "<dev>|<sha256(oturum)>", "f:<tid>" -> hatali kod sayaci
+// Denetim kaydi olan yarismada: state/meta vb. yazimlari yalniz admin anahtariyla; telefonlar yalniz join/cmd ile
+// (aktif takim, gecerli oturum, acik soru, dogru soru anahtari, uygun aday). Genel set yolu telefona kapali.
+// Denetim kaydi olmayan (eski) yarismalarda eski davranis surer.
+const crypto = require('crypto');
+const sha = s => crypto.createHash('sha256').update(String(s)).digest('hex');
+const rnd = n => crypto.randomBytes(n).toString('hex');
+const TID_RE = /^t\d{1,3}$/;
+const KEY_RE = /^[A-Za-z0-9]{16,64}$/;
+const DEV_RE = /^[A-Za-z0-9]{4,40}$/;
+const QK_RE = /^[A-Za-z0-9_-]{1,120}$/;
+const MAX_FAIL = 10;
+const kCtl = pin => 'ka:c:' + pin;
+const kBind = pin => 'ka:b:' + pin;
+
+const CTL_GET_LUA = `return {redis.call('GET', KEYS[1]) or '', redis.call('HGETALL', KEYS[2])}`;
+// Kaptan bagi: bos ya da ayni cihazsa yazilir (atomik). ARGV: tid, dev, tokhash, ttl
+const BIND_LUA = `
+local cur = redis.call('HGET', KEYS[1], ARGV[1])
+if cur and cur ~= '' then
+  local bar = string.find(cur, '|', 1, true)
+  if bar and string.sub(cur, 1, bar - 1) ~= ARGV[2] then return cur end
+end
+redis.call('HSET', KEYS[1], ARGV[1], ARGV[2] .. '|' .. ARGV[3])
+redis.call('EXPIRE', KEYS[1], ARGV[4])
+return 'OK'`;
+
+const memCtl = new Map();   // pin -> { ctl, bind: Map }
+async function ctlRead(pin) {
+  if (USE_MEMORY) {
+    const m = memCtl.get(pin);
+    return { ctl: m ? m.ctl : null, bind: m ? Object.fromEntries(m.bind) : {} };
+  }
+  const out = await redis(['EVAL', CTL_GET_LUA, '2', kCtl(pin), kBind(pin)]);
+  const raw = out[0] ? String(out[0]) : '', arr = out[1] || [], bind = {};
+  for (let i = 0; i + 1 < arr.length; i += 2) bind[String(arr[i])] = String(arr[i + 1]);
+  let ctl = null; try { ctl = raw ? JSON.parse(raw) : null; } catch (e) { ctl = null; }
+  return { ctl, bind };
+}
+async function ctlWrite(pin, ctl) {
+  if (USE_MEMORY) { let m = memCtl.get(pin); if (!m) memCtl.set(pin, (m = { ctl: null, bind: new Map() })); m.ctl = ctl; return; }
+  await redis(['SET', kCtl(pin), JSON.stringify(ctl), 'EX', String(TTL)]);
+}
+async function bindSet(pin, tid, dev, tokh) {
+  if (USE_MEMORY) {
+    const m = memCtl.get(pin); const cur = m.bind.get(tid);
+    if (cur && cur.split('|')[0] !== dev) return cur;
+    m.bind.set(tid, dev + '|' + tokh); return 'OK';
+  }
+  return String(await redis(['EVAL', BIND_LUA, '1', kBind(pin), tid, dev, tokh, String(TTL)]));
+}
+async function bindDel(pin, fields) {
+  if (!fields.length) return;
+  if (USE_MEMORY) { const m = memCtl.get(pin); if (m) fields.forEach(f => m.bind.delete(f)); return; }
+  await redis(['HDEL', kBind(pin), ...fields]);
+}
+async function failInc(pin, tid) {
+  if (USE_MEMORY) { const m = memCtl.get(pin), k = 'f:' + tid, n = (+(m.bind.get(k) || 0)) + 1; m.bind.set(k, String(n)); return n; }
+  const n = await redis(['HINCRBY', kBind(pin), 'f:' + tid, '1']);
+  await redis(['EXPIRE', kBind(pin), String(TTL)]);
+  return Number(n);
+}
+const devOf = v => String(v || '').split('|')[0];
+const tokOf = v => String(v || '').split('|')[1] || '';
+const deny = (res, code, why, extra) => send(res, code, Object.assign({ ok: false, why }, extra || {}));
+
+// Admin denetim kaydini kurar/gunceller. Ilk kayit anahtari baglar; sonrakiler ayni anahtari ister.
+async function doCtl(b, res) {
+  const pin = String(b.pin || ''), key = String(b.key || '');
+  if (!PIN_RE.test(pin) || !KEY_RE.test(key)) return deny(res, 400, 'gecersiz istek');
+  const { ctl: cur } = await ctlRead(pin);
+  if (cur && cur.adm !== sha(key)) return deny(res, 403, 'yetkisiz');
+  const c = b.ctl && typeof b.ctl === 'object' ? b.ctl : {};
+  const teams = {};
+  for (const tid of Object.keys(c.teams || {}).slice(0, 64)) {
+    const t = c.teams[tid];
+    if (!TID_RE.test(tid) || !t || !/^\d{4,8}$/.test(String(t.code || ''))) return deny(res, 400, 'gecersiz takim');
+    teams[tid] = { code: String(t.code), act: !!t.act };
+  }
+  const next = {
+    adm: sha(key), teams: Object.keys(teams).length ? teams : (cur ? cur.teams : {}),
+    qk: c.qk && QK_RE.test(String(c.qk)) ? String(c.qk) : null, acc: !!c.acc, jk: !!c.jk,
+    elig: Array.isArray(c.elig) ? c.elig.filter(x => TID_RE.test(String(x))).map(String) : null
+  };
+  await ctlWrite(pin, next);
+  const reset = Array.isArray(b.reset) ? b.reset.filter(x => TID_RE.test(String(x))).map(String) : [];
+  if (reset.length) {
+    await bindDel(pin, reset.flatMap(t => [t, 'f:' + t]));
+    for (const t of reset) await doSet(pin, 'players/all/' + t, 'null');
+  }
+  return send(res, 200, { ok: true, r: reset.length });
+}
+
+// Kaptan katilimi: takima ozel kod (ya da daha once verilen oturum). Elenen takim katilamaz.
+async function doJoin(b, res) {
+  const pin = String(b.pin || ''), tid = String(b.tid || ''), dev = String(b.dev || '');
+  if (!PIN_RE.test(pin) || !TID_RE.test(tid) || !DEV_RE.test(dev)) return deny(res, 400, 'gecersiz istek');
+  const { ctl, bind } = await ctlRead(pin);
+  if (!ctl) return deny(res, 404, 'Bu kodla açık bir yarışma bulunamadı.');
+  const t = ctl.teams[tid];
+  if (!t) return deny(res, 404, 'Takım bu yarışmada yok.');
+  if (!t.act) return deny(res, 403, 'Bu takım elendi; yarışmaya devam edemez.', { out: true });
+  const cur = bind[tid] || '';
+  if (b.tok && cur && tokOf(cur) === sha(String(b.tok)) && devOf(cur) === dev) {
+    await doSet(pin, 'players/all/' + tid, JSON.stringify({ dev, t: Date.now() }));
+    return send(res, 200, { ok: true, tok: String(b.tok) });
+  }
+  if (+(bind['f:' + tid] || 0) >= MAX_FAIL) return deny(res, 429, 'Çok fazla hatalı kod denendi. Yönetimden bu takım için cihaz sıfırlaması isteyin.');
+  if (String(b.code || '') !== t.code) { await failInc(pin, tid); return deny(res, 403, 'Kaptan kodu yanlış.'); }
+  for (const f of Object.keys(bind)) {
+    if (f !== tid && !f.startsWith('f:') && devOf(bind[f]) === dev) return deny(res, 409, 'Bu telefon başka bir takımın kaptanı olarak kayıtlı. Takım değiştirmek için yönetime başvurun.');
+  }
+  if (cur && devOf(cur) !== dev) return deny(res, 409, 'Bu takıma başka bir kaptan telefonu bağlı. Telefon değişikliği için yönetimden cihaz sıfırlaması isteyin.');
+  const tok = rnd(16);
+  const r = await bindSet(pin, tid, dev, sha(tok));
+  if (r !== 'OK') return deny(res, 409, 'Bu takıma başka bir kaptan telefonu bağlı. Telefon değişikliği için yönetimden cihaz sıfırlaması isteyin.');
+  await doSet(pin, 'players/all/' + tid, JSON.stringify({ dev, t: Date.now() }));
+  return send(res, 200, { ok: true, tok });
+}
+
+// Telefon komutu: cevap ya da joker istegi. Sunucu dogrular, yolu ve cihazi kendisi yazar.
+async function doCmd(b, res) {
+  const pin = String(b.pin || ''), tok = String(b.tok || ''), op = String(b.op || ''), qk = String(b.qk || '');
+  if (!PIN_RE.test(pin) || !tok || !QK_RE.test(qk) || !['ans', 'jk'].includes(op)) return deny(res, 400, 'gecersiz istek');
+  const { ctl, bind } = await ctlRead(pin);
+  if (!ctl) return deny(res, 404, 'Yarışma bulunamadı.');
+  const th = sha(tok), tid = Object.keys(bind).find(f => !f.startsWith('f:') && tokOf(bind[f]) === th);
+  if (!tid) return deny(res, 401, 'Kaptan oturumu geçersiz. Takımınızı yeniden seçip kodu girin.', { relogin: true });
+  const t = ctl.teams[tid];
+  if (!t || !t.act) return deny(res, 403, 'Bu takım elendi; cevap ve joker gönderemez.', { out: true });
+  if (!ctl.acc || ctl.qk !== qk) return deny(res, 409, 'Bu soru için cevap kabulü kapalı.');
+  if (ctl.elig && !ctl.elig.includes(tid)) return deny(res, 403, 'Bu soruyu yalnız eşitlikteki takımlar cevaplar.');
+  const tt = Number(b.t), now = Date.now();
+  if (!Number.isFinite(tt) || tt < now - 8000 || tt > now + 3000) return deny(res, 400, 'Gönderim zamanı geçersiz; sayfayı yenileyin.');
+  const dev = devOf(bind[tid]), t0 = Math.round(tt);
+  if (op === 'ans') {
+    const v = b.v;
+    const ok = (typeof v === 'string' && /^[ABCD]{1,2}$/.test(v)) || (typeof v === 'number' && Number.isFinite(v) && Math.abs(v) < 1e15);
+    if (!ok) return deny(res, 400, 'Geçersiz cevap.');
+    const sid = 's' + t0 + rnd(3);
+    const r = await doSet(pin, `answers/${qk}/${tid}/${sid}`, JSON.stringify({ v, t: t0, dev }));
+    return send(res, 200, { ok: true, r, t: t0 });
+  }
+  if (!ctl.jk) return deny(res, 409, 'Bu soruda joker kullanılamaz.');
+  const j = String(b.j || '');
+  if (!['double', 'x2'].includes(j)) return deny(res, 400, 'Geçersiz joker.');
+  const r = await doSet(pin, `jreq/${qk}/${tid}`, JSON.stringify({ j, t: t0, dev }));
+  return send(res, 200, { ok: true, r, t: t0 });
+}
+
 async function readBody(req) {
   if (req.body != null && req.body !== '') {
     if (typeof req.body === 'string') return JSON.parse(req.body);
@@ -248,9 +404,15 @@ module.exports = async function handler(req, res) {
       if (!PIN_RE.test(pin) || !PATH_RE.test(path) || path.length > 200) return send(res, 400, { error: 'gecersiz istek' });
       const json = JSON.stringify(b.value === undefined ? null : b.value);
       if (json.length > MAX_VALUE) return send(res, 413, { error: 'veri cok buyuk' });
+      // Denetim kaydi olan yarismada genel yazim yalniz admin anahtariyla (telefonlar join/cmd kullanir).
+      const { ctl } = await ctlRead(pin);
+      if (ctl && ctl.adm !== sha(String(b.key || ''))) return send(res, 403, { error: 'yetkisiz' });
       const r = await doSet(pin, path, json);
       return send(res, 200, { r });
     }
+    if (b.fn === 'ctl') return await doCtl(b, res);
+    if (b.fn === 'join') return await doJoin(b, res);
+    if (b.fn === 'cmd') return await doCmd(b, res);
     if (b.fn === 'lock') {
       const out = await doLock(b);
       if (!out) return send(res, 400, { error: 'gecersiz istek' });

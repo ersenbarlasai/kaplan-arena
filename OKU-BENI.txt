@@ -31,26 +31,51 @@ Sahne olmadan sürdürmek için "Sahnesiz Devam" seçilebilir.
 ========================================================================
 2) YARIŞMA AKIŞI (TAMAMEN SİZİN KONTROLÜNÜZDE)
 ========================================================================
-Kura > Orman Geçidi (1. etap) > Kadim Kale (2. etap) > Kaplan Arenası (final).
+Orman Geçidi (1. tur) > Kadim Kale (2. tur) > Kaplan Arenası (final). Kura ve
+iki ayrı grup YOK: her turda o turun bütün aktif takımları aynı soruları aynı
+anda yanıtlar.
 
-YARIŞMA MODU takım sayısına göre yeni yarışma başlarken seçilir ve o yarışmanın
-kaydına sabitlenir (sonradan Ayarlar'da listeyi değiştirmek açık yarışmayı
-etkilemez; değişiklik bir sonraki yeni yarışmada geçerli olur):
-  * ÜÇ KAMPÜS — ORTAK YARIŞMA (Ayarlar'da tam 3 takım): Kura ve eleme yok.
-    Üç takım Orman Geçidi, Kadim Kale ve Kaplan Arenası boyunca aynı anda
-    yarışır. Puanlar yarışma başında sıfırdır; yeni soruda ve yeni etapta
-    SIFIRLANMAZ, üç etap boyunca birikir. Son etap sonunda en yüksek toplam
-    puan şampiyondur. Birincilikte eşitlik olursa yalnız eşit liderlere yedek
-    tahmin sorusu sorulur (toplam puanlar değişmez); ikinci/üçüncü sıradaki
-    eşitlik için soru sorulmaz. Jokerler bütün yarışmada birer kez kullanılır.
-    Telefonlar takımını bir kez seçer; etap geçişinde yeniden seçmez.
-  * İKİ GRUPLU TURNUVA (4 ve daha fazla sınıf): Kura listeyi iki etaba böler,
-    her etabın ilk 2'si finale çıkar, finalde puanlar sıfırdan başlar.
+ELEME KURALI (yeni yarışmalar; başlarken kayda sabitlenir, sonradan Ayarlar'da
+listeyi değiştirmek açık yarışmayı etkilemez):
+  * 4 takım: Orman'da 4 takım → ilk 3 Kadim Kale'ye → Kale'nin ilk 2'si finale
+    → tek şampiyon (4 → 3 → 2 → şampiyon).
+  * 3 takım (üç kampüs pilotu): Orman'da eleme yok, üçü de Kale'ye geçer; Kale
+    sonunda ilk 2 finale (3 → 3 → 2 → şampiyon). Orman'ın kazananı yine açıklanır.
+  * Daha kalabalık: ilk turdan en az 3 (yarısı kadar) takım, Kale'den 2 takım,
+    finalden 1 şampiyon. Kontenjan Ana Menü'deki kural kartında görünür.
+  * Puanlar yarışma boyunca BİRİKİR (tur başında sıfırlanmaz). Yükselme ve
+    şampiyonluk TOPLAM puana göre; "Turun kazananı" o turdaki net kazançla ayrıca
+    açıklanır (eşitse "Turun ortak kazananları").
+  * Yükselme sınırında ya da finalde birincilikte eşitlik varsa yalnız eşit
+    takımlara yedek tahmin sorusu sorulur; eşitlik çözülmeden kimse elenmez.
+  * Elenen takım sonraki turlara katılamaz; puanı arşivde kalır.
+  * Jokerler bütün yarışmada birer kez; tur geçişinde yenilenmez.
   * Ayarlar en az 3 benzersiz, boş olmayan ad ister (2 ve altı kabul edilmez).
+Güncellemeden önce başlamış (eski kurallı) bir yarışma o kuralla sürer; ana
+menü bunu açıkça yazar. Yeni kural yeni yarışma başlatılınca uygulanır.
+
+SORULAR: Yeni yarışma başlarken soru bankasının kopyası KARIŞTIRILIR ve o
+yarışmanın sırası olarak kaydedilir. Aynı soru (başka bölümde ya da başka
+kimlikle girilmiş olsa da) bir yarışmada yalnız BİR KEZ sorulur; "Soruyu
+Göster" denince tüketilir. İptal edilen soru da tekrar gelmez; Geri Al ve sayfa
+yenileme bu kaydı geri almaz. Yarışma sürerken Soru Yönetimi'nde yaptığınız
+değişiklik açık yarışmanın sırasını değiştirmez; eklemek isterseniz katılım
+ekranında "Yeni Soruları Ekle" deyin. Eşitlik soruları da karışık ve tekrarsızdır;
+biterse panel uyarır: sözlü yeni bir soru sorup cevabını siz girersiniz.
+
+TUR SONU: Son sorudan sonra "Turu Bitir" → sonuç kesinleşir (eşitlik varsa önce
+eşitlik sorusu). "Tur Sonucunu Açıkla" sahnede ~7 sn'lik gösteriyi başlatır:
+tur kazananı, puan özeti, yükselen ve elenen takımlar. Gösteri soru açmaz,
+süreyi başlatmaz, tura geçmez; bitince sonuç ekranında bekler. "Atla" sonucu
+hemen gösterir, "Gösteriyi Tekrar Oynat" yeniden oynatır (puan/eleme değişmez).
+İlerlemek için "Sonraki Tura Geç". Finalde aynı düğme "Şampiyonu Açıkla"dır:
+şampiyonluk ekranı, konfeti ve şampiyonluk müziği (yalnız sahnede, ses
+ayarına bağlı, düşük seviyede döngüde; ekrandan çıkınca yumuşakça durur).
+
 Üç kampüs pilotu: Ayarlar > "Takımlar / sınıflar" alanına üç kampüs adını
-yazıp kaydedin; Ana Menü'de "Mod: Üç Kampüs — Ortak Yarışma" kartını kontrol
-edip "Yarışmayı Başlat" deyin. Uzak kampüsler internet adresinden
-(kaplan-arena.vercel.app) QR/kodla katılır; yerel ağ adresi gerekmez.
+yazıp kaydedin; Ana Menü'de "Kural: Eleme Yarışması · 3 → 3 → 2 → şampiyon"
+kartını kontrol edip "Yarışmayı Başlat" deyin. Uzak kampüsler internet
+adresinden (kaplan-arena.vercel.app) QR/kodla katılır.
 
 Her soru için panelde tek bir ana düğme sırayla şunları yapar:
   1. "Hazır mısınız?"  Soru sahneye ve telefonlara henüz GİTMEZ, süre işlemez.
@@ -95,8 +120,16 @@ sürer.
 3) TELEFONLA KATILIM (SINIF / TAKIM KAPTANLARI)
 ========================================================================
 - Katılım ekranında QR kod ve 6 haneli yarışma kodu görünür.
-- Kaptan QR'ı okutur ya da adresi yazıp kodu girer, sonra sınıfını
-  (Üç Kampüs modunda takımını) seçer.
+- Kaptan QR'ı okutur ya da adresi yazıp yarışma kodunu girer, sonra takımını
+  seçer ve KAPTAN KODUNU girer. Kaptan kodları her takıma özeldir (4 hane);
+  yarışma başlayınca yalnız yönetim panelinde ("Kaptan kodları" kutusu) görünür.
+  Her kaptana yalnız kendi kodunu verin. Yarışma kodu herkes için ortaktır,
+  takım kimliğini kanıtlamaz.
+- Bir takıma bağlı telefon varken başka bir telefon o takıma geçemez. Kaptanın
+  telefonu bozulursa panelde o takımın yanındaki "Telefonu Sıfırla" ile yeni
+  telefon aynı kodla bağlanır. Bir telefon başka bir takıma geçemez.
+- Elenen takımın telefonu "Bu turda elendiniz" görür; yenileme, kodu yeniden
+  girme ya da başka telefon bu durumu değiştirmez, cevap/joker gönderemez.
 - Şık seçmek cevap GÖNDERMEZ; "Cevabı Gönder" düğmesine basılır. Süre
   bitene kadar değiştirip yeniden gönderilebilir; son gönderilen geçerlidir.
   "Gönderilemedi" yazarsa bağlantıyı kontrol edip yeniden gönderin.
@@ -176,7 +209,7 @@ YEDEĞİ YÜKLEME (yarışmayı yöneteceğiniz bilgisayarda):
      metnini kutuya yapıştırın) ve "İçe Aktar" deyin; onaylayın.
   3. DİKKAT: bu bilgisayardaki mevcut sorular silinir, yedektekiler yüklenir.
   4. Kontrol edin: dört sekmedeki soru sayıları, Ayarlar'daki takım listesi ve
-     Ana Menü'deki mod kartı (3 takım = "Üç Kampüs — Ortak Yarışma").
+     Ana Menü'deki kural kartı (3 takım = "3 → 3 → 2 → şampiyon").
   Takım listesi hatalı bir yedek (2 ya da daha az takım, aynı ad iki kez)
   bütünüyle reddedilir; mevcut veriler değişmez. Yarışma sürerken yedek
   yüklemek o yarışmanın takımlarını değiştirmez.

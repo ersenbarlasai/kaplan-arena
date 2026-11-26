@@ -68,7 +68,18 @@ Admin (yetkili taraf) kabul kuralları:
 
 Joker tanıtımı: ilk kabulde `pauseAt = şimdi`, açık pencere kapanır, `joker` nedeni eklenir, `until = pauseAt + 3500 ms`. Bu tanıtım sürerken gelen ve `t ≤ pauseAt` olan geçerli istekler aynı tanıtıma eklenir (gruplama penceresi: duraklama anı öncesi gönderilmiş, tanıtım bitmeden ulaşan istekler; en çok 3,5 sn). Tanıtım uzatılmaz; liste eklenerek güncellenir. Süre bitince yalnız `joker` nedeni kalkar.
 
-## Yarışma modları
+## Eleme yarışması (format v3, yeni yarışmalar)
+
+Kaynak: `tasarim/CLAUDE-ELEME-SORU-VE-KUTLAMA-PROMPTU.md`, rapor: `tasarim/ELEME-SORU-KUTLAMA-TESLIM-RAPORU.md`. Bütün yeni yarışmalar `g.mode = 'elim'`; `shared`/`tournament` yalnız güncellemeden önce başlamış kayıtlarda sürer (sessiz dönüşüm yok; `loadState` şema yükseltmesinden önce `kaplan-arena-v1-yedek-sema<N>` kopyası alır).
+
+- Kayıt: `g.format = { v:3, kind:'elim', n, quotas:[q1,2,1] }` (`quotasFor(n)`: 3 → [3,2,1], 4 → [3,2,1], n → [max(3,⌈n/2⌉),2,1]); `g.teams.all = [{ id:'t1', name, score, status:'active'|'out', outStage, outTotal }]`; `g.rounds[r] = { key, ids, start:{id:toplam}, done:{ up, out, winners, gains, totals } }`; `g.elimLog`; `g.codes` (kaptan kodları), `g.akey` (admin anahtarı) — ikisi de yalnız admin kaydında.
+- Tur: `curTeams()` = `roundTeams(g, g.stage)` (tur başında sabitlenen kimlikler). `startStage` toplamları sıfırlamaz, `snapRound` başlangıç toplamlarını alır. `finishStage` → `roundOutcome`: kontenjan toplam puanla (`cutoff`), tur kazananı net kazançla. `revealRound` → `commitRound` (idempotent; elenenler `status:'out'`), gösteri olayı; `advance` yalnız `done.up` ile yeni tur açar (çift tıklama korumalı). Final: `revealRound` → şampiyon.
+- Soru planı: `buildPlan(S.questions, rnd)` (Fisher–Yates, `rnd` enjekte edilebilir; tarayıcıda `crypto`, testte `window.KA_RNG`), `canonKey` içerik kimliği (Türkçe büyük/küçük harf, boşluk, noktalama, şık sırası normalize) ile bankalar arası/içi tekrar elenir. `g.plan[k]` kalıcı sıra; `g.asked[cid]` gösterildiği an tüketim (`showQ` tek geçiş). `qList/qAt/curQ/currentQk` tek çözücü; eşitlik `nextUnasked(g,'tie')`. `undo` `asked`'i birleştirir, planı geri almaz; `cancelYes` geçmişi temizler.
+- Yetki (sunucu): `fn:'ctl'` (admin anahtarı ilk çağrıda bağlanır; `teams{tid:{code,act}}`, `qk`, `acc`, `jk`, `elig`), `fn:'join'` (kaptan kodu/oturum; elenen 403, bağlı takım 409, cihaz başka takımda 409, 10 hatalı kod 429), `fn:'cmd'` (oturum → tid, aktif, `qk` eşleşmesi, kabul açık, aday, zaman ±8/3 sn; yolu ve cihazı sunucu yazar). Denetim kaydı olan pinde genel `set` yalnız admin anahtarıyla. Özel kayıtlar `ka:c:<pin>` / `ka:b:<pin>` (LAN'da bellek) GET yanıtına girmez. Aynı kurallar `kaplan-sunucu.ps1` içinde (`/api/ctl|join|cmd`, `X-Ka-Key`).
+- Telefon: `P.tid`/`P.tok` (yarışma koduna bağlı); ağ yolları `answers/<qk>/<tid>`, `jreq/<qk>/<tid>`, `players/all/<tid>`. Durum: `ids`, `out`, `rnd` (yükselen/kazanan yalnız açıklamadan sonra).
+- Gösteri: `g.show = { id, kind:'round'|'champion', at, dur, skip }`; model geçen süreyi taşır, HTML taşımaz; `ShowFX` CSS animasyonlarını `--t0 = −geçen` ile kaydırır (yeniden çizim/geç bağlanma baştan başlatmaz). Şampiyonluk: `StageChamp` tek kalıcı canvas (yeniden çizimde yeni yuvaya taşınır) + tek `<audio id="champ">` (`CHAMP.src`, seviye `volume × CHAMP.level`, rampalı giriş/çıkış).
+
+## Yarışma modları (eski kayıtlar)
 
 `KaplanCore.normRoster()` adları satır/virgülle böler, boşlukları sadeleştirir; `rosterError()` en az 3 benzersiz (Türkçe büyük/küçük harf duyarsız) ad ister. Aynı kontrol Ayarlar'da, yeni yarışma başlatırken ve yedek içe aktarmada kullanılır; hatalı yedek bütünüyle reddedilir. `modeFor(n)`: 3 → `shared`, 4+ → `tournament`. Mod `ACT.newGameYes()` içinde `g.mode`/`g.roster`'a yazılır; `curTeams()` = `KaplanCore.teamsOf(g, etap)`.
 

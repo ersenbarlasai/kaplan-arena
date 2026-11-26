@@ -1,0 +1,127 @@
+{
+  "when": "2026-11-26T15:06:26.593Z",
+  "total": 24,
+  "failed": 0,
+  "results": [
+    {
+      "name": "PS yerel sunucu başladı",
+      "ok": true,
+      "detail": "://localhost:8090/\n   Not: 8080 portu bu bilgisayarda baska bir program tarafindan kullaniliyor; 8090 kullaniliyor.\n   UYARI: Yonetici izni verilmedigi icin telefonlar baglanamaz.\n   BASLAT dosyasini kapatip tekrar acin ve izin sorusuna EVET deyin.\n\n   Yarisma bitene kadar bu pencereyi KAPATMAYIN.\n\n"
+    },
+    {
+      "name": "LAN ctl: admin denetim kaydı kuruldu",
+      "ok": true,
+      "detail": "{\"code\":200,\"j\":{\"ok\":true,\"r\":0}}"
+    },
+    {
+      "name": "LAN ctl: başka anahtar reddedilir",
+      "ok": true,
+      "detail": "403"
+    },
+    {
+      "name": "LAN set: anahtarsız doğrudan cevap yazımı reddedilir",
+      "ok": true,
+      "detail": "403"
+    },
+    {
+      "name": "LAN set: anahtarsız state yazımı reddedilir",
+      "ok": true,
+      "detail": "403"
+    },
+    {
+      "name": "LAN set: admin anahtarıyla state yazılır",
+      "ok": true,
+      "detail": "200"
+    },
+    {
+      "name": "LAN join: yanlış kaptan kodu reddedilir",
+      "ok": true,
+      "detail": "{\"code\":403,\"j\":{\"ok\":false,\"why\":\"Kaptan kodu yanlış.\"}}"
+    },
+    {
+      "name": "LAN join: elenen takım katılamaz",
+      "ok": true,
+      "detail": "{\"code\":403,\"j\":{\"ok\":false,\"why\":\"Bu takım elendi; yarışmaya devam edemez.\",\"out\":true}}"
+    },
+    {
+      "name": "LAN join: doğru kodla kaptan bağlanır",
+      "ok": true,
+      "detail": "{\"code\":200,\"j\":{\"ok\":true,\"tok\":\"389cccd2bfa746928fddb005106924b3\"}}"
+    },
+    {
+      "name": "LAN join: başka cihaz bağlı kaptanı düşüremez",
+      "ok": true,
+      "detail": "{\"code\":409,\"j\":{\"ok\":false,\"why\":\"Bu takıma başka bir kaptan telefonu bağlı. Telefon değişikliği için yönetimden cihaz sıfırlaması isteyin.\"}}"
+    },
+    {
+      "name": "LAN join: aynı cihaz başka takımın adını seçerek geçemez",
+      "ok": true,
+      "detail": "{\"code\":409,\"j\":{\"ok\":false,\"why\":\"Bu telefon başka bir takımın kaptanı olarak kayıtlı. Takım değiştirmek için yönetime başvurun.\"}}"
+    },
+    {
+      "name": "LAN join: meşru kaptan oturumuyla yeniden bağlanır",
+      "ok": true,
+      "detail": "{\"code\":200,\"j\":{\"ok\":true,\"tok\":\"389cccd2bfa746928fddb005106924b3\"}}"
+    },
+    {
+      "name": "LAN cmd: geçerli cevap kabul edilir",
+      "ok": true,
+      "detail": "{\"code\":200,\"j\":{\"ok\":true,\"t\":1795705586389}}"
+    },
+    {
+      "name": "LAN cmd: sayısal tahmin kabul edilir",
+      "ok": true,
+      "detail": "{\"code\":200,\"j\":{\"ok\":true,\"t\":1795705586422}}"
+    },
+    {
+      "name": "LAN cmd: eski soru anahtarı reddedilir",
+      "ok": true,
+      "detail": "{\"code\":409,\"j\":{\"ok\":false,\"why\":\"Bu soru için cevap kabulü kapalı.\"}}"
+    },
+    {
+      "name": "LAN cmd: sahte oturum reddedilir",
+      "ok": true,
+      "detail": "{\"code\":401,\"j\":{\"ok\":false,\"why\":\"Kaptan oturumu geçersiz. Takımınızı yeniden seçip kodu girin.\",\"relogin\":true}}"
+    },
+    {
+      "name": "LAN cmd: joker isteği kabul edilir",
+      "ok": true,
+      "detail": "{\"code\":200,\"j\":{\"ok\":true,\"t\":1795705586461}}"
+    },
+    {
+      "name": "LAN: sunucu cevabı doğru yola ve bağlı cihazla yazdı",
+      "ok": true,
+      "detail": "[{\"v\":\"C\",\"t\":1795705586389,\"dev\":\"devA1234\"},{\"v\":1355.5,\"t\":1795705586422,\"dev\":\"devA1234\"}]"
+    },
+    {
+      "name": "LAN: kaptan kodları ve oturumlar /api/db yanıtında yok",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "LAN cmd: elenen takımın eski oturumu cevap gönderemez",
+      "ok": true,
+      "detail": "{\"code\":403,\"j\":{\"ok\":false,\"why\":\"Bu takım elendi; cevap ve joker gönderemez.\",\"out\":true}}"
+    },
+    {
+      "name": "LAN join: elenen takım oturumla da geri dönemez",
+      "ok": true,
+      "detail": "{\"code\":403,\"j\":{\"ok\":false,\"why\":\"Bu takım elendi; yarışmaya devam edemez.\",\"out\":true}}"
+    },
+    {
+      "name": "LAN cmd: eşitlikte aday olmayan takım reddedilir",
+      "ok": true,
+      "detail": "{\"code\":403,\"j\":{\"ok\":false,\"why\":\"Bu soruyu yalnız eşitlikteki takımlar cevaplar.\"}}"
+    },
+    {
+      "name": "LAN: admin cihaz sıfırlamasından sonra yeni cihaz bağlanır",
+      "ok": true,
+      "detail": "{\"code\":200,\"j\":{\"ok\":true,\"tok\":\"63c2893898944c76adafb0d6a635cbf6\"}}"
+    },
+    {
+      "name": "LAN set: denetim kaydı olmayan eski yarışma eskisi gibi yazılır",
+      "ok": true,
+      "detail": "200"
+    }
+  ]
+}

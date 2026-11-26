@@ -1,5 +1,5 @@
 {
-  "at": "2026-11-26T04:46:11.575Z",
+  "at": "2026-11-26T15:38:26.816Z",
   "results": [
     {
       "name": "file://: yerel fontlar (Türkçe glifler) yüklendi",
@@ -133,6 +133,11 @@
     },
     {
       "name": "yerel sunucu: admin yerel ağ kipinde",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "yerel sunucu: telefon kaptan koduyla bağlandı (LAN /api/join)",
       "ok": true,
       "detail": ""
     },

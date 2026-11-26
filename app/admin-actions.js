@@ -6,6 +6,10 @@ function cineStart(mode){
   else if (mode === 'opening' && reducedMotion()) toast('Hareketleri azaltma açık: sahnede açılış filmi yerine sabit karşılama gösterilir.', 5000);
   render(); pushStage();
 }
+function startShow(kind, dur){
+  const g = G();
+  g.show = { id:'sh' + ((g.evId || 0) + 1) + '_' + Math.round(nowS()), kind, at:Math.round(nowS()), dur, skip:false, stage:g.stage };
+}
 const ACT = {
   cancel(){ ui.confirm = null; render(); },
 
@@ -45,12 +49,19 @@ const ACT = {
   /* ---- yarışma başlat/bitir ---- */
   newGameAsk(){ ui.confirm = 'newgame'; render(); },
   async newGameYes(){
-    // Katılımcılar ve mod başlangıçta kayda sabitlenir: 3 takım → Üç Kampüs ortak yarışma, 4+ → iki gruplu turnuva.
+    // Yeni yarışma (format v3, eleme): katılımcılar kararlı teamId ile, kurallar/kontenjanlar, karışık tekrarsız soru
+    // planı, admin anahtarı ve takıma özel kaptan kodları başlangıçta kayda sabitlenir. Ayar değişikliği açık yarışmayı etkilemez.
     const roster = nextRoster(), err = C.rosterError(roster);
     if (err){ ui.confirm = null; return toast(err + ' Ayarlar ekranından takım listesini düzeltin.', 6000); }
+    const pl = C.buildPlan(S.questions, (typeof window !== 'undefined' && window.KA_RNG) || rnd01);   // KA_RNG: testte enjekte edilen rastgelelik
+    if (!pl.plan.s1.length || !pl.plan.s2.length || !pl.plan.final.length){ ui.confirm = null; return toast('Her turda en az bir soru olmalı (Orman Geçidi, Kadim Kale, Kaplan Arenası). Soru Yönetimi ekranından ekleyin.', 7000); }
     const g = newGame(); g.started = true; g.since = Math.round(nowS());
-    g.mode = C.modeFor(roster.length); g.roster = roster.slice();
-    if (g.mode === 'shared'){ g.teams.all = roster.map(n => ({ name:n, score:0 })); g.view = 'teams'; }
+    g.mode = 'elim'; g.format = C.makeFormat(roster.length); g.roster = roster.slice();
+    g.teams.all = roster.map((n, k) => ({ id:'t' + (k + 1), name:n, score:0, status:'active' }));
+    g.codes = captainCodes(g.teams.all.map(t => t.id)); g.akey = randKey(24);
+    g.plan = pl.plan; g.planDups = pl.dups; g.asked = {}; g.rounds = []; g.elimLog = []; g.show = null;
+    C.newRound(g, 0, g.teams.all.map(t => t.id));
+    g.view = 'teams'; g.stage = 0;
     if (lockOn()){
       let j;
       try{ j = await lockReq('acquire', true, g); }catch(e){ return toast('Bağlantı kurulamadı, tekrar deneyin.'); }
@@ -58,7 +69,9 @@ const ACT = {
       if (j.state !== 'mine'){ LOCK.state = 'other'; ui.confirm = null; setScreen('menu'); return; }
       LOCK.state = 'mine';
     }
-    S.game = g; syncEmblems(); ui.confirm = null; ui.drawShown = null;
+    S.game = g; syncEmblems(); ui.confirm = null; ui.drawShown = null; ui.codesOpen = true;
+    NET.key = g.akey;
+    if (NET.ok && !(await ctlSync())) toast('Telefon yetki kaydı sunucuya yazılamadı; bağlantı gelince yeniden denenecek.', 6000);
     if (NET.ok){ try{ NET.db.ref('games/' + S.game.pin + '/meta').set({ created:TS(), title:S.settings.title }); }catch(e){} }
     addEvent('stage');
     save(); setScreen('game'); lockSync(false);
@@ -69,7 +82,7 @@ const ACT = {
   /* ---- kura ve etap ---- */
   drawGo(){
     const g = G();
-    if (shared()) return;                                   // ortak yarışmada grup kurası yoktur
+    if (shared() || elim()) return;                         // ortak/eleme yarışmasında grup kurası yoktur
     const list = g.roster || S.settings.classes;            // eski kayıt: rosteri yoksa mevcut davranış
     if (list.length < 4) return toast('İki gruplu turnuva kurası için en az 4 takım gerekir.', 5000);
     const sh = shuffle(list), n1 = Math.ceil(sh.length / 2);
@@ -86,6 +99,14 @@ const ACT = {
   },
   startStage(){
     const key = stageKey();
+    if (elim()){
+      const g = G(); if (g.view !== 'teams') return;
+      const first = C.nextUnasked(g, key, 0);
+      if (first < 0) return toast('Bu turda sorulmamış soru kalmadı. Soru Yönetimi’nde yeni soru ekleyip “Yeni Soruları Ekle” deyin.', 7000);
+      C.snapRound(g, g.stage);                          // tur kazancı bu toplamlara göre hesaplanır; toplamlar sıfırlanmaz
+      g.result = null; g.tie = null; g.last = null; g.history = []; g.show = null;
+      toQuestion(first); save(); render(); return;
+    }
     if (!S.questions[key].length) return toast('Bu etapta soru yok. Önce Soru Yönetimi ekranından soru ekleyin.');
     // Turnuvada her etap kendi takım listesiyle sıfırdan başlar; ortak yarışmada puanlar etaplar boyunca birikir.
     if (!shared()) curTeams().forEach(t => t.score = 0);
@@ -96,6 +117,12 @@ const ACT = {
   /* ---- soru aşamaları ---- */
   showQ(){
     const g = G(); if (!inQ() || g.phase !== 'ready') return;
+    if (elim()){
+      // Gösterme ve tüketim tek geçiş: soru bu yarışmada bir kez sorulur (iptal/geri alma/yenileme bunu geri almaz).
+      const q = curQ();
+      if (q && C.isAsked(g, q)) return toast('Bu soru bu yarışmada zaten soruldu; tekrar oynatılamaz.', 5000);
+      if (q) C.markAsked(g, q, { at:Math.round(nowS()), stage:stageKey(), qk:currentQk() });
+    }
     C.showQuestion(g, S.settings.seconds * 1000, nowS());
     if (ui.stageSeen && StageHost.count() === 0 && !ui.noStageOk){ C.pause(g, 'stage', nowS()); C.pause(g, 'admin', nowS()); }
     save(); render();
@@ -146,7 +173,8 @@ const ACT = {
   undo(){
     const g = G(); if (!g.history.length) return;
     const h = g.history.slice(0, -1), snap = JSON.parse(g.history[g.history.length - 1]);
-    S.game = Object.assign(snap, { history:h }); ui.scoreEdit = false;
+    // Sorulmuş soru kaydı (asked) ve soru planı geri gitmez; geri alma yalnız puan/eşitlik düzeltmesidir.
+    S.game = Object.assign(snap, { history:h, plan:g.plan || snap.plan || null, asked:Object.assign({}, snap.asked || {}, g.asked || {}) }); ui.scoreEdit = false;
     if (S.game.rv && S.game.rv.qk === currentQk()){ ui.sel = [...(S.game.rv.sel || [])]; ui.guesses = Object.assign({}, S.game.rv.guesses || {}); }
     else if (S.game.frozen && currentQk() && S.game.frozen[currentQk()]) prefillFrom(S.game.frozen[currentQk()]);
     save(); render(); toast('Son işlem geri alındı.');
@@ -156,7 +184,8 @@ const ACT = {
   next(){
     const g = G();
     if (!(g.view === 'scoreboard' || (g.view === 'question' && g.phase === 'cancelled'))) return;
-    if (g.qIndex + 1 < S.questions[stageKey()].length) toQuestion(g.qIndex + 1);
+    if (elim()){ const n = C.nextUnasked(g, stageKey(), g.qIndex + 1); if (n >= 0) toQuestion(n); else finishStage(); }
+    else if (g.qIndex + 1 < S.questions[stageKey()].length) toQuestion(g.qIndex + 1);
     else { finishStage(); }
     save(); render();
   },
@@ -164,10 +193,11 @@ const ACT = {
   cancelYes(){
     const g = G(); ui.confirm = null;
     if (!(g.view === 'question' || g.view === 'scoreboard')) return render();
-    const qk = (() => { const q = S.questions[stageKey()][g.qIndex]; return q ? `${stageKey()}_${g.qIndex}_${q.id}` : null; })();
+    const qk = currentQk();
     if (!qk) return render();
     if (g.cancelled[qk]){ toast('Bu soru zaten iptal edildi.'); return; }
-    pushHistory();
+    if (elim()) g.history = [];                   // iptal kesindir: geri alınamaz; gösterilmiş soru zaten tüketildi
+    else pushHistory();
     g.view = 'question';
     C.cancelQuestion(g, curTeams(), qk, nowS());
     g.last = null; addEvent('cancel'); save(); render(); toast('Soru iptal edildi; puan etkisi geri alındı, jokerler iade edildi.', 5000);
@@ -177,7 +207,7 @@ const ACT = {
     const g = G(), i = +d.i, j = d.j, t = curTeams()[i]; ui.confirm = null;
     if (!t || g.view !== 'question') return render();
     const qk = currentQk(), now = nowS();
-    const ctx = { qk, qtype:curQ().type, isTie:false, i, name:t.name, j, t:now, admin:true, owner:null, dev:'admin', node:(NET.live.ans || {})[i] };
+    const ctx = { qk, qtype:curQ().type, isTie:false, i, name:tkey(t), label:t.name, j, t:now, admin:true, owner:null, dev:'admin', node:(NET.live.ans || {})[nk(i)] };
     const why = C.checkJoker(g, ctx);
     if (why) return toast(why, 5000);
     const res = C.acceptJoker(g, ctx, now); if (!res.grouped) addEvent('joker');
@@ -187,28 +217,30 @@ const ACT = {
   /* ---- eşitlik ve etap sonu ---- */
   startTie(){
     const g = G(), r = g.result;
+    if (g.view !== 'stageEnd' || !r || !r.tie) return;
     g.tieRound = (g.tieRound || 0) + 1;
-    g.tie = { candidates:r.tie.candidates, slots:r.tie.slots, poolIdx:g.tieUsed };
+    // Eşitlik havuzu da karışık plandan; gösterilince tüketilir. Havuz biterse sözlü soru (admin cevabı girer).
+    g.tie = { candidates:r.tie.candidates, slots:r.tie.slots, poolIdx:elim() ? C.nextUnasked(g, 'tie', 0) : g.tieUsed };
     g.view = 'tie'; g.phase = 'ready'; g.clock = null; g.win = []; g.intro = null; ui.guesses = {}; ui.tieAns = '';
     save(); render();
   },
   resolveTie(){
     const g = G(), t = g.tie, teams = curTeams();
     if (g.phase !== 'revealed') return toast('Önce cevabı açıklayın.');
-    const q = S.questions.tie[t.poolIdx];
+    const q = curQ();
     const ans = q ? q.answer : parseNum(document.getElementById('tie-ans')?.value);
     if (ans == null) return toast('Önce doğru cevabı girin.');
     const scores = t.candidates.map(i => { const v = parseNum(ui.guesses[i]); return { i, score:v == null ? -Infinity : -Math.round(Math.abs(v - ans) * 1e6) / 1e6 }; });
     if (scores.every(s => s.score === -Infinity)) return toast(`En az bir ${noun().gen} tahminini girin.`);
     pushHistory();
-    if (q) g.tieUsed = Math.max(g.tieUsed, t.poolIdx + 1);
+    if (q && !elim()) g.tieUsed = Math.max(g.tieUsed, t.poolIdx + 1);
     const res = cutoff(scores, t.slots);
     const detail = t.candidates.map(i => `${teams[i].name}: ${ui.guesses[i] ? fmt(parseNum(ui.guesses[i])) : '—'}`).join(', ');
     g.result.qualified = g.result.qualified.concat(res.qualified);
     ui.guesses = {}; ui.tieAns = '';
     if (res.tie){
       g.tieRound = (g.tieRound || 0) + 1;
-      g.tie = { candidates:res.tie.candidates, slots:res.tie.slots, poolIdx:g.tieUsed };
+      g.tie = { candidates:res.tie.candidates, slots:res.tie.slots, poolIdx:elim() ? C.nextUnasked(g, 'tie', 0) : g.tieUsed };
       g.phase = 'ready'; g.clock = null; g.win = [];
       save(); render(); toast('Yine eşitlik! Yeni bir eşitlik sorusu hazır.');
     } else {
@@ -217,9 +249,50 @@ const ACT = {
       g.tie = null; g.view = 'stageEnd'; g.phase = 'ready'; g.clock = null; save(); render();
     }
   },
+  /* ---- eleme yarışması: sonuç açıklama, gösteri, tur geçişi (hepsi açık admin komutu, idempotent) ---- */
+  revealRound(){
+    const g = G();
+    if (!elim() || g.view !== 'stageEnd' || !g.result || g.result.tie || g.result.revealed) return;
+    C.commitRound(g, g.stage, g.result.qualified);     // elenenler kalıcı; ikinci çağrı hiçbir şey yapmaz
+    g.result.revealed = true; g.history = [];
+    if (stageKey() === 'final'){
+      g.view = 'champion'; g.finished = true; startShow('champion', 9000); addEvent('champion'); save(); render(); lockSync(false); return;
+    }
+    startShow('round', 7000); addEvent('roundEnd'); save(); render();
+  },
+  showSkip(){ const g = G(); if (g.show && !g.show.skip){ g.show.skip = true; save(); render(); } },
+  showReplay(){
+    const g = G(); if (!g.show || !g.result || !g.result.revealed) return;
+    startShow(g.show.kind, g.show.dur); addEvent(g.show.kind === 'champion' ? 'champion' : 'roundEnd'); save(); render();
+  },
+  planAdd(d){
+    const g = G(); if (!elim()) return;
+    const n = C.planAppend(g, d.k, S.questions[d.k], rnd01);
+    save(); render(); toast(n ? `${n} yeni soru bu yarışmanın sırasına eklendi.` : 'Eklenecek yeni (sorulmamış, tekrarsız) soru yok.', 5000);
+  },
+  tieRetry(){
+    const g = G(); if (!elim() || g.view !== 'tie' || g.phase !== 'ready' || !g.tie) return;
+    const k = C.nextUnasked(g, 'tie', 0);
+    if (k < 0) return toast('Eşitlik havuzunda sorulmamış soru yok. Önce Soru Yönetimi › Eşitlik bölümüne yeni soru ekleyin.', 6000);
+    g.tie.poolIdx = k; save(); render();
+  },
+  codesToggle(){ ui.codesOpen = !ui.codesOpen; render(); },
+  devResetAsk(d){ ui.confirm = 'dev:' + d.id; render(); },
+  async devResetYes(d){
+    const g = G(), t = C.teamById(g, d.id); ui.confirm = null;
+    if (!elim() || !t || t.status === 'out') return render();
+    const ok = await ctlSync({ reset:[t.id] });
+    toast(ok ? `${t.name}: kaptan telefonu sıfırlandı. Yeni telefon kaptan koduyla bağlanabilir.` : 'Sunucuya ulaşılamadı; tekrar deneyin.', 6000);
+  },
   advance(){
     const g = G(), st = STAGES[g.stage], key = st.key, teams = curTeams();
     if (!g.result || g.result.tie) return;
+    if (elim()){
+      const r = g.rounds[g.stage];
+      if (key === 'final' || !g.result.revealed || !r || !r.done || g.rounds[g.stage + 1]) return;
+      C.newRound(g, g.stage + 1, r.done.up);             // yalnız yükselenler; elenen bir daha kadroya alınmaz
+      g.stage++; g.history = []; g.result = null; g.show = null; g.view = 'teams'; addEvent('stage'); save(); render(); return;
+    }
     if (shared()){
       if (key !== 'final'){ g.stage++; g.history = []; g.result = null; g.view = 'teams'; addEvent('stage'); save(); render(); }
       else { g.view = 'champion'; g.finished = true; addEvent('champion'); save(); render(); lockSync(false); }
@@ -234,7 +307,7 @@ const ACT = {
       g.view = 'champion'; g.finished = true; addEvent('champion'); save(); render(); lockSync(false);
     }
   },
-  confetti(){ addEvent('champion'); save(); },
+  confetti(){ if (elim()) return ACT.showReplay(); addEvent('champion'); save(); },
   joinOpen(){ ui.joinOpen = true; render(); },
   joinClose(){ ui.joinOpen = false; render(); },
   keyToggle(){ ui.showKey = !ui.showKey; render(); },

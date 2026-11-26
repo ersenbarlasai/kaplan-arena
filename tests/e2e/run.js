@@ -13,6 +13,13 @@ fs.mkdirSync(SHOTS, { recursive: true });
 const results = [];
 function check(name, ok, detail){ results.push({ name, ok: !!ok, detail: detail == null ? '' : String(detail) }); console.log((ok ? 'PASS ' : 'FAIL ') + name + (detail != null && !ok ? ' :: ' + detail : '')); }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+async function joinTeam(ph, tid, code){
+  await ph.waitForSelector(`[data-pl="pickElim"][data-id="${tid}"]`, { timeout: 15000 });
+  await pl(ph, 'pickElim', { id: tid });
+  await ph.waitForSelector('#pl-code');
+  await ph.evaluate(c => { const el = document.getElementById('pl-code'); el.value = c; el.dispatchEvent(new Event('input', { bubbles: true })); }, code);
+  await pl(ph, 'codeYes');
+}
 async function api(body){ const r = await fetch(BASE + '/api/ka', { method:'POST', body:JSON.stringify(body) }); return r.json(); }
 async function kvState(pin){ const j = await api({ fn:'get', pins:[pin], since:0 }); const row = j.rows.find(r => r.p === 'state'); return { st: row ? row.v : null, t: j.t, rows: j.rows }; }
 async function clickSel(page, sel){
@@ -74,6 +81,7 @@ async function waitKv(pin, pred, ms){ const end = Date.now() + (ms || 6000); let
         tie: [T('Everest kaç metredir?', 8849, 'm'), T('Türkiye kaç ilden oluşur?', 81, '')]
       };
       S.settings.seconds = 30; save();
+      window.KA_RNG = () => 0.9999999;   // test: soru sırası bankadaki sırayla (karıştırma bağımlılığı enjekte)
     });
     await act(admin, 'begin');
     await shot(admin, 'admin-ana-menu-1366', 1366, 900);
@@ -96,14 +104,11 @@ async function waitKv(pin, pred, ms){ const end = Date.now() + (ms || 6000); let
     await waitG(admin, () => StageHost.count() > 0);
     check('admin sahneyi tanıdı ve etkin ses sahnesi seçildi', await admin.evaluate(() => StageHost.count() === 1 && !!StageHost.soundStage()));
 
-    // kura
-    await act(admin, 'drawGo');
-    await waitG(admin, () => S.game.draw && ui.drawShown == null);
-    await shot(stage, 'sahne-kura-1920');
-    await act(admin, 'drawOk');
+    // eleme yarışması: kura yok; bütün takımlar ilk turda. Joker kayıtları kararlı teamId ile tutulur.
     await waitG(admin, () => S.game.view === 'teams');
     const g0 = await G(admin);
-    const T0 = g0.teams.s1[0].name, T1 = g0.teams.s1[1].name, T2 = g0.teams.s1[2].name;
+    check('yeni yarışma: kura/iki grup yok, 11 takım aynı ilk turda', g0.mode === 'elim' && !g0.draw && g0.rounds[0].ids.length === 11, JSON.stringify(g0.rounds));
+    const T0 = 't1', T1 = 't2', T2 = 't3', codes = g0.codes;
 
     /* ---------- telefonlar ---------- */
     const ctxB = await browser.createBrowserContext(), ctxC = await browser.createBrowserContext();
@@ -114,13 +119,14 @@ async function waitKv(pin, pred, ms){ const end = Date.now() + (ms || 6000); let
     await shot(phB, 'telefon-katilim-390');
     await phB.type('#pl-pin', pin); await pl(phB, 'join');
     await phC.goto(`${BASE}/kaplan-arena.html?pin=${pin}`);
-    await phB.waitForSelector('[data-pl="pick"]'); await shot(phB, 'telefon-sinif-secimi-390');
-    await pl(phB, 'pick', { i: 0 }); await pl(phC, 'pick', { i: 1 });
+    await phB.waitForSelector('[data-pl="pickElim"]'); await shot(phB, 'telefon-sinif-secimi-390');
+    await joinTeam(phB, 't1', codes.t1); await joinTeam(phC, 't2', codes.t2);
     await shot(phC, 'telefon-hazir-360');
-    await waitG(admin, () => NET.joined && NET.joined[0] && NET.joined[1]);
+    await waitG(admin, () => NET.joined && NET.joined.t1 && NET.joined.t2);
     check('iki telefon sınıflarını aldı', true);
     await shot(stage, 'sahne-katilim-1920');
-    const devB = await phB.evaluate(() => P.dev), devC = await phC.evaluate(() => P.dev);
+    const tokB = await phB.evaluate(() => P.tok), tokC = await phC.evaluate(() => P.tok);
+    const cmd = (tok, op, qk, x, t) => api(Object.assign({ fn:'cmd', pin, tok, op, qk, t }, op === 'ans' ? { v:x } : { j:x }));
 
     /* ---------- Soru 1 (tahmin): hazırlık sızıntısı yok, çifte puan + ceza, duraklama, kilit ---------- */
     await act(admin, 'startStage');
@@ -151,7 +157,7 @@ async function waitKv(pin, pred, ms){ const end = Date.now() + (ms || 6000); let
     kv = await kvState(pin);
     check('telefon durumu: duraklama yayımlandı', kv.st.open === false && kv.st.paused.includes('joker'));
     // duraklama sırasında doğrudan gönderilen cevap kabul edilmemeli
-    await api({ fn:'set', pin, path:`answers/${kv.st.qk}/0/sPAUSE`, value:{ v: 1355, t: kv.t, dev: devB } });
+    await cmd(tokB, 'ans', kv.st.qk, 1355, kv.t);
     await shot(phB, 'telefon-duraklama-390');
     await waitG(admin, () => !S.game.intro && C.isRunning(S.game), null, 8000);
     check('tanıtım bitince saat kendiliğinden devam etti (başka neden yok)', true);
@@ -163,7 +169,7 @@ async function waitKv(pin, pred, ms){ const end = Date.now() + (ms || 6000); let
     await waitG(admin, () => S.game.phase === 'locked', null, 40000);
     kv = await waitKv(pin, st => st.phase === 'locked');
     check('süre sıfırda cevap kabulü kilitlendi (aşama locked, otomatik açıklama yok)', kv.st.phase === 'locked' && kv.st.answer === null);
-    await api({ fn:'set', pin, path:`answers/${kv.st.qk}/0/sLATE`, value:{ v: 1355, t: kv.t + 500, dev: devB } });
+    await cmd(tokB, 'ans', kv.st.qk, 1355, kv.t + 500);
     await sleep(2500);
     check('kilit sonrası otomatik açıklama/ilerleme yok', (await G(admin)).phase === 'locked');
     await shot(phB, 'telefon-sure-doldu-390');
@@ -178,10 +184,10 @@ async function waitKv(pin, pred, ms){ const end = Date.now() + (ms || 6000); let
     await act(admin, 'showScores');
     await waitG(admin, () => S.game.view === 'scoreboard');
     gA = await G(admin);
-    check('Soru 1: normal doğru +10, Çifte Puan kazanamadı → ceza 0 puanda 0', gA.teams.s1[0].score === 10 && gA.teams.s1[1].score === 0 && gA.last.delta[1] === 0, JSON.stringify(gA.last.delta));
+    check('Soru 1: normal doğru +10, Çifte Puan kazanamadı → ceza 0 puanda 0', gA.teams.all[0].score === 10 && gA.teams.all[1].score === 0 && gA.last.delta[1] === 0, JSON.stringify(gA.last.delta));
     await admin.evaluate(() => { ACT.showScores(); ui.screen = 'game'; });
     await admin.evaluate(() => { S.game.view = 'question'; S.game.phase = 'revealed'; ACT.showScores(); });
-    check('tekrar puan gösterme puanı çoğaltmaz', (await G(admin)).teams.s1[0].score === 10);
+    check('tekrar puan gösterme puanı çoğaltmaz', (await G(admin)).teams.all[0].score === 10);
     await sleep(600);
     await shot(stage, 'sahne-puan-tablosu-1920');
     await shot(phC, 'telefon-joker-cezasi-360');
@@ -199,7 +205,7 @@ async function waitKv(pin, pred, ms){ const end = Date.now() + (ms || 6000); let
     await pl(phB, 'pick-opt', { v: 'A' }); await pl(phB, 'send');
     await sleep(900);
     kv = await kvState(pin);
-    await api({ fn:'set', pin, path:`jreq/${kv.st.qk}/0`, value:{ j:'x2', t: kv.t, dev: devB } });
+    await cmd(tokB, 'jk', kv.st.qk, 'x2', kv.t);
     await sleep(1500);
     gA = await G(admin);
     check('ilk cevaptan sonra joker reddedilir', gA.jrej[0] && /Cevap gönderildikten/.test(gA.jrej[0].why), gA.jrej[0] && gA.jrej[0].why);
@@ -210,7 +216,7 @@ async function waitKv(pin, pred, ms){ const end = Date.now() + (ms || 6000); let
     if (!(gA.jokers[T1] && gA.jokers[T1].double)) console.log('   C çift cevap durumu:', JSON.stringify({ jrej: gA.jrej, jk: gA.jokers[T1], phone: await phC.evaluate(() => ({ jk: P.jk, can: plCan(), st: P.st && { open: P.st.open, phase: P.st.phase } })), win: gA.win }));
     await waitG(admin, () => !S.game.intro && C.isRunning(S.game), null, 9000);
     kv = await kvState(pin);
-    await api({ fn:'set', pin, path:`jreq/${kv.st.qk}/1`, value:{ j:'x2', t: kv.t, dev: devC } });
+    await cmd(tokC, 'jk', kv.st.qk, 'x2', kv.t);
     await sleep(1500);
     gA = await G(admin);
     check('aynı soruda ikinci joker isteği reddedilir', gA.jrej[1] && /zaten bir joker/.test(gA.jrej[1].why), gA.jrej[1] && gA.jrej[1].why);
@@ -233,7 +239,7 @@ async function waitKv(pin, pred, ms){ const end = Date.now() + (ms || 6000); let
     await act(admin, 'showScores');
     await waitG(admin, () => S.game.view === 'scoreboard');
     gA = await G(admin);
-    check('Soru 2: Çift Cevap biri doğru +10; yanlış normal cevap 0', gA.teams.s1[1].score === 10 && gA.teams.s1[0].score === 10 && gA.last.delta[1] === 10, JSON.stringify(gA.last.delta));
+    check('Soru 2: Çift Cevap biri doğru +10; yanlış normal cevap 0', gA.teams.all[1].score === 10 && gA.teams.all[0].score === 10 && gA.last.delta[1] === 10, JSON.stringify(gA.last.delta));
     await shot(phC, 'telefon-dogru-cevap-360');
 
     /* ---------- Soru 3 (tahmin): ceza −10 ve iptal (gerçek delta, joker iadesi, tekrar iptal) ---------- */
@@ -248,15 +254,16 @@ async function waitKv(pin, pred, ms){ const end = Date.now() + (ms || 6000); let
     await act(admin, 'showScores');
     await waitG(admin, () => S.game.view === 'scoreboard');
     gA = await G(admin);
-    check('Soru 3: Çifte Puan yanlış −10 (10→0), en yakın +10', gA.teams.s1[0].score === 0 && gA.teams.s1[1].score === 20 && gA.last.delta[0] === -10, JSON.stringify(gA.last.delta));
-    const before = gA.teams.s1.map(t => t.score);
+    check('Soru 3: Çifte Puan yanlış −10 (10→0), en yakın +10', gA.teams.all[0].score === 0 && gA.teams.all[1].score === 20 && gA.last.delta[0] === -10, JSON.stringify(gA.last.delta));
+    const before = gA.teams.all.map(t => t.score);
     await act(admin, 'cancelAsk'); await act(admin, 'cancelYes');
     await waitG(admin, () => S.game.phase === 'cancelled');
     gA = await G(admin);
-    check('iptal: puan etkisi geri alındı', gA.teams.s1[0].score === 10 && gA.teams.s1[1].score === 10, JSON.stringify(gA.teams.s1.map(t => t.score)));
+    check('iptal: puan etkisi geri alındı', gA.teams.all[0].score === 10 && gA.teams.all[1].score === 10, JSON.stringify(gA.teams.all.map(t => t.score)));
     check('iptal: bu sorudaki joker iade edildi, önceki jokerler korundu', gA.jokers[T0].x2 === null && gA.jokers[T1].x2 && gA.jokers[T1].double);
     await admin.evaluate(() => ACT.cancelYes());
-    check('tekrar iptal ikinci iade yapmaz', JSON.stringify((await G(admin)).teams.s1.map(t => t.score)) === JSON.stringify(gA.teams.s1.map(t => t.score)));
+    check('tekrar iptal ikinci iade yapmaz', JSON.stringify((await G(admin)).teams.all.map(t => t.score)) === JSON.stringify(gA.teams.all.map(t => t.score)));
+    check('iptal edilen (sorulmuş) soru bu yarışmada tüketilmiş kalır', !!(await G(admin)).asked[(await G(admin)).plan.s1[2].cid]);
     await sleep(800);
     check('iptal durumu sahne ve telefonda', (await textOf(stage)).includes('Soru iptal edildi') && (await textOf(phB)).includes('Soru iptal edildi'));
     await shot(stage, 'sahne-iptal-1920'); await shot(phB, 'telefon-iptal-390');
@@ -267,10 +274,9 @@ async function waitKv(pin, pred, ms){ const end = Date.now() + (ms || 6000); let
     await phB.waitForSelector('[data-pl="jkAsk"][data-j="double"]:not([disabled])');
     kv = await kvState(pin);
     const tSim = kv.t;
-    await Promise.all([
-      api({ fn:'set', pin, path:`jreq/${kv.st.qk}/0`, value:{ j:'double', t: tSim, dev: devB } }),
-      api({ fn:'set', pin, path:`jreq/${kv.st.qk}/3`, value:{ j:'x2', t: tSim, dev: 'baska-telefon' } })
-    ]);
+    // 4. takımın (t4) kaptanı başka bir telefondan kaptan koduyla bağlanır; iki joker aynı anda gönderilir
+    const tok4 = (await api({ fn:'join', pin, tid:'t4', code:codes.t4, dev:'baskaTelefon4' })).tok;
+    await Promise.all([ cmd(tokB, 'jk', kv.st.qk, 'double', tSim), cmd(tok4, 'jk', kv.st.qk, 'x2', tSim) ]);
     await waitG(admin, () => S.game.intro && S.game.intro.items.length === 2, null, 6000).catch(() => {});
     gA = await G(admin);
     check('eşzamanlı jokerler tek tanıtımda birleşti', gA.intro && gA.intro.items.length === 2, JSON.stringify(gA.intro));
@@ -335,28 +341,25 @@ async function waitKv(pin, pred, ms){ const end = Date.now() + (ms || 6000); let
     await sleep(900);
     // telefonsuz sınıf 5 adına süre içinde gönderilip açıklamayla aynı anda ulaşan cevap
     const kvLate = await kvState(pin);
-    const lateWrite = api({ fn:'set', pin, path:`answers/${kvLate.st.qk}/5/sGEC`, value:{ v:'C', t: kvLate.t, dev:'gec-telefon' } });
+    const tok6 = (await api({ fn:'join', pin, tid:'t6', code:codes.t6, dev:'gecTelefon6' })).tok;
+    const lateWrite = cmd(tok6, 'ans', kvLate.st.qk, 'C', kvLate.t);
     await act(admin, 'revealAsk'); await act(admin, 'revealYes'); await lateWrite;
     await waitG(admin, () => { const f = S.game.frozen[currentQk()] || {}; return !!f[5]; }, null, 6000).catch(() => {});
     check('süre içinde gönderilip geç ulaşan cevap açıklamadan sonra da sayılır', !!((await G(admin)).frozen[kvLate.st.qk] || {})[5]);
     await act(admin, 'showScores');
     await waitG(admin, () => S.game.view === 'scoreboard');
     gA = await G(admin);
-    check('Soru 4: Çift Cevap +10, admin jokeri cevapsız (0 puan → 0), normal doğru +10, geç ulaşan doğru +10', gA.teams.s1[0].score === 20 && gA.teams.s1[1].score === 20 && gA.last.delta[2] === 0 && gA.last.delta[5] === 10, JSON.stringify(gA.last.delta));
+    check('Soru 4: Çift Cevap +10, admin jokeri cevapsız (0 puan → 0), normal doğru +10, geç ulaşan doğru +10', gA.teams.all[0].score === 20 && gA.teams.all[1].score === 20 && gA.last.delta[2] === 0 && gA.last.delta[5] === 10, JSON.stringify(gA.last.delta));
     check('sahne ses: joker sesi tanıtım başına bir kez çaldı (gruplu tanıtım tek ses)', nPlayed === nJokerEv && nJokerEv === 4, nPlayed + '/' + nJokerEv);
     check('sahne host kilidi ya da API isteği yapmadı', stageApi.length === 0, stageApi.join(','));
     check('admin ve telefon ses üretmez (StageAudio yalnız sahnede)', await phB.evaluate(() => typeof window.__played === 'undefined'));
 
-    /* ---------- etap sonu, eşitlik, final ---------- */
+    /* ---------- tur sonu, eşitlik, final (eleme: 11 → 6 → 2 → 1) ---------- */
     await act(admin, 'next');
     await waitG(admin, () => S.game.view === 'stageEnd');
     await shot(stage2, 'sahne-etap-sonu-1920');
-    await act(admin, 'advance');
-    await act(admin, 'startStage');
-    for (let k = 0; k < 2; k++){ await act(admin, 'showQ'); await act(admin, 'revealAsk'); await act(admin, 'revealYes'); await act(admin, 'showScores'); await act(admin, 'next'); }
-    await waitG(admin, () => S.game.view === 'stageEnd');
     gA = await G(admin);
-    check('2. etapta herkes 0 → eşitlik', gA.result.tie && gA.result.tie.candidates.length === 5);
+    check('1. tur sonu: toplamda sınırdaki takımlar eşit → eleme kesinleşmeden eşitlik sorusu', gA.result.tie && gA.result.tie.slots >= 1, JSON.stringify(gA.result));
     await act(admin, 'startTie');
     await waitG(admin, () => S.game.view === 'tie' && S.game.phase === 'ready');
     check('eşitlik sorusunda joker yok', (await kvState(pin)).st.jk.every(x => x[0] !== 2 && x[1] !== 2) && !(await admin.$('[data-act="jkAsk"]:not([disabled])')));
@@ -365,13 +368,26 @@ async function waitKv(pin, pred, ms){ const end = Date.now() + (ms || 6000); let
     await admin.evaluate(() => { S.game.tie.candidates.forEach((i, k) => ui.guesses[i] = String(8000 + k * 200)); render(); });
     await act(admin, 'resolveTie');
     await waitG(admin, () => S.game.view === 'stageEnd' && !S.game.result.tie);
-    await act(admin, 'advance');
+    await act(admin, 'revealRound'); await act(admin, 'showSkip'); await act(admin, 'advance');
+    await waitG(admin, () => S.game.view === 'teams' && S.game.stage === 1);
+    gA = await G(admin);
+    check('Kadim Kale’ye 6 takım yükseldi; elenen 5 takım kadroda yok', gA.rounds[1].ids.length === 6 && gA.teams.all.filter(t => t.status === 'out').length === 5, JSON.stringify(gA.rounds[1].ids));
+    await act(admin, 'startStage');
+    for (let k = 0; k < 2; k++){ await act(admin, 'showQ'); await act(admin, 'revealAsk'); await act(admin, 'revealYes'); await act(admin, 'showScores'); await act(admin, 'next'); }
+    await waitG(admin, () => S.game.view === 'stageEnd');
+    gA = await G(admin);
+    if (gA.result.tie){
+      await act(admin, 'startTie'); await act(admin, 'showQ'); await act(admin, 'revealAsk'); await act(admin, 'revealYes');
+      await admin.evaluate(() => { S.game.tie.candidates.forEach((i, k) => ui.guesses[i] = String(80 + k)); render(); });
+      await act(admin, 'resolveTie'); await waitG(admin, () => S.game.view === 'stageEnd' && !S.game.result.tie);
+    }
+    await act(admin, 'revealRound'); await act(admin, 'showSkip'); await act(admin, 'advance');
     await waitG(admin, () => S.game.view === 'teams' && S.game.stage === 2);
     gA = await G(admin);
-    check('finale 4 sınıf çıktı', gA.teams.final.length === 4);
+    check('finale tam 2 takım çıktı', gA.rounds[2].ids.length === 2, JSON.stringify(gA.rounds[2].ids));
     await act(admin, 'startStage');
     kv = await kvState(pin);
-    const iB = kv.st.teams.indexOf(T0), iC = kv.st.teams.indexOf(T1);
+    const iB = kv.st.ids.indexOf(T0), iC = kv.st.ids.indexOf(T1);
     check('finalde haklar korunur: C iki jokeri de kullanmış, B Çifte Puanı (iade edilen) kullanabilir', iB >= 0 && iC >= 0 && kv.st.jk[iC].join() === '1,1' && kv.st.jk[iB].join() === '1,0', JSON.stringify(kv.st.jk));
     await act(admin, 'showQ');
     await phB.waitForSelector('[data-pl="jkAsk"][data-j="x2"]:not([disabled])');
@@ -386,7 +402,13 @@ async function waitKv(pin, pred, ms){ const end = Date.now() + (ms || 6000); let
     await shot(phB, 'telefon-sonuc-390');
     await act(admin, 'next'); await act(admin, 'showQ'); await act(admin, 'revealAsk'); await act(admin, 'revealYes'); await act(admin, 'showScores'); await act(admin, 'next');
     await waitG(admin, () => S.game.view === 'stageEnd');
-    await act(admin, 'advance');
+    gA = await G(admin);
+    if (gA.result.tie){
+      await act(admin, 'startTie'); await act(admin, 'showQ'); await act(admin, 'revealAsk'); await act(admin, 'revealYes');
+      await admin.evaluate(() => { S.game.tie.candidates.forEach((i, k) => ui.guesses[i] = String(80 + k)); render(); });
+      await act(admin, 'resolveTie'); await waitG(admin, () => S.game.view === 'stageEnd' && !S.game.result.tie);
+    }
+    await act(admin, 'revealRound');
     await waitG(admin, () => S.game.view === 'champion');
     await sleep(800);
     await shot(stage2, 'sahne-sampiyon-1920');
@@ -414,7 +436,7 @@ async function waitKv(pin, pred, ms){ const end = Date.now() + (ms || 6000); let
     });
     await old.reload(); await old.waitForSelector('[data-act="begin"]');
     const mig = await old.evaluate(() => ({ schema:S.schema, title:S.settings.title, q:S.questions.s1[0].text, score:S.game.teams.s1[0].score, phase:S.game.phase, reasons:S.game.clock.reasons, em:Object.keys(S.settings.emblems).length, backup:!!localStorage.getItem('kaplan-arena-v1-yedek-sema1') }));
-    check('eski kayıt göçü: veri korunur, şema 2, yedek kopya', mig.schema === 2 && mig.title === 'Eski Yarışma' && mig.q === 'Eski soru' && mig.score === 30 && mig.phase === 'open' && mig.reasons.includes('admin') && mig.em === 13 && mig.backup, JSON.stringify(mig));
+    check('eski kayıt göçü: veri korunur, şema 3, yedek kopya', mig.schema === 3 && mig.title === 'Eski Yarışma' && mig.q === 'Eski soru' && mig.score === 30 && mig.phase === 'open' && mig.reasons.includes('admin') && mig.em === 13 && mig.backup, JSON.stringify(mig));
     const exp = await old.evaluate(() => { ACT.exportData(); const o = JSON.parse(ui.backup); return { v:o.version, em:Object.keys(o.settings.emblems).length }; });
     check('yedek dışa aktarma arma eşleşmesini içerir', exp.v === 2 && exp.em === 13);
     const imp = await old.evaluate(() => { const before = JSON.stringify(S.settings.emblems); ui.importText = ui.backup; ACT.importYes(); return before === JSON.stringify(S.settings.emblems) && S.questions.s1[0].text === 'Eski soru'; });
@@ -438,11 +460,11 @@ async function waitKv(pin, pred, ms){ const end = Date.now() + (ms || 6000); let
     await sleep(500);
     const blockedLong = await lng.evaluate(() => LOCK.state);
     if (blockedLong !== 'other'){
-      await act(lng, 'drawGo'); await waitG(lng, () => S.game.draw && ui.drawShown == null); await act(lng, 'drawOk');
+      await waitG(lng, () => S.game.view === 'teams');
       await sleep(600);
       for (const [w, h] of [[1920, 1080], [1024, 768]]) await shot(stL, `sahne-katilim-uzun-ad-${w}x${h}`, w, h);
       await act(lng, 'startStage'); await act(lng, 'showQ'); await sleep(500);
-      for (const [w, h] of [[1366, 768], [1024, 768]]) await shot(stL, `sahne-soru-7-sinif-${w}x${h}`, w, h);
+      for (const [w, h] of [[1366, 768], [1024, 768]]) await shot(stL, `sahne-soru-13-takim-${w}x${h}`, w, h);
       await act(lng, 'revealAsk'); await act(lng, 'revealYes');
       await lng.evaluate(() => { ui.guesses[0] = '1300'; ui.guesses[4] = '1400'; render(); });
       await act(lng, 'showScores'); await sleep(500);
