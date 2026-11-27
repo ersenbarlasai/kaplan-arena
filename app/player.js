@@ -31,11 +31,13 @@ async function plTeamJoin(tid, code){
   P.joining = false;
   if (r.code === 200 && r.j.tok){
     const i = (P.st.ids || []).indexOf(tid);
-    P.tid = tid; P.tok = r.j.tok; P.team = i >= 0 ? P.st.teams[i] : P.team; P.codeFor = null; P.codeDraft = ''; P.verified = P.pin + ':' + tid; plSave(); plOnState(); return;
+    P.tid = tid; P.tok = r.j.tok; P.team = i >= 0 ? P.st.teams[i] : P.team; P.codeEntered = null; P.codeDraft = ''; P.joinMsg = ''; P.verified = P.pin + ':' + tid; plSave(); plOnState(); return;
   }
-  if (r.j && r.j.out){ P.tid = tid; P.tok = null; P.codeFor = null; plSave(); P.verified = P.pin + ':' + tid; plRender(); return; }
-  if (!code && r.code !== 0){ P.tok = null; plSave(); P.codeFor = tid; }
-  P.joinMsg = (r.j && r.j.why) || 'Katılım reddedildi.'; plRender();
+  if (r.j && r.j.out){ P.tid = tid; P.tok = null; P.codeEntered = null; plSave(); P.verified = P.pin + ':' + tid; plRender(); return; }
+  if (!code && r.code !== 0){ P.tok = null; plSave(); }
+  const why = (r.j && r.j.why) || 'Katılım reddedildi.';
+  P.joinMsg = /yanlış/.test(why) ? 'Kod seçtiğiniz takıma ait değil ya da yanlış. Kendi takım adınıza dokunun; olmazsa kodu kontrol edin.' : why;
+  plRender();
 }
 function plJoin(pin){
   pin = String(pin || '').replace(/\D/g, '');
@@ -84,8 +86,10 @@ function plCan(){
   if (st.eligible && !st.eligible.includes(i)) return false;
   return (plLeft() || 0) > 0;
 }
-const plJk = () => { const st = P.st, i = myIdx(); return st && st.jk && i >= 0 ? (st.jk[i] || [0, 0]) : [0, 0]; };
-const plMyJoker = () => { const st = P.st; if (!st || st.view !== 'question') return null; const k = plJk(); return k[0] === 2 ? 'double' : k[1] === 2 ? 'x2' : null; };
+const plJkKeys = () => P.st && P.st.risk ? ['double', 'x2', 'risk'] : ['double', 'x2'];
+const plJk = () => { const st = P.st, i = myIdx(); return st && st.jk && i >= 0 ? (st.jk[i] || [0, 0, 0]) : [0, 0, 0]; };
+const plMyJoker = () => { const st = P.st; if (!st || st.view !== 'question') return null; const k = plJk(); return k[0] === 2 ? 'double' : k[1] === 2 ? 'x2' : k[2] === 2 ? 'risk' : null; };
+const plOnce = () => P.st && P.st.jkRound ? 'Her joker bu turda bir kez (yeni turda yenilenir)' : 'Her joker yalnız bir kez';
 function mySubs(){ return KaplanCore.submissions(P.node).filter(s => s.dev === P.dev).sort((a, b) => a.t - b.t); }
 function myAccepted(){
   const st = P.st, i = myIdx(); if (!st || i < 0 || !st.ack) return null;
@@ -113,12 +117,12 @@ function plSend(){
     .then(() => { if (P.sent && P.sent.t === t){ P.sent.state = 'ok'; plRender(); } })
     .catch(() => { if (P.sent && P.sent.t === t){ P.sent.state = 'fail'; plRender(); } });
 }
-function plJokerReq(j){
+function plJokerReq(j, stake){
   if (!plCan()) return;
   const st = P.st, i = myIdx(), t = Math.round(nowS());
   P.jk = { qk:st.qk, j, t, state:'pending' }; plRender();
   if (elimSt()){
-    netCall('cmd', { pin:P.pin, tok:P.tok, op:'jk', qk:st.qk, j, t }).then(r => {
+    netCall('cmd', { pin:P.pin, tok:P.tok, op:'jk', qk:st.qk, j, s:j === 'risk' ? stake : undefined, t }).then(r => {
       if (r.code !== 200 && P.jk && P.jk.t === t){ P.jk.state = 'fail'; P.jk.why = r.j.why || ''; plAuthFail(r); plRender(); }
     }, () => { if (P.jk && P.jk.t === t){ P.jk.state = 'fail'; plRender(); } });
     return;
@@ -140,7 +144,7 @@ function plTop(){
 }
 function jokersLeft(){
   const k = plJk();
-  return `<div class="ph-jleft">${['double', 'x2'].map((j, n) => `<span class="${k[n] === 1 ? 'used' : k[n] === 2 ? 'on' : ''}"><img src="${k[n] === 1 ? JK_LOCK : JK[j].icon}" alt="">${JK[j].name}${k[n] === 1 ? ' · kullanıldı' : k[n] === 2 ? ' · bu soruda' : ' · 1 hak'}</span>`).join('')}</div>`;
+  return `<div class="ph-jleft">${plJkKeys().map((j, n) => `<span class="${k[n] === 1 ? 'used' : k[n] === 2 ? 'on' : ''}"><img src="${k[n] === 1 ? JK_LOCK : JK[j].icon}" alt="">${JK[j].name}${k[n] === 1 ? ' · kullanıldı' : k[n] === 2 ? ' · bu soruda' : ' · 1 hak'}</span>`).join('')}</div>`;
 }
 function card(cls, title, body, extra){ return `<div class="ph-card ${cls || ''}">${extra || ''}${title ? `<h2>${title}</h2>` : ''}${body ? `<p>${body}</p>` : ''}</div>`; }
 function shield(kind, mark){ return `<div class="ph-shield ${kind}"><span>${mark}</span></div>`; }
@@ -163,14 +167,15 @@ function plJokerBar(q, can){
   const rej = P.st.jrej && P.st.jrej[myIdx()];
   const rejTxt = rej && P.jk && rej.t === P.jk.t ? `<div class="ph-msg bad">Joker reddedildi: ${esc(rej.why)}</div>` : '';
   const failTxt = P.jk && P.jk.state === 'fail' ? `<div class="ph-msg bad">${P.jk.why ? 'Joker isteği reddedildi: ' + esc(P.jk.why) : 'Joker isteği gönderilemedi. Bağlantınızı kontrol edin.'}</div>` : '';
-  return `<div class="ph-jbar">${btn('double', 0)}${btn('x2', 1)}</div><p class="ph-rule">Her joker yalnız bir kez · ${esc(PENALTY_TXT)}</p>${rejTxt}${failTxt}`;
+  return `<div class="ph-jbar ${P.st.risk ? 'n3' : ''}">${plJkKeys().map((j, n) => btn(j, n)).join('')}</div><p class="ph-rule">${plOnce()} · jokeri cevabı göndermeden önce seçin · ${esc(PENALTY_TXT)}</p>${rejTxt}${failTxt}`;
 }
 function plQuestion(){
   const st = P.st, q = st.q, i = myIdx(), can = plCan(), jk = plMyJoker(), l = plLeft();
   const paused = st.phase === 'open' && !st.open;
   const reasons = (st.paused || []);
   const head = `<div class="ph-timer ${paused ? 'paused' : ''} ${l != null && l <= 10000 && !paused ? 'warn' : ''}"><b id="ph-time">${l == null ? '' : Math.ceil(l / 1000)}</b>${paused ? '<small>durdu</small>' : ''}</div>`;
-  const jkBanner = jk ? `<div class="ph-jkon ${jk} ${P.jkFx[st.qk] ? '' : 'fx'}"><img src="${JK[jk].icon}" alt="">${JK[jk].name.toLocaleUpperCase('tr-TR')} ETKİN</div>` : '';
+  const stk = jk === 'risk' && st.stake ? st.stake[i] : null;
+  const jkBanner = jk ? `<div class="ph-jkon ${jk} ${P.jkFx[st.qk] ? '' : 'fx'}"><img src="${JK[jk].icon}" alt="">${JK[jk].name.toLocaleUpperCase('tr-TR')} ETKİN${stk ? ' · ' + stk + ' PUAN' : ''}</div>` : '';
   if (jk) P.jkFx[st.qk] = true;
   const pausedTxt = paused ? `<div class="ph-msg warn">${reasons.includes('joker') ? 'Joker tanıtımı: süre ve cevaplar kısa bir süre durdu.' : reasons.includes('stage') ? 'Sahne bağlantısı bekleniyor; süre durdu.' : reasons.includes('break') ? 'Ara verildi; süre durdu.' : 'Süre durduruldu.'}${st.intro && st.intro.length ? ' · ' + st.intro.map(it => `${esc(st.teams[it.i])}: ${JK[it.j].name}`).join(', ') : ''}</div>` : '';
   let pad = '';
@@ -198,28 +203,34 @@ function plQuestion(){
 }
 const fmtV = v => typeof v === 'number' ? fmt(v) : String(v).split('').join(' ve ');
 function plJokerSheet(j){
+  const once = P.st && P.st.jkRound ? 'Bu joker bu turda yalnız bir kez kullanılır (yeni turda yenilenir)' : 'Bu joker yarışma boyunca yalnız bir kez kullanılır';
+  const stake = P.riskStake || 10;
+  const riskPick = j === 'risk' ? `<p><b>Riske atılacak puan:</b></p><div class="row ph-stakes">${[5, 10, 15].map(v => `<button class="btn ${stake === v ? 'primary' : ''}" data-pl="riskPick" data-v="${v}" aria-pressed="${stake === v}">${v}</button>`).join('')}</div>` : '';
   return `<div class="ph-sheet-bg" data-pl="jkNo"><div class="ph-sheet" role="dialog" aria-modal="true" aria-labelledby="jsh">
     <img src="${JK[j].icon}" alt=""><h3 id="jsh">${JK[j].name}</h3>
-    <p>${esc(JK[j].desc)}</p><p><b>${esc(PENALTY_TXT)}</b></p><p>Bu joker yarışma boyunca yalnız bir kez kullanılır ve onaylandıktan sonra geri alınamaz. Kullanınca süre bütün ${plN().many} için kısa bir tanıtım boyunca durur.</p>
-    <div class="row"><button class="btn" data-pl="jkNo">Vazgeç</button><button class="btn primary" data-pl="jkYes" data-j="${j}">Jokeri Kullan</button></div></div></div>`;
+    <p>${esc(JK[j].desc)}</p>${riskPick}<p>${once} ve onaylandıktan sonra geri alınamaz. Kullanınca süre bütün ${plN().many} için kısa bir tanıtım boyunca durur.</p>
+    <div class="row"><button class="btn" data-pl="jkNo">Vazgeç</button><button class="btn primary" data-pl="jkYes" data-j="${j}" data-s="${j === 'risk' ? stake : ''}">${j === 'risk' ? stake + ' Puanı Riske At' : 'Jokeri Kullan'}</button></div></div></div>`;
 }
 /* Eleme yarışması: takım seçimi + takıma özel kaptan kodu. Listede yalnız bu turun aktif takımları vardır. */
+/* Kurallar 03: QR → özel kaptan giriş kodu → takım seçim ekranında kendi takım adına dokunma. Kod takıma özeldir; seçilen
+   takımla eşleşmezse sunucu reddeder. */
 function plPickElim(){
   const st = P.st, ids = st.ids || [];
-  if (P.codeFor && ids.includes(P.codeFor)){
-    const i = ids.indexOf(P.codeFor);
-    return `<div class="ph-card"><h2>${esc(st.teams[i])}</h2><p>Yönetimden aldığınız <b>kaptan kodunu</b> girin. Yarışma kodu herkes için ortaktır; bu kod yalnız sizin takımınıza aittir.</p>
-      <label for="pl-code">Kaptan kodu</label><input class="ph-pin" id="pl-code" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="••••" value="${esc(P.codeDraft || '')}">
+  if (!P.codeEntered){
+    return `<div class="ph-card"><h2>Kaptan girişi</h2><p>Yönetimden aldığınız <b>özel kaptan giriş kodunu</b> girin. Ardından takım seçim ekranında kendi takım adınıza dokunacaksınız.</p>
+      <label for="pl-code">Kaptan giriş kodu</label><input class="ph-pin" id="pl-code" inputmode="numeric" autocomplete="off" maxlength="8" placeholder="••••" value="${esc(P.codeDraft || '')}">
       ${P.joinMsg ? `<div class="ph-msg bad">${esc(P.joinMsg)}</div>` : ''}
-      <div class="row"><button class="btn" data-pl="codeNo">Geri</button><button class="btn primary" data-pl="codeYes" ${P.joining ? 'disabled' : ''}>${P.joining ? 'Doğrulanıyor…' : 'Kaptan Olarak Katıl'}</button></div></div>`;
+      <button class="btn primary big" data-pl="codeYes">Devam</button><p class="muted">Kaptan değilseniz sahneden izleyebilirsiniz.</p></div>`;
   }
-  return `<div class="ph-card"><h2>Takımını seç</h2><p>${esc(st.place || '')} şu an bu takımlarla oynanıyor. Takımının kaptanıysan takımını seç ve kaptan kodunu gir.</p>
+  return `<div class="ph-card"><h2>Takımını seç</h2><p>${esc(st.place || '')} şu an bu takımlarla oynanıyor. <b>Mutlaka kendi takım adınıza</b> dokunun.</p>
     <div class="ph-plist">${(st.teams || []).map((n, i) => { const j = P.players && P.players[ids[i]], taken = j && j.dev !== P.dev;
       return `<button class="${taken ? 'taken' : ''}" data-pl="pickElim" data-id="${esc(ids[i])}">${armaHTML(st.arma ? st.arma[i] : 0, 'sm', '')}<b>${esc(n)}</b><small>${taken ? 'Kaptan telefonu bağlı' : 'Seçmek için dokun'}</small></button>`; }).join('')}</div>
-    ${P.joinMsg ? `<div class="ph-msg bad">${esc(P.joinMsg)}</div>` : ''}<p class="muted">Kaptan değilseniz sahneden izleyebilirsiniz.</p></div>`;
+    ${P.joining ? '<div class="ph-msg">Doğrulanıyor…</div>' : ''}${P.joinMsg ? `<div class="ph-msg bad">${esc(P.joinMsg)}</div>` : ''}
+    <button class="linkbtn" data-pl="codeNo">Kodu değiştir</button></div>`;
 }
 function plOutCard(){
   const o = myOut();
+  if (o.dq) return card('bad', 'Yarışmadan elendiniz', `<b>${esc(o.name)}</b> yarışma ekranından ayrıldığı için (kural 08: başka uygulamaya, sekmeye ya da ekrana geçmek yasaktır) elendi; yarışmaya devam edemezsiniz. Sahneden izleyebilirsiniz.`, shield('bad', '!'));
   return card('wait', 'Bu turda elendiniz', `<b>${esc(o.name)}</b> yolculuğunu ${esc(o.stage)}’nde ${o.total} puanla tamamladı; yarışmaya devam edemezsiniz. Katıldığınız için teşekkürler! Sahneden izlemeye devam edebilirsiniz.`, shield('wait', '★'));
 }
 function plPick(){
@@ -275,11 +286,12 @@ function plBody(){
     const d = st.lastDelta && st.lastDelta[i] != null ? st.lastDelta[i] : ((st.lastWinners || []).includes(i) ? 10 : 0);
     const j = st.lastJk && st.lastJk[i];
     const order = (st.scores || []).map((s, k) => ({ s, k })).sort((a, b) => b.s - a.s), rank = order.findIndex(o => o.k === i) + 1;
-    const foot = `<p>Toplam <b>${st.scores[i]}</b> puan · Sıralama <b>${rank}.</b> / ${st.teams.length}</p>`;
+    const foot = `<p>${st.reset ? 'Tur puanı' : 'Toplam'} <b>${st.scores[i]}</b> · Sıralama <b>${rank}.</b> / ${st.teams.length}</p>`;
     const resCard = (cls, sh, title, pts, note) => `<div class="ph-card ${cls}">${sh}<h2>${title}</h2>${pts}${note || ''}${foot}</div>`;
     let res;
-    if (d > 0) res = resCard('good', shield(d > 10 ? 'gold' : 'good', '✓'), d > 10 ? 'ÇİFTE PUAN!' : 'DOĞRU CEVAP', `<div class="ph-pts up">+${d} PUAN</div>`, j === 'double' ? '<p>İki seçiminden biri doğru!</p>' : '');
-    else if (j) res = resCard('bad', shield('bad', '!'), 'JOKER CEZASI', `<div class="ph-pts down">${d < 0 ? '−' + (-d) : '0'} PUAN</div>`, d === 0 ? '<p>Puanınız zaten 0 olduğu için düşüş olmadı.</p>' : '');
+    if (d > 0) res = resCard('good', shield(j === 'x2' || j === 'risk' ? 'gold' : 'good', '✓'), j === 'x2' ? 'ÇİFT PUAN!' : j === 'risk' ? 'RİSK KAZANDI!' : 'DOĞRU CEVAP', `<div class="ph-pts up">+${d} PUAN</div>`, j === 'double' ? '<p>İki seçiminden biri doğru!</p>' : '');
+    else if (j === 'x2' && d === 0) res = resCard('', shield('wait', '–'), 'Çift Puan: bu soruda puan yok', '<div class="ph-pts">0 PUAN</div>', '<p>Çift Puan jokerinde yanlış cevap puan kaybettirmez.</p>');
+    else if (j) res = resCard('bad', shield('bad', '!'), j === 'risk' ? 'RİSK KAYBEDİLDİ' : 'JOKER CEZASI', `<div class="ph-pts down">${d < 0 ? '−' + (-d) : '0'} PUAN</div>`, d === 0 ? '<p>Puanınız zaten 0 olduğu için düşüş olmadı.</p>' : '');
     else res = resCard('', shield('wait', '–'), 'Bu soruda puan yok', '');
     return res + jokersLeft() + '<div class="ph-wait">⌛ Sonraki soruyu bekle</div>';
   }
@@ -290,7 +302,7 @@ function plBody(){
     const w = (rnd.winners || []).map(esc).join(' ve '), gain = (rnd.gains || [])[i];
     const wl = w ? `<br>${(rnd.winners || []).length > 1 ? 'Turun ortak kazananları' : 'Turun kazananı'}: <b>${w}</b>` : '';
     const ord = (st.scores || []).map((s, k) => ({ s, k })).sort((a, b) => b.s - a.s), rank = ord.findIndex(o => o.k === i) + 1;
-    return card('good', rnd.all ? 'Yola devam!' : (st.next === 'Kaplan Arenası' ? 'FİNALDESİNİZ!' : 'YÜKSELDİNİZ!'), `${esc(P.team)} ${esc(st.next || '')} yolunda.${wl}<br>Bu tur ${gain >= 0 ? '+' : ''}${gain} puan · Toplam <b>${st.scores[i]}</b> · Sıralama <b>${rank}.</b>`, shield('gold', '★')) + jokersLeft();
+    return card('good', rnd.all ? 'Yola devam!' : (st.next === 'Kaplan Arenası' ? 'FİNALDESİNİZ!' : 'YÜKSELDİNİZ!'), `${esc(P.team)} ${esc(st.next || '')} yolunda.${wl}<br>${st.reset ? `Tur puanı <b>${st.scores[i]}</b> · Sıralama <b>${rank}.</b><br>Yeni turda puanlar 0’dan başlar, jokerler yenilenir.` : `Bu tur ${gain >= 0 ? '+' : ''}${gain} puan · Toplam <b>${st.scores[i]}</b> · Sıralama <b>${rank}.</b>`}`, shield('gold', '★')) + jokersLeft();
   }
   if (st.view === 'stageEnd' && st.mode === 'shared' && st.stage !== 'final'){
     // Ortak yarışma: eleme yok; toplam puan ve sıralama ile devam.
@@ -321,7 +333,8 @@ function plRender(){
       <button class="btn primary big" data-pl="join" ${P.view === 'loading' ? 'disabled' : ''}>${P.view === 'loading' ? 'Bağlanıyor…' : 'Katıl'}</button>
       <p class="ph-org">${esc(CREDITS.org)} tarafından düzenlenmektedir.</p></div>`;
   } else {
-    h = `<div class="ph">${plTop()}<main class="ph-main">${plBody()}</main>${P.err ? `<div class="ph-msg bad">${esc(P.err)}</div>` : ''}</div>`;
+    const warn = P.left && P.left.warn && !myOut() ? '<div class="ph-msg bad" role="alert">Yarışma ekranından ayrıldınız. Bu durum yönetime bildirildi (kural 08: başka uygulamaya, sekmeye ya da ekrana geçmek yasaktır; takım elenebilir).</div>' : '';
+    h = `<div class="ph">${plTop()}${warn}<main class="ph-main">${plBody()}</main>${P.err ? `<div class="ph-msg bad">${esc(P.err)}</div>` : ''}</div>`;
   }
   const active = document.activeElement && document.activeElement.id;
   const caret = active && document.activeElement.selectionStart;
@@ -332,6 +345,29 @@ function plRender(){
 function plTick(){
   const el = document.getElementById('ph-time'); if (!el) return;
   const l = plLeft(); el.textContent = l == null ? '' : Math.ceil(l / 1000);
+}
+/* Kural 08: yarışma sırasında başka uygulamaya/sekmeye/ekrana geçmek yasaktır. Telefon görünürlük değişimini algılar ve
+   sunucuya bildirir (sayfa kapanırken de gitsin diye sendBeacon; geri dönüşte aynı kayıt yeniden gönderilir, sunucuda
+   aynı anahtara yazılır). Takımı elemek admin onayıyladır. */
+function plLeaveBody(){
+  const st = P.st;
+  if (!elimSt() || !P.tok || myIdx() < 0 || myOut() || !st || st.brk || !['question', 'tie', 'scoreboard'].includes(st.view)) return null;
+  return { pin:P.pin, tok:P.tok, op:'leave', qk:st.qk || '-', t:Math.round(nowS()), open:st.phase === 'open' };
+}
+function plLeave(){
+  const body = plLeaveBody(); if (!body || (P.left && P.left.hidden)) return;
+  P.left = { body, hidden:true };
+  try{
+    const url = NET.mode === 'lan' ? '/api/cmd' : API_URL, payload = NET.mode === 'lan' ? body : Object.assign({ fn:'cmd' }, body);
+    if (navigator.sendBeacon && navigator.sendBeacon(url, new Blob([JSON.stringify(payload)], { type:'text/plain' }))) return;
+  }catch(e){}
+  netCall('cmd', body).catch(() => {});
+}
+function plBack(){
+  if (!P.left || !P.left.hidden) return;
+  P.left.hidden = false; P.left.warn = true;
+  netCall('cmd', P.left.body).catch(() => {});
+  plRender();
 }
 function playerInit(){
   document.body.classList.add('mode-phone');
@@ -350,9 +386,10 @@ function playerInit(){
       if (j && j.dev !== P.dev){ P.confirmPick = i; plRender(); }
       else { P.team = P.st.teams[i]; P.confirmPick = null; P.claimedFor = null; plSave(); plOnState(); }
     }
-    else if (a === 'pickElim'){ P.codeFor = b.dataset.id; P.joinMsg = ''; if (P.tid === P.codeFor && P.tok) plTeamJoin(P.codeFor, null); else { plRender(); setTimeout(() => document.getElementById('pl-code')?.focus(), 30); } }
-    else if (a === 'codeNo'){ P.codeFor = null; P.joinMsg = ''; plRender(); }
-    else if (a === 'codeYes'){ const c = (document.getElementById('pl-code')?.value || '').replace(/\D/g, ''); if (c.length < 4){ P.joinMsg = 'Kaptan kodunu girin.'; return plRender(); } plTeamJoin(P.codeFor, c); }
+    else if (a === 'pickElim'){ const tid = b.dataset.id; P.joinMsg = ''; if (P.tid === tid && P.tok) plTeamJoin(tid, null); else if (P.codeEntered) plTeamJoin(tid, P.codeEntered); }
+    else if (a === 'codeNo'){ P.codeEntered = null; P.joinMsg = ''; plRender(); setTimeout(() => document.getElementById('pl-code')?.focus(), 30); }
+    else if (a === 'codeYes'){ const c = (document.getElementById('pl-code')?.value || '').replace(/\D/g, ''); if (c.length < 4){ P.joinMsg = 'Kaptan giriş kodunu girin.'; return plRender(); } P.codeEntered = c; P.joinMsg = ''; plRender(); }
+    else if (a === 'riskPick'){ P.riskStake = +b.dataset.v; plRender(); }
     else if (a === 'pickYes'){ P.team = P.st.teams[P.confirmPick]; P.confirmPick = null; P.claimedFor = null; plSave(); plOnState(); }
     else if (a === 'pickNo'){ P.confirmPick = null; plRender(); }
     else if (a === 'change'){ P.team = null; plSave(); plOnState(); }
@@ -365,16 +402,18 @@ function playerInit(){
       P.draft.picks = p; plRender();
     }
     else if (a === 'send') plSend();
-    else if (a === 'jkAsk'){ P.jkConfirm = b.dataset.j; plRender(); }
+    else if (a === 'jkAsk'){ P.jkConfirm = b.dataset.j; P.riskStake = 10; plRender(); }
     else if (a === 'jkNo'){ P.jkConfirm = null; plRender(); }
-    else if (a === 'jkYes'){ const j = b.dataset.j; P.jkConfirm = null; plJokerReq(j); }
+    else if (a === 'jkYes'){ const j = b.dataset.j; P.jkConfirm = null; plJokerReq(j, +b.dataset.s || P.riskStake || 10); }
   });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) plLeave(); else plBack(); });
+  window.addEventListener('pagehide', plLeave);
   document.addEventListener('input', e => { if (e.target.id === 'pl-code') P.codeDraft = e.target.value; if (e.target.id === 'pl-num'){ P.draft.num = e.target.value; const s = document.querySelector('[data-pl="send"]'); if (s) s.disabled = !(plCan() && e.target.value.trim()); } });
   document.addEventListener('keydown', e => {
     if (e.key !== 'Enter') return;
     if (e.target.id === 'pl-pin') plJoin(e.target.value);
     if (e.target.id === 'pl-num') plSend();
-    if (e.target.id === 'pl-code'){ const c = e.target.value.replace(/\D/g, ''); if (c.length >= 4) plTeamJoin(P.codeFor, c); }
+    if (e.target.id === 'pl-code'){ const c = e.target.value.replace(/\D/g, ''); if (c.length >= 4){ P.codeEntered = c; P.joinMsg = ''; plRender(); } }
   });
   setInterval(() => {
     plTick();

@@ -67,6 +67,24 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
     r = await post('/api/ctl', { pin:PIN, key:KEY, ctl:ctl(), reset:['t2'] });
     r = await post('/api/join', { pin:PIN, tid:'t2', code:'2222', dev:'devC1234' });
     check('LAN: admin cihaz sıfırlamasından sonra yeni cihaz bağlanır', r.code === 200, JSON.stringify(r));
+    // Kurallar 27.11: Risk Jokeri yalnız finalde (ctl.risk), ekran değişikliği bildirimi (leave)
+    const PIN2 = '626262';
+    await post('/api/ctl', { pin:PIN2, key:KEY, ctl:ctl({ risk:false }) });
+    const tokR = (await post('/api/join', { pin:PIN2, tid:'t1', code:'1111', dev:'devR1234' })).j.tok;
+    r = await post('/api/cmd', { pin:PIN2, tok:tokR, op:'jk', qk:'s1_0_q1', j:'risk', s:10, t:Date.now() });
+    check('LAN cmd: finalde değilken Risk Jokeri reddedilir', r.code === 409, JSON.stringify(r));
+    await post('/api/ctl', { pin:PIN2, key:KEY, ctl:ctl({ risk:true }) });
+    r = await post('/api/cmd', { pin:PIN2, tok:tokR, op:'jk', qk:'s1_0_q1', j:'risk', s:15, t:Date.now() });
+    check('LAN cmd: finalde Risk Jokeri (15) kabul edilir', r.code === 200, JSON.stringify(r));
+    r = await post('/api/cmd', { pin:PIN2, tok:tokR, op:'jk', qk:'s1_0_q1', j:'risk', s:7, t:Date.now() });
+    check('LAN cmd: geçersiz risk puanı reddedilir', r.code === 409, JSON.stringify(r));
+    const tl = Date.now() - 30000;
+    r = await post('/api/cmd', { pin:PIN2, tok:tokR, op:'leave', qk:'-', t:tl, open:true });
+    await post('/api/cmd', { pin:PIN2, tok:tokR, op:'leave', qk:'-', t:tl, open:true });
+    d = await db();
+    const vk = Object.keys(d).filter(k => k.startsWith(`games/${PIN2}/viol/t1/`));
+    check('LAN cmd: ekran değişikliği bildirimi kaydedildi (tekrar gönderim tek kayıt)', r.code === 200 && vk.length === 1 && d[vk[0]].open === true, JSON.stringify(vk.map(k => d[k])));
+    check('LAN: risk isteği puanıyla yazıldı', d[`games/${PIN2}/jreq/s1_0_q1/t1`] && d[`games/${PIN2}/jreq/s1_0_q1/t1`].s === 15, JSON.stringify(d[`games/${PIN2}/jreq/s1_0_q1/t1`]));
     r = await post('/api/set?path=' + encodeURIComponent('games/717171/state'), { eski:true });
     check('LAN set: denetim kaydı olmayan eski yarışma eskisi gibi yazılır', r.code === 200, r.code);
   }catch(e){ check('senaryo istisnasız tamamlandı', false, e.stack || e.message); }

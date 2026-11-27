@@ -8,7 +8,12 @@
   'use strict';
 
   const SCHEMA = 3;
-  const JOKERS = ['double', 'x2'];
+  const JOKERS = ['double', 'x2', 'risk'];
+  const RISK_STAKES = [5, 10, 15];
+  /* Puan/joker kuralları yarışma kaydına sabitlenir (g.format.rules). Kuralı olmayan kayıtlar eski kuralla sürer. */
+  const LEGACY_RULES = { reset: false, jokersPerRound: false, x2Loss: true, floor: true, risk: false, perRound: 0 };
+  const RULES_V4 = { reset: true, jokersPerRound: true, x2Loss: false, floor: false, risk: true, perRound: 10 };
+  function rulesOf(g) { return (g && g.format && g.format.rules) || LEGACY_RULES; }
   const GRACE_MS = 250;        // süre sonuna yakın gönderilen cevaplar için ağ toleransı
   const INTRO_MS = 3500;       // joker tanıtımı (ortak duraklama) süresi
   const PENALTY = 10;
@@ -129,23 +134,26 @@
   /* ---------- jokerler ---------- */
   function jokerRec(g, name) {
     if (!g.jokers) g.jokers = {};
-    return g.jokers[name] || (g.jokers[name] = { double: null, x2: null });
+    return g.jokers[name] || (g.jokers[name] = { double: null, x2: null, risk: null, stake: null });
   }
   function activeJoker(g, name, qk) {
     const r = (g.jokers || {})[name] || {};
-    return r.double === qk ? 'double' : r.x2 === qk ? 'x2' : null;
+    return r.double === qk ? 'double' : r.x2 === qk ? 'x2' : r.risk === qk ? 'risk' : null;
   }
+  function riskStake(g, name, qk) { const r = (g.jokers || {})[name] || {}; return r.risk === qk ? r.stake : null; }
   /* Joker isteğini doğrular; uygunsa '' döner, değilse Türkçe ret nedeni. */
   function checkJoker(g, c) {
     if (c.isTie) return 'Eşitlik sorusunda joker kullanılamaz.';
     if (!JOKERS.includes(c.j)) return 'Geçersiz joker.';
-    if (c.j === 'double' && c.qtype !== 'ders') return 'Çift Cevap yalnız şıklı sorularda kullanılır.';
+    if (c.j === 'double' && c.qtype !== 'ders') return 'Çifte Cevap yalnız şıklı sorularda kullanılır.';
+    if (c.j === 'risk' && !c.riskOk) return 'Risk Jokeri yalnız Kaplan Arenası Büyük Final’de kullanılır.';
+    if (c.j === 'risk' && !RISK_STAKES.includes(c.stake)) return 'Risk için 5, 10 ya da 15 puan seçin.';
     if (g.phase !== 'open') return 'Soru açık değilken joker kullanılamaz.';
     if (!c.admin && c.owner && c.dev !== c.owner) return 'Bu takımın/sınıfın yetkili telefonu değil.';
     if (!inWindow(g.win, c.t, 0)) return 'Joker yalnız süre işlerken kullanılabilir.';
     const r = jokerRec(g, c.name);
-    if (r.double === c.qk || r.x2 === c.qk) return 'Bu soruda zaten bir joker kullanıldı.';
-    if (r[c.j] != null) return 'Bu joker daha önce kullanıldı.';
+    if (r.double === c.qk || r.x2 === c.qk || r.risk === c.qk) return 'Bu soruda zaten bir joker kullanıldı.';
+    if (r[c.j] != null) return c.perRound ? 'Bu joker bu turda zaten kullanıldı.' : 'Bu joker daha önce kullanıldı.';
     const first = firstSubmitT(c.node, { win: g.win, owner: c.owner });
     if (first != null && first <= c.t) return 'Cevap gönderildikten sonra joker kullanılamaz.';
     return '';
@@ -153,11 +161,13 @@
   /* Kabul: hak hemen tüketilir. Tanıtım yoksa ortak duraklama başlar; varsa (ve istek duraklamadan
      önce gönderilmişse) aynı tanıtıma eklenir. Dönen değer: { intro, grouped } */
   function acceptJoker(g, c, now) {
-    jokerRec(g, c.name)[c.j] = c.qk;
+    const rec = jokerRec(g, c.name); rec[c.j] = c.qk;
+    if (c.j === 'risk') rec.stake = c.stake;
     if (!g.jdone) g.jdone = {};
     (g.jdone[c.qk] || (g.jdone[c.qk] = {}))[c.i] = c.t;
     if (g.jrej) delete g.jrej[c.i];
     const item = { i: c.i, name: c.label || c.name, j: c.j };
+    if (c.j === 'risk') item.s = c.stake;
     if (g.intro && now < g.intro.until && c.t <= g.intro.pauseAt) {
       g.intro.items.push(item);
       return { intro: g.intro, grouped: true };
@@ -182,13 +192,18 @@
   }
 
   /* ---------- puan ---------- */
-  /* scores: mevcut puanlar, winners: kazanan dizinler, jk: {i: 'double'|'x2'} → {i: gerçek değişim} */
-  function computeDelta(scores, winners, jk) {
+  /* scores: mevcut puanlar, winners: kazanan dizinler, jk: {i: 'double'|'x2'|'risk'}, opt: { rules, stakes:{i:puan} }
+     → {i: gerçek değişim}. Kurallar (v4): doğru +10; Çifte Cevap biri doğru +10, ikisi yanlış −10; Çift Puan doğru +20,
+     yanlış 0; Risk doğru +risk, yanlış −risk; sıfır tabanı yok. Eski kural: jokerli yanlış −10, puan 0'ın altına inmez. */
+  function computeDelta(scores, winners, jk, opt) {
+    const R = (opt && opt.rules) || LEGACY_RULES, stakes = (opt && opt.stakes) || {};
     const delta = {};
     scores.forEach((s, i) => {
-      const j = jk && jk[i], won = winners.includes(i);
-      let d = won ? (j === 'x2' ? 20 : 10) : (j ? -PENALTY : 0);
-      if (d < 0) d = -Math.min(PENALTY, Math.max(0, s)) || 0;
+      const j = jk && jk[i], won = winners.includes(i), st = +stakes[i] || 0;
+      let d;
+      if (won) d = j === 'x2' ? 20 : j === 'risk' ? st : 10;
+      else d = j === 'double' ? -PENALTY : j === 'x2' ? (R.x2Loss ? -PENALTY : 0) : j === 'risk' ? -st : 0;
+      if (R.floor && d < 0) d = -Math.min(-d, Math.max(0, s)) || 0;
       if (d !== 0 || j) delta[i] = d;
     });
     return delta;
@@ -197,8 +212,9 @@
   function applyScore(g, teams, qk, winners, jk, extra) {
     if (!g.scored) g.scored = {};
     if (g.scored[qk] || (g.cancelled && g.cancelled[qk])) return false;
-    const delta = computeDelta(teams.map(t => t.score), winners, jk);
-    for (const i in delta) teams[i].score = Math.max(0, teams[i].score + delta[i]);
+    const R = rulesOf(g), stakes = (extra && extra.stakes) || {};
+    const delta = computeDelta(teams.map(t => t.score), winners, jk, { rules: R, stakes });
+    for (const i in delta) teams[i].score = R.floor ? Math.max(0, teams[i].score + delta[i]) : teams[i].score + delta[i];
     g.scored[qk] = Object.assign({ delta, jk: jk || {}, winners: winners.slice() }, extra || {});
     return true;
   }
@@ -212,14 +228,14 @@
       for (const i in sc.delta) {
         const t = teams[i]; if (!t) continue;
         const before = t.score;
-        t.score = Math.max(0, t.score - sc.delta[i]);
+        t.score = rulesOf(g).floor ? Math.max(0, t.score - sc.delta[i]) : t.score - sc.delta[i];
         reverted[i] = t.score - before;
       }
       delete g.scored[qk];
     }
     for (const name in (g.jokers || {})) {
       const r = g.jokers[name];
-      for (const j of JOKERS) if (r[j] === qk) { r[j] = null; refund.push([name, j]); }
+      for (const j of JOKERS) if (r[j] === qk) { r[j] = null; if (j === 'risk') r.stake = null; refund.push([name, j]); }
     }
     stopClock(g, now);
     if (g.clock) g.clock.reasons = g.clock.reasons.filter(r => PERSISTENT_REASONS.includes(r));
@@ -284,12 +300,18 @@
      yükselme ve şampiyonluk toplam puana göre, tur kazananı o turdaki net kazanca göre belirlenir.
      Kontenjanlar yarışma başında kayda sabitlenir (g.format.quotas): 3 → 3 → 2 → 1, 4 → 3 → 2 → 1,
      n > 4 → max(3, ⌈n/2⌉) → 2 → 1. */
-  const FORMAT_V = 3;
+  /* Format v4 (Kaplan Arenası Yarışma Kuralları, 27.11.2026): 6 → 4 → 2 → 1; her tur 10 soru; her turda puanlar
+     sıfırlanır ve jokerler yenilenir; finale özel Risk Jokeri. 3 ve 4 takım için önceki onaylı akış korunur
+     (3 → 3 → 2 → 1, 4 → 3 → 2 → 1); genel kural ilk turdan max(3, ⌈2n/3⌉) takım. */
+  const FORMAT_V = 4;
   function quotasFor(n) {
     if (!(n >= MIN_TEAMS)) return null;
-    return [Math.min(n, Math.max(3, Math.ceil(n / 2))), 2, 1];
+    return [Math.min(n, Math.max(3, Math.ceil(2 * n / 3))), 2, 1];
   }
-  function makeFormat(n) { return { v: FORMAT_V, kind: 'elim', n, quotas: quotasFor(n), stages: ['s1', 's2', 'final'] }; }
+  function makeFormat(n, opt) {
+    const rules = Object.assign({}, RULES_V4, opt && opt.perRound ? { perRound: opt.perRound } : {});
+    return { v: FORMAT_V, kind: 'elim', n, quotas: quotasFor(n), stages: ['s1', 's2', 'final'], rules };
+  }
   function isElim(g) { return !!g && g.mode === 'elim'; }
   const STAGE_KEYS = ['s1', 's2', 'final'];
   function teamById(g, id) { return ((g.teams && g.teams.all) || []).find(t => t.id === id) || null; }
@@ -301,6 +323,9 @@
   function newRound(g, stage, ids) {
     if (!g.rounds) g.rounds = [];
     if (g.rounds[stage]) return g.rounds[stage];
+    const R = rulesOf(g);
+    if (stage > 0 && R.reset) for (const id of ids) { const t = teamById(g, id); if (t) t.score = 0; }   // her tur 0 puanla başlar
+    if (stage > 0 && R.jokersPerRound){ if (g.rounds[stage - 1]) g.rounds[stage - 1].jokers = g.jokers || {}; g.jokers = {}; }   // jokerler yenilenir
     const start = {};
     for (const id of ids) { const t = teamById(g, id); start[id] = t ? t.score : 0; }
     return (g.rounds[stage] = { key: STAGE_KEYS[stage], ids: ids.slice(), start, done: null });
@@ -314,10 +339,12 @@
   function roundOutcome(g, stage) {
     const r = g.rounds[stage], teams = roundTeams(g, stage), quota = g.format.quotas[stage];
     const gains = teams.map(t => t.score - (r.start[t.id] || 0));
-    const maxGain = Math.max(...gains);
-    const winners = gains.map((x, i) => x === maxGain ? i : -1).filter(i => i >= 0);
-    const scores = teams.map((t, i) => ({ i, score: t.score }));
-    const all = quota >= teams.length;
+    // Kural ihlaliyle (ekran değişikliği) elenen takım sıralamaya ve tur kazananına girmez.
+    const live = teams.map((t, i) => i).filter(i => !teams[i].dq);
+    const maxGain = live.length ? Math.max(...live.map(i => gains[i])) : 0;
+    const winners = live.filter(i => gains[i] === maxGain);
+    const scores = live.map(i => ({ i, score: teams[i].score }));
+    const all = quota >= live.length;
     const cut = all ? { qualified: [...scores].sort((a, b) => b.score - a.score).map(x => x.i), tie: null } : cutoff(scores, quota);
     return Object.assign(cut, { all, gains, winners, quota });
   }
@@ -331,7 +358,7 @@
     r.done = { up, out: out.map(t => t.id), winners: res.winners.map(i => teams[i].id),
       gains: Object.fromEntries(teams.map((t, i) => [t.id, res.gains[i]])), totals: Object.fromEntries(teams.map(t => [t.id, t.score])) };
     if (!g.elimLog) g.elimLog = [];
-    for (const t of out) g.elimLog.push({ id: t.id, name: t.name, stage, total: t.score });
+    for (const t of out) g.elimLog.push({ id: t.id, name: t.name, stage, total: t.score, reason: t.dq ? 'dq' : 'score' });
     return true;
   }
 
@@ -458,6 +485,7 @@
     jokerRec, activeJoker, checkJoker, acceptJoker, rejectJoker, seenJoker, endIntro,
     computeDelta, applyScore, cancelQuestion, closestWinners,
     MIN_TEAMS, normRoster, rosterError, modeFor, isShared, teamsOf, cutoff, stageOutcome,
+    RISK_STAKES, LEGACY_RULES, RULES_V4, rulesOf, riskStake,
     FORMAT_V, quotasFor, makeFormat, isElim, teamById, roundTeams, newRound, snapRound, roundOutcome, commitRound,
     shuffle, normText, canonKey, buildPlan, planAppend, isAsked, markAsked, nextUnasked,
     assignEmblems, emblemInfo, migrate

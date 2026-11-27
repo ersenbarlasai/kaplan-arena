@@ -29,11 +29,12 @@ const CINE = {
 const CHAMP_V = '1';
 const CHAMP = { src:'assets/sinematik/sampiyon-muzik.m4a?v=' + CHAMP_V, level:.55 };
 const JK = {
-  double:{name:'Çift Cevap', short:'2 Şık', icon:'assets/joker/joker-cift-cevap.svg', desc:'İki farklı şık işaretlenir; biri doğruysa +10.'},
-  x2:{name:'Çifte Puan', short:'×2', icon:'assets/joker/joker-cifte-puan.svg', desc:'Doğru cevap +20 puan.'}
+  double:{name:'Çifte Cevap', short:'2 Şık', icon:'assets/joker/joker-cift-cevap.svg', desc:'İki farklı şık işaretlenir; biri doğruysa +10, ikisi de yanlışsa −10.'},
+  x2:{name:'Çift Puan', short:'×2', icon:'assets/joker/joker-cifte-puan.svg', desc:'Doğru cevap +20 puan; yanlış cevap 0 (puan kaybı yok).'},
+  risk:{name:'Risk Jokeri', short:'Risk', icon:'assets/joker/joker-risk.svg', desc:'Yalnız Büyük Final: 5, 10 ya da 15 puan riske atılır; doğru cevapta kazanılır, yanlışta kaybedilir.'}
 };
 const JK_LOCK = 'assets/joker/joker-kilit.svg';
-const PENALTY_TXT = 'Jokerle yanlış ya da cevapsız: −10 puan (puan sıfırın altına inmez).';
+const PENALTY_TXT = 'Çifte Cevap yanlışsa −10 · Çift Puan yanlışsa 0 · Risk Jokeri yanlışsa seçilen puan kaybedilir.';
 const REASON_TXT = {joker:'Joker tanıtımı', stage:'Sahne bağlantısı bekleniyor', break:'Ara verildi', admin:'Süre durduruldu'};
 
 const uid = () => Math.random().toString(36).slice(2,10);

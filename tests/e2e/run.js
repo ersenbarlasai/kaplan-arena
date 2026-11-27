@@ -14,11 +14,12 @@ const results = [];
 function check(name, ok, detail){ results.push({ name, ok: !!ok, detail: detail == null ? '' : String(detail) }); console.log((ok ? 'PASS ' : 'FAIL ') + name + (detail != null && !ok ? ' :: ' + detail : '')); }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 async function joinTeam(ph, tid, code){
-  await ph.waitForSelector(`[data-pl="pickElim"][data-id="${tid}"]`, { timeout: 15000 });
-  await pl(ph, 'pickElim', { id: tid });
-  await ph.waitForSelector('#pl-code');
+  // Kurallar 03: önce özel kaptan giriş kodu, sonra takım seçim ekranında kendi takım adı.
+  await ph.waitForSelector('#pl-code', { timeout: 15000 });
   await ph.evaluate(c => { const el = document.getElementById('pl-code'); el.value = c; el.dispatchEvent(new Event('input', { bubbles: true })); }, code);
   await pl(ph, 'codeYes');
+  await ph.waitForSelector(`[data-pl="pickElim"][data-id="${tid}"]`, { timeout: 15000 });
+  await pl(ph, 'pickElim', { id: tid });
 }
 async function api(body){ const r = await fetch(BASE + '/api/ka', { method:'POST', body:JSON.stringify(body) }); return r.json(); }
 async function kvState(pin){ const j = await api({ fn:'get', pins:[pin], since:0 }); const row = j.rows.find(r => r.p === 'state'); return { st: row ? row.v : null, t: j.t, rows: j.rows }; }
@@ -119,7 +120,7 @@ async function waitKv(pin, pred, ms){ const end = Date.now() + (ms || 6000); let
     await shot(phB, 'telefon-katilim-390');
     await phB.type('#pl-pin', pin); await pl(phB, 'join');
     await phC.goto(`${BASE}/kaplan-arena.html?pin=${pin}`);
-    await phB.waitForSelector('[data-pl="pickElim"]'); await shot(phB, 'telefon-sinif-secimi-390');
+    await phB.waitForSelector('#pl-code'); await shot(phB, 'telefon-sinif-secimi-390');
     await joinTeam(phB, 't1', codes.t1); await joinTeam(phC, 't2', codes.t2);
     await shot(phC, 'telefon-hazir-360');
     await waitG(admin, () => NET.joined && NET.joined.t1 && NET.joined.t2);
@@ -191,7 +192,7 @@ async function waitKv(pin, pred, ms){ const end = Date.now() + (ms || 6000); let
     await sleep(600);
     await shot(stage, 'sahne-puan-tablosu-1920');
     await shot(phC, 'telefon-joker-cezasi-360');
-    check('telefon: joker cezası gösterimi', (await textOf(phC)).includes('JOKER CEZASI'));
+    check('telefon: Çift Puan yanlışta puan kaybı yok gösterimi', /puan kaybettirmez/.test(await textOf(phC)));
     await sleep(6000);
     check('puan ekranı kendiliğinden geçmez', (await G(admin)).view === 'scoreboard');
 
@@ -254,7 +255,7 @@ async function waitKv(pin, pred, ms){ const end = Date.now() + (ms || 6000); let
     await act(admin, 'showScores');
     await waitG(admin, () => S.game.view === 'scoreboard');
     gA = await G(admin);
-    check('Soru 3: Çifte Puan yanlış −10 (10→0), en yakın +10', gA.teams.all[0].score === 0 && gA.teams.all[1].score === 20 && gA.last.delta[0] === -10, JSON.stringify(gA.last.delta));
+    check('Soru 3 (kural 05): Çift Puan yanlış 0 (puan kaybı yok), en yakın +10', gA.teams.all[0].score === 10 && gA.teams.all[1].score === 20 && gA.last.delta[0] === 0, JSON.stringify(gA.last.delta));
     const before = gA.teams.all.map(t => t.score);
     await act(admin, 'cancelAsk'); await act(admin, 'cancelYes');
     await waitG(admin, () => S.game.phase === 'cancelled');
@@ -371,9 +372,12 @@ async function waitKv(pin, pred, ms){ const end = Date.now() + (ms || 6000); let
     await act(admin, 'revealRound'); await act(admin, 'showSkip'); await act(admin, 'advance');
     await waitG(admin, () => S.game.view === 'teams' && S.game.stage === 1);
     gA = await G(admin);
-    check('Kadim Kale’ye 6 takım yükseldi; elenen 5 takım kadroda yok', gA.rounds[1].ids.length === 6 && gA.teams.all.filter(t => t.status === 'out').length === 5, JSON.stringify(gA.rounds[1].ids));
+    check('Kadim Kale’ye 8 takım yükseldi (11 → 8); elenen 3 takım kadroda yok; puanlar sıfırlandı', gA.rounds[1].ids.length === 8 && gA.teams.all.filter(t => t.status === 'out').length === 3 && gA.rounds[1].ids.every(id => gA.teams.all.find(t => t.id === id).score === 0), JSON.stringify(gA.rounds[1].ids));
     await act(admin, 'startStage');
-    for (let k = 0; k < 2; k++){ await act(admin, 'showQ'); await act(admin, 'revealAsk'); await act(admin, 'revealYes'); await act(admin, 'showScores'); await act(admin, 'next'); }
+    // Kadim Kale: puanlar 0'dan; telefonsuz puanlama ile B ve C (t1, t2) her soruyu bilir
+    for (let k = 0; k < 2; k++){ await act(admin, 'showQ'); await act(admin, 'revealAsk'); await act(admin, 'revealYes');
+      await admin.evaluate(() => { const ids = curTeams().map(t => t.id); ui.sel = [ids.indexOf('t1'), ids.indexOf('t2')]; ui.guesses = {}; const q = curQ(); if (q.type === 'tahmin'){ ui.guesses[ids.indexOf('t1')] = String(q.answer); ui.guesses[ids.indexOf('t2')] = String(q.answer); } render(); });
+      await act(admin, 'showScores'); await act(admin, 'next'); }
     await waitG(admin, () => S.game.view === 'stageEnd');
     gA = await G(admin);
     if (gA.result.tie){
@@ -388,7 +392,7 @@ async function waitKv(pin, pred, ms){ const end = Date.now() + (ms || 6000); let
     await act(admin, 'startStage');
     kv = await kvState(pin);
     const iB = kv.st.ids.indexOf(T0), iC = kv.st.ids.indexOf(T1);
-    check('finalde haklar korunur: C iki jokeri de kullanmış, B Çifte Puanı (iade edilen) kullanabilir', iB >= 0 && iC >= 0 && kv.st.jk[iC].join() === '1,1' && kv.st.jk[iB].join() === '1,0', JSON.stringify(kv.st.jk));
+    check('finalde jokerler yenilenir (kural 05) ve Risk Jokeri eklenir; puanlar 0', iB >= 0 && iC >= 0 && kv.st.jk[iC].join() === '0,0,0' && kv.st.jk[iB].join() === '0,0,0' && kv.st.risk && kv.st.scores.every(x => x === 0), JSON.stringify(kv.st.jk));
     await act(admin, 'showQ');
     await phB.waitForSelector('[data-pl="jkAsk"][data-j="x2"]:not([disabled])');
     await pl(phB, 'jkAsk', { j: 'x2' }); await pl(phB, 'jkYes');

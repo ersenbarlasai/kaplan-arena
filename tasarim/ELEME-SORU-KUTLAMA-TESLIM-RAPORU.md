@@ -1,5 +1,7 @@
 # Rastgele sorular, gerçek eleme ve tur sonu kutlamaları — teslim raporu
 
+> **27.11.2026 güncellemesi:** Puan biriktirme, jokerin yarışmada bir kez kullanılması, Çifte Puan'da −10, sıfır tabanı ve genel kontenjan formülü `tasarim/Kaplan_Arenasi_Yarisma_Kurallari.pdf` ile değişti (6 → 4 → 2 → 1, her turda puan sıfırlama ve joker yenileme, Çift Puan cezasız, Risk Jokeri, kural 08). Güncel uygulama: `tasarim/KURALLAR-V4-TESLIM-RAPORU.md`. Bu rapor format v3 teslimini belgeler.
+
 Görev: `tasarim/CLAUDE-ELEME-SORU-VE-KUTLAMA-PROMPTU.md` · Görsel/ses planı: `tasarim/TUR-SONU-GOSTERI-PLANI.md` · Tarih: 26.11.2026
 
 ## 1. Doğrulanan kök nedenler (güncel kaynakta)

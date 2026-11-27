@@ -4,7 +4,7 @@
 const StageView = (() => {
   const LET = ['A','B','C','D'];
   const bg = (name) => `<div class="sg-bg" style="background-image:url('assets/img/${name}.webp')"></div>`;
-  const team = (t, opt) => `<div class="sg-team ${opt && opt.cls || ''} ${t.ans ? 'ans' : ''} ${t.jk ? 'jk' : ''}">
+  const team = (t, opt) => `<div class="sg-team ${opt && opt.cls || ''} ${t.ans ? 'ans' : ''} ${t.jk ? 'jk' : ''} ${t.dq ? 'dq' : ''}" ${t.dq ? 'title="Kural ihlali: elendi"' : ''}>
       ${armaHTML(t.arma, 'sg-arma', '')}<span class="nm">${esc(t.name)}</span>
       ${t.jk ? `<span class="sg-jkb" title="${esc(JK[t.jk].name)}">${esc(JK[t.jk].short)}</span>` : ''}
       ${opt && opt.noScore ? '' : `<b class="sc">${t.score}</b>`}
@@ -122,7 +122,7 @@ const StageView = (() => {
       <div class="sg-cor-h">${c.tahmin ? 'En yakın tahmin' : 'Doğru bilenler'}</div>
       <div class="sg-cor-list">${c.list.map(t => `<div class="sg-cor-item ${t.x2 ? 'x2' : ''}" data-cor="${esc(t.name)}">
         <span class="trail" aria-hidden="true"></span>
-        <span class="crest">${armaHTML(t.arma, 'sg-arma', '')}${t.x2 ? '<b class="seal" aria-label="Çifte Puan">×2</b>' : ''}</span>
+        <span class="crest">${armaHTML(t.arma, 'sg-arma', '')}${t.x2 ? '<b class="seal" aria-label="Çift Puan">×2</b>' : ''}</span>
         <span class="nm">${esc(t.name)}</span>
         ${t.dbl ? '<em class="tag">2 Şık</em>' : ''}${t.guess != null ? `<em class="gs">${esc(t.guess)}</em>` : ''}</div>`).join('')}</div></div>`;
   }
@@ -183,8 +183,8 @@ const StageView = (() => {
         </div>
         <div class="sh-list ${(m.board || []).length > 6 ? 'dense' : ''}" style="--rows:${Math.ceil((m.board || []).length / 2)}">${(m.board || []).map((t, k) => `<div class="sh-row ${t.out ? 'out' : 'up'}" style="--k:${k}">
           ${armaHTML(t.arma, 'sg-arma', '')}<span class="nm">${esc(t.name)}</span>
-          <span class="gn"><small>bu tur</small>${t.gain >= 0 ? '+' : ''}${t.gain}</span>
-          <b class="sc"><small>toplam</small>${t.score}</b><em>${esc(t.out ? 'Elendi' : t.badge)}</em></div>`).join('')}</div>
+          ${m.reset ? '<span class="gn"></span>' : `<span class="gn"><small>bu tur</small>${t.gain >= 0 ? '+' : ''}${t.gain}</span>`}
+          <b class="sc"><small>${m.reset ? 'tur puanı' : 'toplam'}</small>${t.score}</b><em>${esc(t.out ? t.badge || 'Elendi' : t.badge)}</em></div>`).join('')}</div>
         <div class="sh-note">${esc(m.note)}</div>
       </div>`;
   };
@@ -216,7 +216,7 @@ const StageView = (() => {
     if (!m.intro || !m.intro.items || !m.intro.items.length) return '';
     return `<div class="sg-intro" data-intro="${m.intro.id}"><div class="sg-intro-rays"></div>${m.intro.items.map(it => `
       <div class="sg-intro-row ${it.j}">${armaHTML(it.arma, 'sg-arma lg', '')}
-        <div class="txt"><small>JOKER</small><b>${esc(it.name)} · ${esc(JK[it.j].name).toLocaleUpperCase('tr-TR')}!</b><span>${esc(JK[it.j].desc)}</span></div>
+        <div class="txt"><small>JOKER</small><b>${esc(it.name)} · ${esc(JK[it.j].name).toLocaleUpperCase('tr-TR')}${it.s ? ' · ' + it.s + ' PUAN' : ''}!</b><span>${esc(JK[it.j].desc)}</span></div>
         <div class="medal"><img src="${JK[it.j].icon}" alt=""></div></div>`).join('')}
       <div class="sg-intro-note">Süre ve cevaplar kısa bir süre durdu</div></div>`;
   }

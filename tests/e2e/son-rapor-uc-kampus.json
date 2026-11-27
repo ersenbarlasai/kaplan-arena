@@ -1,5 +1,5 @@
 {
-  "at": "2026-11-26T15:46:26.148Z",
+  "at": "2026-11-27T18:40:08.748Z",
   "results": [
     {
       "name": "ayarlar: üç takım (boşluk/virgül/satır temizliğiyle) kaydedilir",
@@ -22,9 +22,9 @@
       "detail": "{\"msg\":\"\\\"kampüs a\\\" adı listede iki kez geçiyor.\",\"classes\":[\"Kampüs A\",\"Kampüs B\",\"Kampüs C\"]}"
     },
     {
-      "name": "ayarlar: üç takımda 3 → 3 → 2 → şampiyon kuralı ve puan biriktirme anlatılır",
+      "name": "ayarlar: üç takımda 3 → 3 → 2 → şampiyon ve her turda puan sıfırlama anlatılır",
       "ok": true,
-      "detail": "Kaplan Arena\nYönetim paneli\nTelefon bağlantısı açık\nSahne açık değil\nSahne Ekranını Aç\nSes açık\nKarşılama\nAra Döngüsü\nAna Menü\nSoru Yönetimi\nAyarlar\nAyarlar\nYarışmanın adı\nTakımlar / sınıflar (her satıra bir ad; en az 3)\nBütün takımlar her turda birlikte yarışır; puanlar birikir. 3 takım: Orman Geçidi’nde eleme yok, Kadim Kale’den ilk 2 finale (3 → 3 → 2 → şampiyon). 4 takım: 4 → 3 → 2 → şampiyon."
+      "detail": "Kaplan Arena\nYönetim paneli\nTelefon bağlantısı açık\nSahne açık değil\nSahne Ekranını Aç\nSes açık\nKarşılama\nAra Döngüsü\nAna Menü\nSoru Yönetimi\nAyarlar\nAyarlar\nYarışmanın adı\nTakımlar / sınıflar (her satıra bir ad; en az 3)\nBütün takımlar her turda birlikte yarışır; her turda puanlar sıfırlanır. 6 takım: 6 → 4 → 2 → şampiyon. 4 takım: 4 → 3 → 2. 3 takım: Orman’da eleme yok (3 → 3 → 2). Diğer sayılard"
     },
     {
       "name": "yedek: dışa aktarılan yedekte üç takım var",
@@ -52,19 +52,19 @@
       "detail": "{\"msg\":\"Sorular içe aktarıldı.\",\"classes\":[\"Kampüs A\",\"Kampüs B\",\"Kampüs C\"],\"nq\":2}"
     },
     {
-      "name": "menü: 3 → 3 → 2 → şampiyon, Orman’da eleme yok, puan biriktirme kuralı başlatmadan önce görünür",
+      "name": "menü: 3 → 3 → 2 → şampiyon, Orman’da eleme yok, her turda sıfırlama kuralı başlatmadan önce görünür",
       "ok": true,
-      "detail": "Kaplan Arena\nYönetim paneli\nTelefon bağlantısı açık\nSahne açık değil\nSahne Ekranını Aç\nSes açık\nKarşılama\nAra Döngüsü\nSoru Yönetimi\nAyarlar\nOrman Geçidi\n1. Etap\nKadim Kale\n2. Etap\nKaplan Arenası\nFinal\nKAPLAN ARENA\nEfsaneye Yolculuk\nKampüs A\nKampüs B\nKampüs C\nSAHNE ÖNİZLEMESİ\nAna Menü\nYarışmayı Başlat\nSoru Yönetimi\nAyarlar\nKural: Eleme Yarışması · 3 → 3 → 2 → şampiyon\n\nKampüs A · Kampüs B · Kampüs C\n\nBütün takımlar her turun sorularını aynı anda yanıtlar. Puanlar yarışma boyunca birikir (tur başında sıfırlanmaz). Yükselme ve şampiyonluk toplam puana göre belirlenir; tur kazananı o turdaki net kazançla ayrıca açıklanır. Sınırda eşitlik olursa yalnız eşit takımlara yedek tahmin sorusu sorulur. "
+      "detail": "Kaplan Arena\nYönetim paneli\nTelefon bağlantısı açık\nSahne açık değil\nSahne Ekranını Aç\nSes açık\nKarşılama\nAra Döngüsü\nSoru Yönetimi\nAyarlar\nOrman Geçidi\n1. Etap\nKadim Kale\n2. Etap\nKaplan Arenası\nFinal\nKAPLAN ARENA\nEfsaneye Yolculuk\nKampüs A\nKampüs B\nKampüs C\nSAHNE ÖNİZLEMESİ\nAna Menü\nYarışmayı Başlat\nSoru Yönetimi\nAyarlar\nKural: Eleme Yarışması · 3 → 3 → 2 → şampiyon\n\nKampüs A · Kampüs B · Kampüs C\n\nBütün takımlar her turun sorularını aynı anda yanıtlar. Her tur 10 soru, her soru 45 saniye. Her turda puanlar sıfırlanır; yükselme o turun puanıyla belirlenir. Jokerler (Çifte Cevap, Çift Puan) her yeni turda yenilenir; Risk Jokeri (5/10/15) yalnız Büyük Final’de. Yükselmeyi ya da şampiyonluğu e"
     },
     {
       "name": "menü: eski turnuva ifadeleri (iki grup, 4 finalist, puanlar sıfırdan) görünmez",
       "ok": true,
-      "detail": "Kaplan Arena\nYönetim paneli\nTelefon bağlantısı açık\nSahne açık değil\nSahne Ekranını Aç\nSes açık\nKarşılama\nAra Döngüsü\nSoru Yönetimi\nAyarlar\nOrman Geçidi\n1. Etap\nKadim Kale\n2. Etap\nKaplan Arenası\nFinal\nKAPLAN ARENA\nEfsaneye Yolculuk\nKampüs A\nKampüs B\nKampüs C\nSAHNE ÖNİZLEMESİ\nAna Menü\nYarışmayı Başlat\nSoru Yönetimi\nAyarlar\nKural: Eleme Yarışması · 3 → 3 → 2 → şampiyon\n\nKampüs A · Kampüs B · Kampüs C\n\nBütün takımlar her turun sorularını aynı anda yanıtlar. Puanlar yarışma boyunca birikir (tur başında sıfırlanmaz). Yükselme ve şampiyonluk toplam puana göre belirlenir; tur kazananı o turdaki net k"
+      "detail": "Kaplan Arena\nYönetim paneli\nTelefon bağlantısı açık\nSahne açık değil\nSahne Ekranını Aç\nSes açık\nKarşılama\nAra Döngüsü\nSoru Yönetimi\nAyarlar\nOrman Geçidi\n1. Etap\nKadim Kale\n2. Etap\nKaplan Arenası\nFinal\nKAPLAN ARENA\nEfsaneye Yolculuk\nKampüs A\nKampüs B\nKampüs C\nSAHNE ÖNİZLEMESİ\nAna Menü\nYarışmayı Başlat\nSoru Yönetimi\nAyarlar\nKural: Eleme Yarışması · 3 → 3 → 2 → şampiyon\n\nKampüs A · Kampüs B · Kampüs C\n\nBütün takımlar her turun sorularını aynı anda yanıtlar. Her tur 10 soru, her soru 45 saniye. Her turda puanlar sıfırlanır; yükselme o turun puanıyla belirlenir. Jokerler (Çifte Cevap, Çift Puan) he"
     },
     {
       "name": "başlatma: eleme formatı kayda sabitlendi (3 → 3 → 2 → 1)",
       "ok": true,
-      "detail": "{\"v\":3,\"kind\":\"elim\",\"n\":3,\"quotas\":[3,2,1],\"stages\":[\"s1\",\"s2\",\"final\"]}"
+      "detail": "{\"v\":4,\"kind\":\"elim\",\"n\":3,\"quotas\":[3,2,1],\"stages\":[\"s1\",\"s2\",\"final\"],\"rules\":{\"reset\":true,\"jokersPerRound\":true,\"x2Loss\":false,\"floor\":false,\"risk\":true,\"perRound\":10}}"
     },
     {
       "name": "başlatma: üç takım tek ortak listede; 2+1 gruba ayrılmadı",
@@ -79,17 +79,17 @@
     {
       "name": "sahne: ortak katılım; üç takım ve bu turda eleme olmadığı",
       "ok": true,
-      "detail": "Orman Geçidi\n1. Etap\nOrtak Katılım\n3 takım · bu turda eleme yok · üçü de Kadim Kale’ye ilerler\nTELEFONLA KATIL\nlocalhost:3092/katil\nYARIŞMA KODU\n245 412\nKampüs A\nBekleniyor\nKampüs B\nBekleniyor\nKampüs C\nBekleniyor"
+      "detail": "Orman Geçidi\n1. Etap\nOrtak Katılım\n3 takım · puanlar 0’dan başlar · 10 soru · bu turda eleme yok · hepsi Kadim Kale’ye ilerler\nTELEFONLA KATIL\nlocalhost:3092/katil\nYARIŞMA KODU\n383 732\nKampüs A\nBekleniyor\nKampüs B\nBekleniyor\nKampüs C\nBekleniyor"
     },
     {
       "name": "sahne katılım: turnuva ifadeleri yok",
       "ok": true,
-      "detail": "Orman Geçidi\n1. Etap\nOrtak Katılım\n3 takım · bu turda eleme yok · üçü de Kadim Kale’ye ilerler\nTELEFONLA KATIL\nlocalhost:3092/katil\nYARIŞMA KODU\n245 412\nKampüs A\nBekleniyor\nKampüs B\nBekleniyor\nKampüs C\nBekleniyor"
+      "detail": "Orman Geçidi\n1. Etap\nOrtak Katılım\n3 takım · puanlar 0’dan başlar · 10 soru · bu turda eleme yok · hepsi Kadim Kale’ye ilerler\nTELEFONLA KATIL\nlocalhost:3092/katil\nYARIŞMA KODU\n383 732\nKampüs A\nBekleniyor\nKampüs B\nBekleniyor\nKampüs C\nBekleniyor"
     },
     {
-      "name": "telefon: takım seçiminde üç takım ve kapsayıcı ifade",
+      "name": "telefon: önce kaptan giriş kodu, sonra kendi takım adına dokunma (kural 03)",
       "ok": true,
-      "detail": "KAPLAN ARENA\nOrman Geçidi\nTakımını seç\n\nOrman Geçidi şu an bu takımlarla oynanıyor. Takımının kaptanıysan takımını seç ve kaptan kodunu gir.\n\nKampüs A\nSeçmek için dokun\nKampüs B\nSeçmek için dokun\nKampüs C\nSeçmek için dokun\n\nKaptan değilseniz sahneden izleyebilirsiniz."
+      "detail": "KAPLAN ARENA\nOrman Geçidi\nKaptan girişi\n\nYönetimden aldığınız özel kaptan giriş kodunu girin. Ardından takım seçim ekranında kendi takım adınıza dokunacaksınız.\n\nKaptan giriş kodu\nDevam\n\nKaptan değilseniz sahneden izleyebilirsiniz."
     },
     {
       "name": "üç telefon ayrı takımlarını aldı",
@@ -109,12 +109,12 @@
     {
       "name": "ortak süre: admin ve üç telefon aynı kalan süreyi görür (±1,5 sn)",
       "ok": true,
-      "detail": "[38040,38040,38039,38040]"
+      "detail": "[38095,38532,38094.5,38532]"
     },
     {
       "name": "ortak süre: üç telefon aynı sunucu bitiş anını alır",
       "ok": true,
-      "detail": "[1795707952188,1795707952188,1795707952188]"
+      "detail": "[1795804773698.5,1795804773698.5,1795804773698.5]"
     },
     {
       "name": "yabancı cihaz: doğrudan yazım, yanlış kod ve sahte oturum sunucuda reddedildi",
@@ -124,7 +124,7 @@
     {
       "name": "cevaplar doğru kampüse bağlı; yanlış cihazdan gelen cevap reddedildi",
       "ok": true,
-      "detail": "{\"0\":{\"v\":\"C\",\"t\":1795707915171},\"1\":{\"v\":\"C\",\"t\":1795707915706},\"2\":{\"v\":\"A\",\"t\":1795707916248}}"
+      "detail": "{\"0\":{\"v\":\"C\",\"t\":1795804736842},\"1\":{\"v\":\"C\",\"t\":1795804737372},\"2\":{\"v\":\"A\",\"t\":1795804737900}}"
     },
     {
       "name": "sahne: Doğru Bilenler gösterimi (A ve B)",
@@ -132,12 +132,12 @@
       "detail": "Orman Geçidi\n1. Etap\nSORU 1 / 2\n34\nMATEMATİK\nİki artı iki kaç eder?\nA\n3\nB\n5\nC\n4\n✓\nD\n6\nDOĞRU BİLENLER\n×2\nKampüs A\nKampüs B"
     },
     {
-      "name": "1. etap soru 1: 20/10/0 (Çifte Puan +20, normal +10)",
+      "name": "1. etap soru 1: 20/10/0 (Çift Puan +20, normal +10)",
       "ok": true,
       "detail": "[20,10,0]"
     },
     {
-      "name": "telefon A: ÇİFTE PUAN sonucu",
+      "name": "telefon A: ÇİFT PUAN sonucu",
       "ok": true,
       "detail": ""
     },
@@ -177,14 +177,14 @@
       "detail": "{\"up\":[\"t1\",\"t2\",\"t3\"],\"out\":[],\"winners\":[\"t1\"],\"gains\":{\"t1\":20,\"t2\":10,\"t3\":0},\"totals\":{\"t1\":20,\"t2\":10,\"t3\":0}}"
     },
     {
-      "name": "sahne 1. tur sonu: tur kazananı, toplamlar ve “Üç takım da Kadim Kale’ye ilerliyor”",
+      "name": "sahne 1. tur sonu: tur kazananı, tur puanları ve “Üç takım da Kadim Kale’ye ilerliyor”",
       "ok": true,
-      "detail": "1. ETAP\nOrman Geçidi Tamamlandı\nTURUN KAZANANI\nKampüs A\nbu tur +20 puan\nKampüs A\nBU TUR\n+20\nTOPLAM\n20\nKadim Kale’de\nKampüs B\nBU TUR\n+10\nTOPLAM\n10\nKadim Kale’de\nKampüs C\nBU TUR\n+0\nTOPLAM\n0\nKadim Kale’de\nÜç takım da Kadim Kale’ye ilerliyor"
+      "detail": "1. ETAP\nOrman Geçidi Tamamlandı\nTURUN KAZANANI\nKampüs A\nbu tur +20 puan\nKampüs A\nTUR PUANI\n20\nKadim Kale’de\nKampüs B\nTUR PUANI\n10\nKadim Kale’de\nKampüs C\nTUR PUANI\n0\nKadim Kale’de\nÜç takım da Kadim Kale’ye ilerliyor"
     },
     {
-      "name": "telefon 1. tur sonu: toplam, tur kazananı ve devam",
+      "name": "telefon 1. tur sonu: tur puanı, tur kazananı, yeni turda sıfırlama/joker yenileme",
       "ok": true,
-      "detail": "KAPLAN ARENA\nOrman Geçidi\nKampüs C\nPUAN\n0\n1. ETAP\n★\nYola devam!\n\nKampüs C Kadim Kale yolunda.\nTurun kazananı: Kampüs A\nBu tur +0 puan · Toplam 0 · Sıralama 3.\n\nÇift Cevap · 1 hak\nÇifte Puan · 1 hak"
+      "detail": "KAPLAN ARENA\nOrman Geçidi\nKampüs C\nPUAN\n0\n1. ETAP\n★\nYola devam!\n\nKampüs C Kadim Kale yolunda.\nTurun kazananı: Kampüs A\nTur puanı 0 · Sıralama 3.\nYeni turda puanlar 0’dan başlar, jokerler yenilenir.\n\nÇifte Cevap · 1 hak\nÇift Puan · 1 hak"
     },
     {
       "name": "admin yenileme: mod/katılımcı/puan/aşama korunur",
@@ -197,9 +197,9 @@
       "detail": ""
     },
     {
-      "name": "2. etap katılım: puanlar sıfırlanmadı (20/10/0)",
+      "name": "2. tur katılım (kural 01): puanlar sıfırlandı (0/0/0); Orman puanları arşivde",
       "ok": true,
-      "detail": "[20,10,0]"
+      "detail": "[0,0,0]"
     },
     {
       "name": "2. tur: telefonlar yeniden seçim yapmadan bağlı kaldı",
@@ -209,7 +209,7 @@
     {
       "name": "ayarlar (açık yarışma): değişikliğin açık yarışmayı etkilemediği belirtilir",
       "ok": true,
-      "detail": "Kaplan Arena\nYönetim paneli\nKod 245 412\nTelefon bağlantısı açık\nSahne bağlı · ses etkin\nSahne Ekranını Aç\nSes açık\nKarşılama\nAra Döngüsü\nAna Menü\nYarışma\nSoru Yönetimi\nAyarlar\nAyarlar\nYarışmanın adı\nTakımlar / sınıflar (her satıra bir ad; en az 3)\nBütün takımlar her turda birlikte yarışır; puanlar birikir. 3 takım: Orman Geçidi’nde eleme yok, Kadim Kale’den ilk 2 finale (3 → 3 → 2 → şampiyon). 4 takım: 4 → 3 → 2 → şampiyon. Daha kalabalıkta ilk tur sonunda en az 3 (yarısı) takım kalır. Değişikli"
+      "detail": "Kaplan Arena\nYönetim paneli\nKod 383 732\nTelefon bağlantısı açık\nSahne bağlı · ses etkin\nSahne Ekranını Aç\nSes açık\nKarşılama\nAra Döngüsü\nAna Menü\nYarışma\nSoru Yönetimi\nAyarlar\nAyarlar\nYarışmanın adı\nTakımlar / sınıflar (her satıra bir ad; en az 3)\nBütün takımlar her turda birlikte yarışır; her turda puanlar sıfırlanır. 6 takım: 6 → 4 → 2 → şampiyon. 4 takım: 4 → 3 → 2. 3 takım: Orman’da eleme yok (3 → 3 → 2). Diğer sayılarda ilk turdan en az 3 (üçte ikisi) takım geçer. Değişiklik bir sonraki yen"
     },
     {
       "name": "açık yarışmada ayar değişikliği modu ve katılımcıları değiştirmez",
@@ -217,19 +217,19 @@
       "detail": "{\"r\":{\"msg\":\"Ayarlar kaydedildi.\",\"classes\":[\"9A\",\"9B\",\"9C\",\"10A\",\"10B\"]},\"mode\":\"elim\"}"
     },
     {
-      "name": "2. etap başlangıcı: puanlar sıfırlanmadı",
+      "name": "2. tur başlangıcı: puanlar 0",
       "ok": true,
-      "detail": "[20,10,0]"
+      "detail": "[0,0,0]"
     },
     {
-      "name": "telefon A: 1. etapta kullanılan Çifte Puan 2. etapta \"kullanıldı\"",
+      "name": "telefon A: 1. turda kullanılan Çift Puan 2. turda yenilenmiş (kullanılabilir)",
       "ok": true,
       "detail": ""
     },
     {
-      "name": "arena geçişi joker hakkını yenilemez (doğrudan istek reddedildi)",
+      "name": "yeni turda üç takım da Çift Puan kullanabildi",
       "ok": true,
-      "detail": "{\"t\":1795707944679,\"j\":\"x2\",\"why\":\"Bu joker daha önce kullanıldı.\"}"
+      "detail": "{\"t1\":{\"double\":null,\"x2\":\"s2_0_gxnmnb18\",\"risk\":null,\"stake\":null},\"t2\":{\"double\":null,\"x2\":\"s2_0_gxnmnb18\",\"risk\":null,\"stake\":null},\"t3\":{\"double\":null,\"x2\":\"s2_0_gxnmnb18\",\"risk\":null,\"stake\":null}}"
     },
     {
       "name": "telefon B yeniden bağlandı: aynı takım ve gönderilmiş cevap korunur",
@@ -237,7 +237,7 @@
       "detail": ""
     },
     {
-      "name": "2. etap toplamları korunur: 20/20/20 (Çift Cevap +10, Çifte Puan +20)",
+      "name": "2. tur puanları: 20/20/20 (üç Çift Puan doğru)",
       "ok": true,
       "detail": "[20,20,20]"
     },
@@ -254,7 +254,7 @@
     {
       "name": "Kadim Kale sonucu: A ve B finale, C elendi (3 → 2)",
       "ok": true,
-      "detail": "{\"up\":[\"t1\",\"t2\"],\"out\":[\"t3\"],\"winners\":[\"t3\"],\"gains\":{\"t1\":0,\"t2\":10,\"t3\":20},\"totals\":{\"t1\":20,\"t2\":20,\"t3\":20}}"
+      "detail": "{\"up\":[\"t1\",\"t2\"],\"out\":[\"t3\"],\"winners\":[\"t1\",\"t2\",\"t3\"],\"gains\":{\"t1\":20,\"t2\":20,\"t3\":20},\"totals\":{\"t1\":20,\"t2\":20,\"t3\":20}}"
     },
     {
       "name": "telefon C: “Bu turda elendiniz; yarışmaya devam edemezsiniz”",
@@ -262,14 +262,14 @@
       "detail": ""
     },
     {
-      "name": "final öncesi puanlar sıfırlanmaz; finalde iki takım (20/20)",
+      "name": "final (kural 01): iki takım 0 puanla başlar",
       "ok": true,
-      "detail": "[20,20]"
+      "detail": "[0,0]"
     },
     {
-      "name": "sahne final: \"puanlar sıfırdan\" yazmaz",
+      "name": "sahne final: eski turnuva ifadeleri yok",
       "ok": true,
-      "detail": "Kaplan Arenası\nFinal\nSORU 1 / 1\nŞIKLI SORU\nHazır mısınız?\n\nSoru ekrana gelince süre başlayacak.\n\nKampüs A\n20\nKampüs B\n20"
+      "detail": "Kaplan Arenası\nFinal\nSORU 1 / 1\nŞIKLI SORU\nHazır mısınız?\n\nSoru ekrana gelince süre başlayacak.\n\nKampüs A\n0\nKampüs B\n0"
     },
     {
       "name": "elenen C telefonu final sorusunu cevaplayamaz",
@@ -277,9 +277,9 @@
       "detail": ""
     },
     {
-      "name": "final: 30/30",
+      "name": "final: 10/10",
       "ok": true,
-      "detail": "[30,30]"
+      "detail": "[10,10]"
     },
     {
       "name": "final lider eşitliği: yalnız eşit liderler (A, B) eşitlik sorusuna",
@@ -292,14 +292,14 @@
       "detail": "Türkiye kaç ilden oluşur?"
     },
     {
-      "name": "eşitlik çözüldü: A birinci; normal toplamlar değişmedi (30/30)",
+      "name": "eşitlik çözüldü: A birinci; final puanları değişmedi (10/10)",
       "ok": true,
-      "detail": "{\"q\":[0],\"s\":[30,30]}"
+      "detail": "{\"q\":[0],\"s\":[10,10]}"
     },
     {
       "name": "şampiyon: Kampüs A (toplam puan + eşitlik)",
       "ok": true,
-      "detail": "ŞAMPİYON\nKampüs A\n30 puan\nBilgiyle ilerlediniz, birlikte kazandınız.\nKampüs B\n30 puan\nFinalist\nKampüs A\n30 puan\nŞampiyon\nKampüs C\n20 puan\nKadim Kale’de tamamladı"
+      "detail": "ŞAMPİYON\nKampüs A\n10 puan\nBilgiyle ilerlediniz, birlikte kazandınız.\nKampüs B\n10 puan\nFinalist\nKampüs A\n10 puan\nŞampiyon\nKampüs C\n20 puan\nKadim Kale’de tamamladı"
     },
     {
       "name": "telefon A: ŞAMPİYONSUNUZ; telefon B: Şampiyon: Kampüs A",

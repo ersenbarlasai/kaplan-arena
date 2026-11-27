@@ -68,6 +68,17 @@ Admin (yetkili taraf) kabul kuralları:
 
 Joker tanıtımı: ilk kabulde `pauseAt = şimdi`, açık pencere kapanır, `joker` nedeni eklenir, `until = pauseAt + 3500 ms`. Bu tanıtım sürerken gelen ve `t ≤ pauseAt` olan geçerli istekler aynı tanıtıma eklenir (gruplama penceresi: duraklama anı öncesi gönderilmiş, tanıtım bitmeden ulaşan istekler; en çok 3,5 sn). Tanıtım uzatılmaz; liste eklenerek güncellenir. Süre bitince yalnız `joker` nedeni kalkar.
 
+## Yarışma kuralları v4 (27.11.2026, `Kaplan_Arenasi_Yarisma_Kurallari.pdf`)
+
+Yeni yarışmalar `g.format = { v:4, …, rules:{ reset:true, jokersPerRound:true, x2Loss:false, floor:false, risk:true, perRound:10 } }`. `rulesOf(g)` kuralı olmayan (v3) kayıtlarda eski kurala (`LEGACY_RULES`: birikim, joker cezası −10, sıfır tabanı) döner; açık yarışma dönüştürülmez.
+- Kontenjan `quotasFor(n) = [min(n, max(3, ⌈2n/3⌉)), 2, 1]` → 6 → 4 → 2 → 1, 4 → 3 → 2, 3 → 3 → 2.
+- `newRound` (tur > 0): `reset` ise katılımcı puanları 0, `jokersPerRound` ise `g.jokers` önceki turun kaydına (`rounds[r-1].jokers`) arşivlenip boşaltılır. Tur puanları `rounds[r].done.totals`'ta kalır.
+- `computeDelta(scores, winners, jk, { rules, stakes })`: doğru +10; Çifte Cevap ±10; Çift Puan +20 / 0 (v4); Risk ±stake (5/10/15); `floor` yalnız eski kuralda. `applyScore` `extra.stakes` ile; `cancelQuestion` gerçek etkiyi geri alır ve Risk iadesini (`stake`) temizler.
+- Risk: `checkJoker` `c.riskOk` (yalnız `g.stage === 2` ve `rules.risk`) ve `RISK_STAKES`; kayıt `jokers[tid] = { double, x2, risk, stake }`; `riskStake()`; durumda `risk:true`, `jk[i]` üç öğe; sunucu `ctl.risk` ve `jreq.s`.
+- Tur başına soru: `roundPlayed(key)` (iptaller hariç) ≥ `perRound` → `isLastQ`; ekranda `roundProg()` (Soru k / N).
+- Kural 08: telefon `visibilitychange`/`pagehide` → `cmd op:'leave'` (sendBeacon; dönüşte aynı `t` ile tekrar, sunucu `viol/<tid>/v<t>` anahtarına yazar). Admin `NET.viol` → “Ekran değişikliği uyarısı”; `dqYes` → `t.dq`, `status:'out'` (ctl `act:false`); `liveAccepted`/`roundOutcome` ihlalli takımı dışlar, `commitRound` `elimLog.reason:'dq'`.
+- Telefon girişi: önce kaptan kodu (`P.codeEntered`), sonra takım listesi; sunucu kodu seçilen takımla eşleştirir.
+
 ## Eleme yarışması (format v3, yeni yarışmalar)
 
 Kaynak: `tasarim/CLAUDE-ELEME-SORU-VE-KUTLAMA-PROMPTU.md`, rapor: `tasarim/ELEME-SORU-KUTLAMA-TESLIM-RAPORU.md`. Bütün yeni yarışmalar `g.mode = 'elim'`; `shared`/`tournament` yalnız güncellemeden önce başlamış kayıtlarda sürer (sessiz dönüşüm yok; `loadState` şema yükseltmesinden önce `kaplan-arena-v1-yedek-sema<N>` kopyası alır).

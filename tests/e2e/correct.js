@@ -67,9 +67,9 @@ async function hookAudio(st){ await st.evaluate(() => { window.__snd = []; const
     for (const p of [phB, phC]) await p.setViewport({ width: 390, height: 844, isMobile: true });
     await phB.goto(`${BASE}/kaplan-arena.html?pin=${pin}`); await phC.goto(`${BASE}/kaplan-arena.html?pin=${pin}`);
     for (const [p, tid] of [[phB, 't1'], [phC, 't2']]){
-      await pl(p, 'pickElim', { id: tid }); await p.waitForSelector('#pl-code');
+      await p.waitForSelector('#pl-code');
       await p.evaluate(c => { const el = document.getElementById('pl-code'); el.value = c; el.dispatchEvent(new Event('input', { bubbles: true })); }, codes[tid]);
-      await pl(p, 'codeYes');
+      await pl(p, 'codeYes'); await pl(p, 'pickElim', { id: tid });
     }
     await waitG(admin, () => NET.joined && NET.joined.t1 && NET.joined.t2);
     await hookAudio(admin).catch(() => {});

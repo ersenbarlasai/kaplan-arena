@@ -312,12 +312,13 @@ function finishAndAdvance(g) {
   return { o, up };
 }
 
-test('kontenjanlar: 3 → 3 → 2 → 1, 4 → 3 → 2 → 1, kalabalıkta max(3, ⌈n/2⌉)', () => {
+test('kontenjanlar (kurallar 27.11): 6 → 4 → 2 → 1; 3 → 3 → 2 → 1; 4 → 3 → 2 → 1; genel max(3, ⌈2n/3⌉)', () => {
+  assert.deepEqual(C.quotasFor(6), [4, 2, 1]);
   assert.deepEqual(C.quotasFor(3), [3, 2, 1]);
   assert.deepEqual(C.quotasFor(4), [3, 2, 1]);
-  assert.deepEqual(C.quotasFor(5), [3, 2, 1]);
-  assert.deepEqual(C.quotasFor(7), [4, 2, 1]);
-  assert.deepEqual(C.quotasFor(11), [6, 2, 1]);
+  assert.deepEqual(C.quotasFor(5), [4, 2, 1]);
+  assert.deepEqual(C.quotasFor(7), [5, 2, 1]);
+  assert.deepEqual(C.quotasFor(11), [8, 2, 1]);
   assert.equal(C.quotasFor(2), null);
 });
 
@@ -330,7 +331,7 @@ test('dört takım: 4 aynı turda → 3 → 2 → tek şampiyon; elenen üst tur
   assert.equal(C.teamById(g, 't4').status, 'out');
   assert.deepEqual(C.teamsOf(g, 's2').map(t => t.id), ['t1', 't2', 't3']);
   C.snapRound(g, 1);
-  // Kale: toplamlar sıfırlanmaz; tur kazananı net kazançla (C +40), yükselme toplamla (A 50, C 60)
+  // Kale (v4): puanlar sıfırdan; tur puanıyla yükselme
   setScores(g, [50, 35, 60]);
   r = finishAndAdvance(g);
   assert.deepEqual(r.o.winners, [2]);
@@ -361,18 +362,18 @@ test('üç takım: Orman elemesiz (3 → 3) ama tur kazananı açıklanır; Kale
   assert.equal(g.rounds[1].done, null);
 });
 
-test('kalabalık başlangıç (7 takım): 7 → 4 → 2 → 1; sınır eşitliği yalnız sınırdaki takımlarla', () => {
+test('kalabalık başlangıç (7 takım): 7 → 5 → 2 → 1; sınır eşitliği yalnız sınırdaki takımlarla', () => {
   const g = elimGame(['A', 'B', 'C', 'D', 'E', 'F', 'G']);
-  setScores(g, [70, 60, 50, 40, 40, 20, 10]);
+  setScores(g, [70, 60, 50, 40, 30, 30, 10]);
   const o = C.roundOutcome(g, 0);
-  assert.deepEqual(o.qualified, [0, 1, 2]);
-  assert.deepEqual(o.tie, { candidates: [3, 4], slots: 1 });
-  // eşitlik çözüldü: D yükselir
-  assert.equal(C.commitRound(g, 0, [0, 1, 2, 3]), true);
-  assert.equal(C.commitRound(g, 0, [0, 1, 2, 4]), false, 'ikinci kesinleştirme etkisiz (idempotent)');
-  assert.deepEqual(g.rounds[0].done.up, ['t1', 't2', 't3', 't4']);
-  assert.equal(g.teams.all.filter(t => t.status === 'out').length, 3);
-  assert.equal(g.elimLog.length, 3);
+  assert.deepEqual(o.qualified, [0, 1, 2, 3]);
+  assert.deepEqual(o.tie, { candidates: [4, 5], slots: 1 });
+  // eşitlik çözüldü: E yükselir
+  assert.equal(C.commitRound(g, 0, [0, 1, 2, 3, 4]), true);
+  assert.equal(C.commitRound(g, 0, [0, 1, 2, 3, 5]), false, 'ikinci kesinleştirme etkisiz (idempotent)');
+  assert.deepEqual(g.rounds[0].done.up, ['t1', 't2', 't3', 't4', 't5']);
+  assert.equal(g.teams.all.filter(t => t.status === 'out').length, 2);
+  assert.equal(g.elimLog.length, 2);
 });
 
 test('tur kazananı eşitse ortak kazananlar; kümülatif eleme kuralı değişmez', () => {
@@ -426,4 +427,72 @@ test('göç: şema 3; eski turnuva/ortak kayıt dönüştürülmez, puan silinme
   assert.equal(s.game.mode, 'shared');
   assert.equal(s.game.teams.all[0].score, 30);
   assert.equal(s.game.plan, undefined);
+});
+
+/* ---------- kurallar 27.11.2026 (format v4) ---------- */
+test('altı takım: 6 → 4 → 2 → 1; her turda puanlar sıfırlanır, jokerler yenilenir; arşiv korunur', () => {
+  const g = elimGame(['A', 'B', 'C', 'D', 'E', 'F']);
+  assert.equal(g.format.v, 4);
+  assert.deepEqual(g.format.rules, C.RULES_V4);
+  setScores(g, [60, 50, 40, 30, 20, 10]);
+  g.jokers = { t1: { double: 's1_0_a', x2: null, risk: null, stake: null } };
+  let r = finishAndAdvance(g);
+  assert.deepEqual(r.up, ['t1', 't2', 't3', 't4']);
+  assert.deepEqual(C.roundTeams(g, 1).map(t => t.score), [0, 0, 0, 0], 'Kadim Kale 0 puanla başlar');
+  assert.deepEqual(g.jokers, {}, 'jokerler yeni turda yenilendi');
+  assert.equal(g.rounds[0].jokers.t1.double, 's1_0_a', 'önceki turun jokerleri arşivde');
+  assert.equal(g.rounds[0].done.totals.t1, 60, 'önceki tur puanı arşivde');
+  setScores(g, [10, 30, 20, 0]);
+  r = finishAndAdvance(g);
+  assert.deepEqual(r.up, ['t2', 't3']);
+  assert.deepEqual(C.roundTeams(g, 2).map(t => t.score), [0, 0], 'final 0 puanla başlar');
+  assert.equal(C.teamById(g, 't1').status, 'out');
+  assert.equal(C.teamById(g, 't1').outTotal, 10);
+});
+
+test('puan kuralları v4: Çifte Cevap ±10, Çift Puan +20 / 0, Risk ±5/10/15, sıfır tabanı yok', () => {
+  const R = C.RULES_V4;
+  // 0: çifte cevap doğru, 1: çifte cevap yanlış, 2: çift puan doğru, 3: çift puan yanlış, 4: risk 15 doğru, 5: risk 10 yanlış (0 puandan), 6: normal yanlış
+  const d = C.computeDelta([0, 0, 0, 5, 0, 0, 0], [0, 2, 4], { 0: 'double', 1: 'double', 2: 'x2', 3: 'x2', 4: 'risk', 5: 'risk' }, { rules: R, stakes: { 4: 15, 5: 10 } });
+  assert.deepEqual(d, { 0: 10, 1: -10, 2: 20, 3: 0, 4: 15, 5: -10 });
+  const g = { format: { rules: R }, scored: {}, cancelled: {} }, teams = [{ name: 'A', score: 0 }, { name: 'B', score: 0 }];
+  C.applyScore(g, teams, 'q', [], { 0: 'risk', 1: 'double' }, { stakes: { 0: 5 } });
+  assert.deepEqual(teams.map(t => t.score), [-5, -10], 'final içinde puan eksiye düşebilir');
+  C.cancelQuestion(g, teams, 'q', 0);
+  assert.deepEqual(teams.map(t => t.score), [0, 0], 'iptal gerçek etkiyi geri alır');
+});
+
+test('Risk Jokeri: yalnız finalde, 5/10/15, soru başına tek joker, iptalde iade', () => {
+  const g = { phase: 'open', win: [[0, null]], jokers: {}, jdone: {}, jrej: {} };
+  const base = { qk: 'final_0_a', qtype: 'ders', isTie: false, i: 0, name: 't1', t: 100, node: null };
+  assert.match(C.checkJoker(g, Object.assign({}, base, { j: 'risk', stake: 10, riskOk: false })), /Büyük Final/);
+  assert.match(C.checkJoker(g, Object.assign({}, base, { j: 'risk', stake: 7, riskOk: true })), /5, 10 ya da 15/);
+  assert.equal(C.checkJoker(g, Object.assign({}, base, { j: 'risk', stake: 15, riskOk: true })), '');
+  C.acceptJoker(g, Object.assign({}, base, { j: 'risk', stake: 15, riskOk: true }), 100);
+  assert.equal(C.activeJoker(g, 't1', 'final_0_a'), 'risk');
+  assert.equal(C.riskStake(g, 't1', 'final_0_a'), 15);
+  assert.equal(g.intro.items[0].s, 15);
+  g.phase = 'open'; g.intro = null; g.clock.reasons = []; C.maybeStart(g, 200);
+  assert.match(C.checkJoker(g, Object.assign({}, base, { j: 'x2', t: 210 })), /zaten bir joker/);
+  C.cancelQuestion(g, [{ name: 't1', score: 0 }], 'final_0_a', 300);
+  assert.equal(g.jokers.t1.risk, null);
+  assert.equal(g.jokers.t1.stake, null);
+});
+
+test('kural ihlaliyle (ekran değişikliği) elenen takım sıralamaya ve tur kazananına girmez', () => {
+  const g = elimGame(['A', 'B', 'C', 'D', 'E', 'F']);
+  setScores(g, [90, 50, 40, 30, 20, 10]);
+  const a = C.teamById(g, 't1'); a.dq = { stage: 0 }; a.status = 'out';
+  const o = C.roundOutcome(g, 0);
+  assert.deepEqual(o.qualified, [1, 2, 3, 4]);
+  assert.deepEqual(o.winners, [1]);
+  C.commitRound(g, 0, o.qualified);
+  assert.ok(g.rounds[0].done.out.includes('t1'));
+  assert.equal(g.elimLog.find(e => e.id === 't1').reason, 'dq');
+});
+
+test('eski kurallı (v3) kayıt: rulesOf eski kurala döner (birikimli puan, joker cezası, sıfır tabanı)', () => {
+  const g = { mode: 'elim', format: { v: 3, quotas: [3, 2, 1] } };
+  assert.deepEqual(C.rulesOf(g), C.LEGACY_RULES);
+  assert.deepEqual(C.computeDelta([5], [], { 0: 'x2' }, { rules: C.rulesOf(g) }), { 0: -5 });
 });

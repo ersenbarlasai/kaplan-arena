@@ -1,5 +1,5 @@
 {
- "tarih": "2026-11-26T15:41:40.353Z",
+ "tarih": "2026-11-27T18:45:56.712Z",
  "gecen": 53,
  "toplam": 53,
  "sonuclar": [
@@ -26,7 +26,7 @@
   {
    "name": "karşılamada (film yok) sahnede ara müziği çalıyor",
    "ok": true,
-   "detail": "{\"paused\":false,\"muted\":false,\"t\":1.149069,\"src\":\"http://localhost:3091/assets/sinematik/ara-30sn-loop.mp4?v=2-openart\",\"vol\":0.8,\"loop\":true}"
+   "detail": "{\"paused\":false,\"muted\":false,\"t\":1.185099,\"src\":\"http://localhost:3091/assets/sinematik/ara-30sn-loop.mp4?v=2-openart\",\"vol\":0.8,\"loop\":true}"
   },
   {
    "name": "admin sayfasında ses/video öğesi yok",
@@ -41,7 +41,7 @@
   {
    "name": "açılış sahnede oynuyor (görünür, sesli)",
    "ok": true,
-   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":0.442822,\"src\":\"http://localhost:3091/assets/sinematik/acilis-60sn.mp4?v=2-openart\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"\",\"n\":1,\"welcome\":true}"
+   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":0.455989,\"src\":\"http://localhost:3091/assets/sinematik/acilis-60sn.mp4?v=2-openart\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"\",\"n\":1,\"welcome\":true}"
   },
   {
    "name": "açılış videosu 1920×1080, ~60 s",
@@ -61,7 +61,7 @@
   {
    "name": "açılış filmi döngüde (loop)",
    "ok": true,
-   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":0.442822,\"src\":\"http://localhost:3091/assets/sinematik/acilis-60sn.mp4?v=2-openart\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"\",\"n\":1,\"welcome\":true}"
+   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":0.455989,\"src\":\"http://localhost:3091/assets/sinematik/acilis-60sn.mp4?v=2-openart\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"\",\"n\":1,\"welcome\":true}"
   },
   {
    "name": "film oynarken karşılama müziği durur (çift ses yok)",
@@ -71,7 +71,7 @@
   {
    "name": "model yenilemeleri videoyu sıfırlamıyor/yeniden başlatmıyor",
    "ok": true,
-   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":3.062789,\"src\":\"http://localhost:3091/assets/sinematik/acilis-60sn.mp4?v=2-openart\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"kararli\",\"n\":1,\"welcome\":true}"
+   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":3.068621,\"src\":\"http://localhost:3091/assets/sinematik/acilis-60sn.mp4?v=2-openart\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"kararli\",\"n\":1,\"welcome\":true}"
   },
   {
    "name": "merkezi ses kapatılınca sahne videosu susar",
@@ -81,7 +81,7 @@
   {
    "name": "açılış filmi sonda başa sarar, sahne değişmedikçe sürer",
    "ok": true,
-   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":1.399761,\"src\":\"http://localhost:3091/assets/sinematik/acilis-60sn.mp4?v=2-openart\",\"muted\":true,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"kararli\",\"n\":1,\"welcome\":true}"
+   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":1.394022,\"src\":\"http://localhost:3091/assets/sinematik/acilis-60sn.mp4?v=2-openart\",\"muted\":true,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"kararli\",\"n\":1,\"welcome\":true}"
   },
   {
    "name": "ses yeniden açılınca video sesli",
@@ -106,17 +106,17 @@
   {
    "name": "sahne yenilenince açılış baştan değil kaldığı yerden sürer",
    "ok": true,
-   "detail": "{\"v\":{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":6.19564,\"src\":\"http://localhost:3091/assets/sinematik/acilis-60sn.mp4?v=2-openart\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"\",\"n\":1,\"welcome\":true},\"el0\":6.617}"
+   "detail": "{\"v\":{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":6.189219,\"src\":\"http://localhost:3091/assets/sinematik/acilis-60sn.mp4?v=2-openart\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"\",\"n\":1,\"welcome\":true},\"el0\":6.647}"
   },
   {
    "name": "ara döngüsü oynuyor (loop, sesli)",
    "ok": true,
-   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":0.488109,\"src\":\"http://localhost:3091/assets/sinematik/ara-30sn-loop.mp4?v=2-openart\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":30,\"mark\":\"\",\"n\":1,\"welcome\":true}"
+   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":0.488777,\"src\":\"http://localhost:3091/assets/sinematik/ara-30sn-loop.mp4?v=2-openart\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":30,\"mark\":\"\",\"n\":1,\"welcome\":true}"
   },
   {
    "name": "ara döngüsü sonda başa sarar, gizlenmez",
    "ok": true,
-   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":1.356226,\"src\":\"http://localhost:3091/assets/sinematik/ara-30sn-loop.mp4?v=2-openart\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":30,\"mark\":\"\",\"n\":1,\"welcome\":true}"
+   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":1.361462,\"src\":\"http://localhost:3091/assets/sinematik/ara-30sn-loop.mp4?v=2-openart\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":30,\"mark\":\"\",\"n\":1,\"welcome\":true}"
   },
   {
    "name": "sahne yenilenince sakin ara döngüsü sürer",
@@ -151,7 +151,7 @@
   {
    "name": "aktif soruda ara: süre durdu (break+admin)",
    "ok": true,
-   "detail": "{\"screen\":\"welcome\",\"running\":false,\"reasons\":[\"break\",\"admin\"],\"inWin\":false,\"left\":58565.5}"
+   "detail": "{\"screen\":\"welcome\",\"running\":false,\"reasons\":[\"break\",\"admin\"],\"inWin\":false,\"left\":58575.5}"
   },
   {
    "name": "aktif soruda ara: cevap kabulü kapalı",
@@ -161,7 +161,7 @@
   {
    "name": "ara sürerken kalan süre korunur, yarışma ilerlemez",
    "ok": true,
-   "detail": "{\"running\":false,\"left\":58565.5,\"phase\":\"open\",\"screen\":\"welcome\"}"
+   "detail": "{\"running\":false,\"left\":58575.5,\"phase\":\"open\",\"screen\":\"welcome\"}"
   },
   {
    "name": "döngü sınırı yarışmayı başlatmaz",
@@ -171,7 +171,7 @@
   {
    "name": "Yarışmaya Devam: sahnede video kapanır, soru aynı",
    "ok": true,
-   "detail": "{\"screen\":\"game\",\"cine\":null,\"running\":false,\"reasons\":[\"admin\"],\"q\":0,\"left\":58565.5,\"scores\":[30,20,0,0],\"jk\":\"{}\"}"
+   "detail": "{\"screen\":\"game\",\"cine\":null,\"running\":false,\"reasons\":[\"admin\"],\"q\":0,\"left\":58575.5,\"scores\":[30,20,0,0],\"jk\":\"{}\"}"
   },
   {
    "name": "Devam sonrası süre yalnız admin \"devam\" ile başlar",
@@ -196,7 +196,7 @@
   {
    "name": "açılış döngüsü başa sarar, yarışma duraklı kalır (otomatik başlamaz)",
    "ok": true,
-   "detail": "{\"afterEnd\":{\"running\":false,\"phase\":\"open\",\"q\":0,\"screen\":\"welcome\"},\"vEnd\":{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":1.229147,\"src\":\"http://localhost:3091/assets/sinematik/acilis-60sn.mp4?v=2-openart\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"\",\"n\":1,\"welcome\":true}}"
+   "detail": "{\"afterEnd\":{\"running\":false,\"phase\":\"open\",\"q\":0,\"screen\":\"welcome\"},\"vEnd\":{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":1.248166,\"src\":\"http://localhost:3091/assets/sinematik/acilis-60sn.mp4?v=2-openart\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"\",\"n\":1,\"welcome\":true}}"
   },
   {
    "name": "telefon sayfasında video/ses öğesi yok",
@@ -211,7 +211,7 @@
   {
    "name": "file://: ara döngüsü sahnede oynuyor",
    "ok": true,
-   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":0.485405,\"src\":\"file:///E:/PROJELER/KaplanArena/assets/sinematik/ara-30sn-loop.mp4?v=2-openart\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":30,\"mark\":\"\",\"n\":1,\"welcome\":true}"
+   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":0.412492,\"src\":\"file:///E:/PROJELER/KaplanArena/assets/sinematik/ara-30sn-loop.mp4?v=2-openart\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":30,\"mark\":\"\",\"n\":1,\"welcome\":true}"
   },
   {
    "name": "file://: açılış filmi sahnede oynuyor",
@@ -251,17 +251,17 @@
   {
    "name": "PS: video oynarken API istekleri bekletilmez",
    "ok": true,
-   "detail": "39 ms"
+   "detail": "35 ms"
   },
   {
    "name": "PS: açılış filmi parça parça akarak oynuyor",
    "ok": true,
-   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":3.537798,\"src\":\"http://localhost:8090/assets/sinematik/acilis-60sn.mp4?v=2-openart\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"\",\"n\":1,\"welcome\":true}"
+   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":3.528515,\"src\":\"http://localhost:8090/assets/sinematik/acilis-60sn.mp4?v=2-openart\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"\",\"n\":1,\"welcome\":true}"
   },
   {
    "name": "PS: ileri sarma (seek) çalışıyor",
    "ok": true,
-   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":47.351803,\"src\":\"http://localhost:8090/assets/sinematik/acilis-60sn.mp4?v=2-openart\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"\",\"n\":1,\"welcome\":true}"
+   "detail": "{\"hidden\":false,\"on\":true,\"paused\":false,\"t\":47.354415,\"src\":\"http://localhost:8090/assets/sinematik/acilis-60sn.mp4?v=2-openart\",\"muted\":false,\"vol\":0.8,\"loop\":true,\"w\":1920,\"h\":1080,\"dur\":60.01,\"mark\":\"\",\"n\":1,\"welcome\":true}"
   },
   {
    "name": "konsol/sayfa hatası yok",

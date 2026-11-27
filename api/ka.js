@@ -286,7 +286,7 @@ async function doCtl(b, res) {
   }
   const next = {
     adm: sha(key), teams: Object.keys(teams).length ? teams : (cur ? cur.teams : {}),
-    qk: c.qk && QK_RE.test(String(c.qk)) ? String(c.qk) : null, acc: !!c.acc, jk: !!c.jk,
+    qk: c.qk && QK_RE.test(String(c.qk)) ? String(c.qk) : null, acc: !!c.acc, jk: !!c.jk, risk: !!c.risk,
     elig: Array.isArray(c.elig) ? c.elig.filter(x => TID_RE.test(String(x))).map(String) : null
   };
   await ctlWrite(pin, next);
@@ -328,13 +328,20 @@ async function doJoin(b, res) {
 // Telefon komutu: cevap ya da joker istegi. Sunucu dogrular, yolu ve cihazi kendisi yazar.
 async function doCmd(b, res) {
   const pin = String(b.pin || ''), tok = String(b.tok || ''), op = String(b.op || ''), qk = String(b.qk || '');
-  if (!PIN_RE.test(pin) || !tok || !QK_RE.test(qk) || !['ans', 'jk'].includes(op)) return deny(res, 400, 'gecersiz istek');
+  if (!PIN_RE.test(pin) || !tok || !QK_RE.test(qk) || !['ans', 'jk', 'leave'].includes(op)) return deny(res, 400, 'gecersiz istek');
   const { ctl, bind } = await ctlRead(pin);
   if (!ctl) return deny(res, 404, 'Yarışma bulunamadı.');
   const th = sha(tok), tid = Object.keys(bind).find(f => !f.startsWith('f:') && tokOf(bind[f]) === th);
   if (!tid) return deny(res, 401, 'Kaptan oturumu geçersiz. Takımınızı yeniden seçip kodu girin.', { relogin: true });
   const t = ctl.teams[tid];
   if (!t || !t.act) return deny(res, 403, 'Bu takım elendi; cevap ve joker gönderemez.', { out: true });
+  if (op === 'leave') {
+    // Kural 08 bildirimi: ekran değişikliği. Aynı olay (aynı t) tekrar gönderilirse aynı anahtara yazılır.
+    const tl = Number(b.t), nowL = Date.now();
+    if (!Number.isFinite(tl) || tl < nowL - 600000 || tl > nowL + 3000) return deny(res, 400, 'Gönderim zamanı geçersiz.');
+    const r = await doSet(pin, `viol/${tid}/v${Math.round(tl)}`, JSON.stringify({ t: Math.round(tl), dev: devOf(bind[tid]), qk, open: !!b.open }));
+    return send(res, 200, { ok: true, r });
+  }
   if (!ctl.acc || ctl.qk !== qk) return deny(res, 409, 'Bu soru için cevap kabulü kapalı.');
   if (ctl.elig && !ctl.elig.includes(tid)) return deny(res, 403, 'Bu soruyu yalnız eşitlikteki takımlar cevaplar.');
   const tt = Number(b.t), now = Date.now();
@@ -350,8 +357,10 @@ async function doCmd(b, res) {
   }
   if (!ctl.jk) return deny(res, 409, 'Bu soruda joker kullanılamaz.');
   const j = String(b.j || '');
-  if (!['double', 'x2'].includes(j)) return deny(res, 400, 'Geçersiz joker.');
-  const r = await doSet(pin, `jreq/${qk}/${tid}`, JSON.stringify({ j, t: t0, dev }));
+  if (!['double', 'x2', 'risk'].includes(j)) return deny(res, 400, 'Geçersiz joker.');
+  const st = Number(b.s);
+  if (j === 'risk' && (!ctl.risk || ![5, 10, 15].includes(st))) return deny(res, 409, ctl.risk ? 'Risk için 5, 10 ya da 15 puan seçin.' : 'Risk Jokeri yalnız Büyük Final’de kullanılır.');
+  const r = await doSet(pin, `jreq/${qk}/${tid}`, JSON.stringify(j === 'risk' ? { j, t: t0, dev, s: st } : { j, t: t0, dev }));
   return send(res, 200, { ok: true, r, t: t0 });
 }
 

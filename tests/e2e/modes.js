@@ -83,10 +83,10 @@ async function openStage(admin){ const pp = new Promise(r => admin.once('popup',
     const ctx3 = await browser.createBrowserContext(); const ph = await ctx3.newPage();
     await ph.setViewport({ width: 360, height: 800, isMobile: true });
     await ph.goto(`${B}/kaplan-arena.html?pin=${pin}`);
-    await clickSel(ph, '[data-pl="pickElim"][data-id="t1"]');
     await ph.waitForSelector('#pl-code');
     await ph.evaluate(c => { const el = document.getElementById('pl-code'); el.value = c; el.dispatchEvent(new Event('input', { bubbles: true })); }, code1);
     await clickSel(ph, '[data-pl="codeYes"]');
+    await clickSel(ph, '[data-pl="pickElim"][data-id="t1"]');
     await a2.waitForFunction(() => NET.joined && NET.joined.t1, { timeout: 10000 });
     check('yerel sunucu: telefon kaptan koduyla bağlandı (LAN /api/join)', true);
     await act(a2, 'startStage'); await act(a2, 'showQ');

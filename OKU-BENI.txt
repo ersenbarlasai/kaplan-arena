@@ -35,21 +35,30 @@ Orman Geçidi (1. tur) > Kadim Kale (2. tur) > Kaplan Arenası (final). Kura ve
 iki ayrı grup YOK: her turda o turun bütün aktif takımları aynı soruları aynı
 anda yanıtlar.
 
-ELEME KURALI (yeni yarışmalar; başlarken kayda sabitlenir, sonradan Ayarlar'da
-listeyi değiştirmek açık yarışmayı etkilemez):
-  * 4 takım: Orman'da 4 takım → ilk 3 Kadim Kale'ye → Kale'nin ilk 2'si finale
-    → tek şampiyon (4 → 3 → 2 → şampiyon).
-  * 3 takım (üç kampüs pilotu): Orman'da eleme yok, üçü de Kale'ye geçer; Kale
-    sonunda ilk 2 finale (3 → 3 → 2 → şampiyon). Orman'ın kazananı yine açıklanır.
-  * Daha kalabalık: ilk turdan en az 3 (yarısı kadar) takım, Kale'den 2 takım,
-    finalden 1 şampiyon. Kontenjan Ana Menü'deki kural kartında görünür.
-  * Puanlar yarışma boyunca BİRİKİR (tur başında sıfırlanmaz). Yükselme ve
-    şampiyonluk TOPLAM puana göre; "Turun kazananı" o turdaki net kazançla ayrıca
-    açıklanır (eşitse "Turun ortak kazananları").
-  * Yükselme sınırında ya da finalde birincilikte eşitlik varsa yalnız eşit
-    takımlara yedek tahmin sorusu sorulur; eşitlik çözülmeden kimse elenmez.
+YARIŞMA KURALLARI (Kaplan Arenası Tahmin Yarışması · Oyun Kuralları, 27.11.2026;
+yeni yarışmalarda başlarken kayda sabitlenir, Ayarlar sonradan açık yarışmayı
+etkilemez):
+  * 6 takım: Orman Geçidi'nde 6 takım → en yüksek puanlı 4 takım Kadim Kale'ye
+    → en yüksek puanlı 2 takım Büyük Final'e → finalin galibi şampiyon
+    (6 → 4 → 2 → şampiyon). Diğer takım sayılarında: 4 → 3 → 2, 3 → 3 → 2
+    (Orman'da eleme yok); genel kural ilk turdan en az 3 (üçte ikisi) takım.
+  * Her tur 10 soru, her soru 45 saniye (Ayarlar: "Tur başına soru sayısı",
+    "Soru süresi"). Bankada daha fazla soru varsa karışık sıradan 10'u sorulur;
+    iptal edilen sorunun yerine sıradaki gelir.
+  * HER TURDA PUANLAR SIFIRLANIR: Kadim Kale ve Final 0 puanla başlar; önceki
+    turun puanı aktarılmaz (arşivde kalır). Yükselme o turun puanıyla.
+  * Normal soru: doğru +10, yanlış 0. Tahmin sorusu: gerçek değere en yakın
+    takım +10; eşit yakınlıktakilerin her biri +10; diğerleri 0.
+  * Üst tura yükselmeyi ya da şampiyonluğu etkileyen eşitlikte yedek (tahmin)
+    sorulara geçilir; eşitlik bozulana kadar devam edilir. Eşitlik çözülmeden
+    kimse elenmez, şampiyon ilan edilmez.
   * Elenen takım sonraki turlara katılamaz; puanı arşivde kalır.
-  * Jokerler bütün yarışmada birer kez; tur geçişinde yenilenmez.
+  * KURAL 08: Yarışma sırasında başka uygulamaya, sekmeye ya da ekrana geçmek
+    yasaktır. Telefon bunu algılar ve yönetim paneline "Ekran değişikliği
+    uyarısı" düşer (saat ve soru açıkken olup olmadığı yazılır). "Kural İhlali:
+    Takımı Ele" ile takım elenir (o sorudan ve sonraki turlardan puan alamaz).
+    Kilit ekranı/gelen arama gibi durumlar için son karar yöneticidedir; "Yok
+    Say" uyarıyı kapatır.
   * Ayarlar en az 3 benzersiz, boş olmayan ad ister (2 ve altı kabul edilmez).
 Güncellemeden önce başlamış (eski kurallı) bir yarışma o kuralla sürer; ana
 menü bunu açıkça yazar. Yeni kural yeni yarışma başlatılınca uygulanır.
@@ -120,8 +129,10 @@ sürer.
 3) TELEFONLA KATILIM (SINIF / TAKIM KAPTANLARI)
 ========================================================================
 - Katılım ekranında QR kod ve 6 haneli yarışma kodu görünür.
-- Kaptan QR'ı okutur ya da adresi yazıp yarışma kodunu girer, sonra takımını
-  seçer ve KAPTAN KODUNU girer. Kaptan kodları her takıma özeldir (4 hane);
+- Kaptan QR'ı okutur (ya da adresi yazıp yarışma kodunu girer), sonra kendisine
+  verilen ÖZEL KAPTAN GİRİŞ KODUNU girer ve takım seçim ekranında MUTLAKA KENDİ
+  TAKIM ADINA dokunur. Kod başka takıma aitse giriş reddedilir. Kaptan kodları
+  her takıma özeldir (4 hane);
   yarışma başlayınca yalnız yönetim panelinde ("Kaptan kodları" kutusu) görünür.
   Her kaptana yalnız kendi kodunu verin. Yarışma kodu herkes için ortaktır,
   takım kimliğini kanıtlamaz.
@@ -130,6 +141,8 @@ sürer.
   telefon aynı kodla bağlanır. Bir telefon başka bir takıma geçemez.
 - Elenen takımın telefonu "Bu turda elendiniz" görür; yenileme, kodu yeniden
   girme ya da başka telefon bu durumu değiştirmez, cevap/joker gönderemez.
+- Kaptan yarışma ekranını açık tutmalıdır; başka uygulamaya/sekmeye geçmek
+  algılanır ve yönetime bildirilir (kural 08).
 - Şık seçmek cevap GÖNDERMEZ; "Cevabı Gönder" düğmesine basılır. Süre
   bitene kadar değiştirip yeniden gönderilebilir; son gönderilen geçerlidir.
   "Gönderilemedi" yazarsa bağlantıyı kontrol edip yeniden gönderin.
@@ -140,14 +153,17 @@ sürer.
 ========================================================================
 4) JOKERLER
 ========================================================================
-Her sınıfın TÜM YARIŞMA boyunca (etap ve finalde yenilenmez) birer hakkı var:
-  * Çift Cevap  : yalnız şıklı soruda; iki farklı şık seçilip birlikte
-                  gönderilir. Biri doğruysa +10.
-  * Çifte Puan  : şıklı ve tahmin sorusunda; doğruysa +20 (tahminde en yakın
-                  sınıf olmak; eşit uzaklıktakiler birlikte kazanır).
-  * Jokerli soruda yanlış ya da cevapsız: −10. Puan sıfırın altına inmez
-    (5 puanı olan sınıftan 5 düşer).
-  * Aynı soruda bir sınıf yalnız bir joker kullanır. Eşitlik sorularında
+Joker hakları HER YENİ TURDA YENİLENİR; her takımın her turda birer hakkı var.
+Jokerler cevap gönderilmeden ÖNCE seçilmelidir:
+  * Çifte Cevap : yalnız şıklı soruda; önce jokere dokunun, iki şık işaretleyip
+                  "Cevabı Gönder". En az biri doğruysa +10; ikisi de yanlışsa −10.
+  * Çift Puan   : cevabı göndermeden önce jokere dokunun, cevabı gönderin.
+                  Doğruysa +20; yanlışsa 0 (puan kaybı yok).
+  * Risk Jokeri : YALNIZ Kaplan Arenası Büyük Final'de, finalde bir kez. Takım
+                  o soru için 5, 10 ya da 15 puan riske atar; doğruysa o puanı
+                  kazanır, yanlışsa aynı puanı kaybeder (puan eksiye inebilir).
+  * Cevapsız kalan jokerli soru yanlış sayılır.
+  * Aynı soruda bir takım yalnız bir joker kullanır. Eşitlik sorularında
     joker yoktur.
   * Joker yalnız süre işlerken ve sınıf o soruya ilk cevabını göndermeden
     önce kullanılabilir; duraklamada, süre bitince ya da açıklamadan sonra

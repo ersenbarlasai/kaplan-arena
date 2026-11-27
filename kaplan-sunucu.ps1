@@ -92,7 +92,7 @@ if (-not $listener) {
 
 Clear-Host
 Write-Host ''
-Write-Host '   KAPLAN ARENA SUNUCUSU CALISIYOR  (Surum 9)' -ForegroundColor Yellow
+Write-Host '   KAPLAN ARENA SUNUCUSU CALISIYOR  (Surum 10)' -ForegroundColor Yellow
 Write-Host "   Klasor: $root"
 Write-Host '   ------------------------------------------------'
 Write-Host "   Yarisma ekrani: http://localhost:$port/"
@@ -156,7 +156,7 @@ function Invoke-Ctl($req, $res) {
   if ($teams.Count -eq 0 -and $cur) { $teams = $cur.teams }
   $qk = $null; if ($b.ctl -and [string]$b.ctl.qk -match '^[A-Za-z0-9_\-]{1,120}$') { $qk = [string]$b.ctl.qk }
   $elig = $null; if ($b.ctl -and $null -ne $b.ctl.elig) { $elig = @($b.ctl.elig | ForEach-Object { [string]$_ } | Where-Object { $_ -match '^t\d{1,3}$' }) }
-  $ctl[$pin] = @{ adm = (Get-Sha ([string]$b.key)); teams = $teams; qk = $qk; acc = [bool]($b.ctl -and $b.ctl.acc); jk = [bool]($b.ctl -and $b.ctl.jk); elig = $elig }
+  $ctl[$pin] = @{ adm = (Get-Sha ([string]$b.key)); teams = $teams; qk = $qk; acc = [bool]($b.ctl -and $b.ctl.acc); jk = [bool]($b.ctl -and $b.ctl.jk); risk = [bool]($b.ctl -and $b.ctl.risk); elig = $elig }
   if (-not $bind.ContainsKey($pin)) { $bind[$pin] = @{} }
   $n = 0
   if ($b.reset) {
@@ -197,7 +197,7 @@ function Invoke-Join($req, $res) {
 
 function Invoke-Cmd($req, $res) {
   $b = Read-Body $req
-  if (-not $b -or [string]$b.pin -notmatch '^\d{6}$' -or -not $b.tok -or [string]$b.qk -notmatch '^[A-Za-z0-9_\-]{1,120}$' -or @('ans', 'jk') -notcontains [string]$b.op) { Send-Deny $res 400 'gecersiz istek'; return }
+  if (-not $b -or [string]$b.pin -notmatch '^\d{6}$' -or -not $b.tok -or [string]$b.qk -notmatch '^[A-Za-z0-9_\-]{1,120}$' -or @('ans', 'jk', 'leave') -notcontains [string]$b.op) { Send-Deny $res 400 'gecersiz istek'; return }
   $pin = [string]$b.pin; $c = $ctl[$pin]
   if (-not $c) { Send-Deny $res 404 'Yarışma bulunamadı.'; return }
   $bd = $bind[$pin]; $th = Get-Sha ([string]$b.tok); $tid = $null
@@ -205,6 +205,13 @@ function Invoke-Cmd($req, $res) {
   if (-not $tid) { Send-Deny $res 401 'Kaptan oturumu geçersiz. Takımınızı yeniden seçip kodu girin.' @{ relogin = $true }; return }
   $t = $c.teams[$tid]
   if (-not $t -or -not $t.act) { Send-Deny $res 403 'Bu takım elendi; cevap ve joker gönderemez.' @{ out = $true }; return }
+  if ([string]$b.op -eq 'leave') {
+    $nowL = Get-NowMs; $tl = 0.0
+    if (-not [double]::TryParse([string]$b.t, [System.Globalization.NumberStyles]::Float, [System.Globalization.CultureInfo]::InvariantCulture, [ref]$tl) -or $tl -lt ($nowL - 600000) -or $tl -gt ($nowL + 3000)) { Send-Deny $res 400 'Gönderim zamanı geçersiz.'; return }
+    $tl0 = [int64][math]::Round($tl); $devL = Get-Dev ([string]$bd[$tid])
+    Write-Db "games/$pin/viol/$tid/v$tl0" (ConvertTo-Json -InputObject ([ordered]@{ t = $tl0; dev = $devL; qk = [string]$b.qk; open = [bool]$b.open }) -Compress)
+    Send-Json $res ([ordered]@{ ok = $true }); return
+  }
   if (-not $c.acc -or $c.qk -ne [string]$b.qk) { Send-Deny $res 409 'Bu soru için cevap kabulü kapalı.'; return }
   if ($null -ne $c.elig -and $c.elig -notcontains $tid) { Send-Deny $res 403 'Bu soruyu yalnız eşitlikteki takımlar cevaplar.'; return }
   $now = Get-NowMs; $tt = 0.0
@@ -220,8 +227,16 @@ function Invoke-Cmd($req, $res) {
   }
   if (-not $c.jk) { Send-Deny $res 409 'Bu soruda joker kullanılamaz.'; return }
   $j = [string]$b.j
-  if (@('double', 'x2') -notcontains $j) { Send-Deny $res 400 'Geçersiz joker.'; return }
-  Write-Db "games/$pin/jreq/$qk/$tid" ('{"j":"' + $j + '","t":' + $t0 + ',"dev":"' + $dev + '"}')
+  if (@('double', 'x2', 'risk') -notcontains $j) { Send-Deny $res 400 'Geçersiz joker.'; return }
+  $stk = 0
+  if ($j -eq 'risk') {
+    $stk = [int]$b.s
+    if (-not $c.risk) { Send-Deny $res 409 'Risk Jokeri yalnız Büyük Final''de kullanılır.'; return }
+    if (@(5, 10, 15) -notcontains $stk) { Send-Deny $res 409 'Risk için 5, 10 ya da 15 puan seçin.'; return }
+    Write-Db "games/$pin/jreq/$qk/$tid" ('{"j":"risk","t":' + $t0 + ',"dev":"' + $dev + '","s":' + $stk + '}')
+  } else {
+    Write-Db "games/$pin/jreq/$qk/$tid" ('{"j":"' + $j + '","t":' + $t0 + ',"dev":"' + $dev + '"}')
+  }
   Send-Json $res ([ordered]@{ ok = $true; t = $t0 })
 }
 

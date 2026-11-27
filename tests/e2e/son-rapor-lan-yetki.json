@@ -1,6 +1,6 @@
 {
-  "when": "2026-11-26T15:06:26.593Z",
-  "total": 24,
+  "when": "2026-11-27T18:30:11.632Z",
+  "total": 29,
   "failed": 0,
   "results": [
     {
@@ -46,7 +46,7 @@
     {
       "name": "LAN join: doğru kodla kaptan bağlanır",
       "ok": true,
-      "detail": "{\"code\":200,\"j\":{\"ok\":true,\"tok\":\"389cccd2bfa746928fddb005106924b3\"}}"
+      "detail": "{\"code\":200,\"j\":{\"ok\":true,\"tok\":\"09e1d6e670b344b8875c8b55462e38f0\"}}"
     },
     {
       "name": "LAN join: başka cihaz bağlı kaptanı düşüremez",
@@ -61,17 +61,17 @@
     {
       "name": "LAN join: meşru kaptan oturumuyla yeniden bağlanır",
       "ok": true,
-      "detail": "{\"code\":200,\"j\":{\"ok\":true,\"tok\":\"389cccd2bfa746928fddb005106924b3\"}}"
+      "detail": "{\"code\":200,\"j\":{\"ok\":true,\"tok\":\"09e1d6e670b344b8875c8b55462e38f0\"}}"
     },
     {
       "name": "LAN cmd: geçerli cevap kabul edilir",
       "ok": true,
-      "detail": "{\"code\":200,\"j\":{\"ok\":true,\"t\":1795705586389}}"
+      "detail": "{\"code\":200,\"j\":{\"ok\":true,\"t\":1795804211261}}"
     },
     {
       "name": "LAN cmd: sayısal tahmin kabul edilir",
       "ok": true,
-      "detail": "{\"code\":200,\"j\":{\"ok\":true,\"t\":1795705586422}}"
+      "detail": "{\"code\":200,\"j\":{\"ok\":true,\"t\":1795804211298}}"
     },
     {
       "name": "LAN cmd: eski soru anahtarı reddedilir",
@@ -86,12 +86,12 @@
     {
       "name": "LAN cmd: joker isteği kabul edilir",
       "ok": true,
-      "detail": "{\"code\":200,\"j\":{\"ok\":true,\"t\":1795705586461}}"
+      "detail": "{\"code\":200,\"j\":{\"ok\":true,\"t\":1795804211333}}"
     },
     {
       "name": "LAN: sunucu cevabı doğru yola ve bağlı cihazla yazdı",
       "ok": true,
-      "detail": "[{\"v\":\"C\",\"t\":1795705586389,\"dev\":\"devA1234\"},{\"v\":1355.5,\"t\":1795705586422,\"dev\":\"devA1234\"}]"
+      "detail": "[{\"v\":\"C\",\"t\":1795804211261,\"dev\":\"devA1234\"},{\"v\":1355.5,\"t\":1795804211298,\"dev\":\"devA1234\"}]"
     },
     {
       "name": "LAN: kaptan kodları ve oturumlar /api/db yanıtında yok",
@@ -116,7 +116,32 @@
     {
       "name": "LAN: admin cihaz sıfırlamasından sonra yeni cihaz bağlanır",
       "ok": true,
-      "detail": "{\"code\":200,\"j\":{\"ok\":true,\"tok\":\"63c2893898944c76adafb0d6a635cbf6\"}}"
+      "detail": "{\"code\":200,\"j\":{\"ok\":true,\"tok\":\"c2e21cec0b7a431c9611f8537f610e24\"}}"
+    },
+    {
+      "name": "LAN cmd: finalde değilken Risk Jokeri reddedilir",
+      "ok": true,
+      "detail": "{\"code\":409,\"j\":{\"ok\":false,\"why\":\"Risk Jokeri yalnız Büyük Final'de kullanılır.\"}}"
+    },
+    {
+      "name": "LAN cmd: finalde Risk Jokeri (15) kabul edilir",
+      "ok": true,
+      "detail": "{\"code\":200,\"j\":{\"ok\":true,\"t\":1795804211542}}"
+    },
+    {
+      "name": "LAN cmd: geçersiz risk puanı reddedilir",
+      "ok": true,
+      "detail": "{\"code\":409,\"j\":{\"ok\":false,\"why\":\"Risk için 5, 10 ya da 15 puan seçin.\"}}"
+    },
+    {
+      "name": "LAN cmd: ekran değişikliği bildirimi kaydedildi (tekrar gönderim tek kayıt)",
+      "ok": true,
+      "detail": "[{\"t\":1795804181573,\"dev\":\"devR1234\",\"qk\":\"-\",\"open\":true}]"
+    },
+    {
+      "name": "LAN: risk isteği puanıyla yazıldı",
+      "ok": true,
+      "detail": "{\"j\":\"risk\",\"t\":1795804211542,\"dev\":\"devR1234\",\"s\":15}"
     },
     {
       "name": "LAN set: denetim kaydı olmayan eski yarışma eskisi gibi yazılır",

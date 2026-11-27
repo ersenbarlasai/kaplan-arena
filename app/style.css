@@ -713,3 +713,11 @@ body.mode-phone{background:linear-gradient(180deg,rgba(6,21,19,.72),rgba(6,21,19
 .sh-list.dense .sh-row .sc{font-size:calc(var(--u)*1.5)}
 .sh-list.dense .sh-row em{font-size:calc(var(--u)*.8)}
 .sh-list.dense ~ .sh-note{font-size:calc(var(--u)*1.15)}
+
+/* v4: kural ihlaliyle elenen takım, üç jokerli telefon çubuğu, ekran uyarısı */
+.sg-team.dq{opacity:.4;filter:grayscale(.8)}
+.ph-jbar.n3{grid-template-columns:repeat(3,minmax(0,1fr))}
+.ph-stakes{justify-content:center;gap:10px}
+.ph-stakes .btn{min-width:64px;font-size:1.15rem}
+.adm-viols{border-left:4px solid #d9772b}
+.adm-viol{display:grid;grid-template-columns:28px minmax(0,1fr) auto auto;align-items:center;gap:8px;margin-top:8px}

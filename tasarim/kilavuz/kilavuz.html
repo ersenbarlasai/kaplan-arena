@@ -191,34 +191,36 @@
 
 <!-- ============ 4 ============ -->
 <section class="chapter">
-  <h1>4. Eleme kuralı ve puanlar</h1>
-  <p>Kural, <b>yeni yarışma başlatılırken</b> Ayarlar'daki takım sayısına göre belirlenir ve kontenjanlarıyla birlikte o yarışmanın kaydına sabitlenir. Sonradan Ayarlar'da listeyi değiştirmek açık yarışmayı etkilemez. Ayarlar en az 3 benzersiz, boş olmayan ad ister. Kura ve iki ayrı grup yoktur: her turda o turun bütün aktif takımları aynı soruları aynı anda yanıtlar.</p>
+  <h1>4. Yarışma kuralları ve puanlar</h1>
+  <p>Kaynak: <i>Kaplan Arenası · Tahmin Yarışması · Oyun Kuralları</i> (27.11.2026). Kural, <b>yeni yarışma başlatılırken</b> kontenjanları ve puan kurallarıyla o yarışmanın kaydına sabitlenir; sonradan Ayarlar'ı değiştirmek açık yarışmayı etkilemez. Kura ve iki ayrı grup yoktur: her turda o turun bütün aktif takımları aynı soruları aynı anda yanıtlar.</p>
   <table>
     <tr><th style="width:22%">Başlangıç</th><th>Orman Geçidi</th><th>Kadim Kale</th><th>Kaplan Arenası</th></tr>
-    <tr><td><b>3 takım</b> (üç kampüs)</td><td>3 takım · eleme yok, üçü de geçer</td><td>3 takım · toplamda ilk 2 finale</td><td>2 takım · tek şampiyon</td></tr>
-    <tr><td><b>4 takım</b></td><td>4 takım · toplamda ilk 3 geçer</td><td>3 takım · ilk 2 finale</td><td>2 takım · tek şampiyon</td></tr>
-    <tr><td><b>Daha fazla</b></td><td>n takım · en az 3 (yarısı kadar) geçer</td><td>ilk 2 finale</td><td>2 takım · tek şampiyon</td></tr>
+    <tr><td><b>6 takım</b> (kural)</td><td>6 takım · en yüksek puanlı 4 geçer</td><td>4 takım · 0 puanla · ilk 2 finale</td><td>2 takım · 0 puanla · Risk Jokeri · galip şampiyon</td></tr>
+    <tr><td><b>4 takım</b></td><td>4 takım · ilk 3 geçer</td><td>3 takım · ilk 2 finale</td><td>2 takım · galip şampiyon</td></tr>
+    <tr><td><b>3 takım</b> (üç kampüs)</td><td>3 takım · eleme yok</td><td>3 takım · ilk 2 finale</td><td>2 takım · galip şampiyon</td></tr>
   </table>
   <ul>
-    <li><b>Puanlar birikir:</b> tur başında sıfırlanmaz. Yükselme ve şampiyonluk <b>toplam</b> puanla belirlenir.</li>
-    <li><b>Turun kazananı</b> o turdaki net kazançla ayrıca açıklanır; eşitse “Turun ortak kazananları”. Tur kazananı olmak eleme kuralını değiştirmez.</li>
-    <li><b>Eşitlik:</b> yükselme sınırında ya da final birinciliğinde yalnız eşit takımlara yedek tahmin sorusu sorulur; eşitlik çözülmeden kimse elenmez, şampiyon ilan edilmez.</li>
-    <li><b>Elenen</b> takım sonraki turlara katılamaz; puanı arşivde kalır. Şampiyon podyumunda üçüncü yalnız Kadim Kale'de tek takım elendiyse gösterilir (üçüncülük maçı yoktur).</li>
-    <li><b>Sorular</b> yarışma başında karıştırılır ve bir yarışmada bir kez sorulur (başka bölümde ya da başka kimlikle girilmiş aynı soru da). İptal edilen soru tekrar gelmez.</li>
+    <li><b>Her tur 10 soru, her soru 45 saniye.</b> Bankada fazlası varsa karışık sıradan 10'u sorulur (Ayarlar: “Tur başına soru sayısı”).</li>
+    <li><b>Her turda puanlar sıfırlanır;</b> önceki turun puanı sonraki tura aktarılmaz (arşivde kalır). Yükselme o turun puanıyla belirlenir; “Turun kazananı” sahnede ayrıca açıklanır.</li>
+    <li><b>Eşitlik:</b> üst tura yükselmeyi ya da şampiyonluğu etkileyen eşitlikte yedek sorulara geçilir; eşitlik bozulana kadar devam edilir.</li>
+    <li><b>Kural 08:</b> yarışma sırasında başka uygulamaya, sekmeye ya da ekrana geçmek yasaktır. Telefon algılar, panelde “Ekran değişikliği uyarısı” çıkar; <span class="btn">Kural İhlali: Takımı Ele</span> ile takım elenir (son karar yöneticinin: kilit ekranı, gelen arama gibi durumlar için “Yok Say”).</li>
+    <li><b>Elenen</b> takım sonraki turlara katılamaz. Şampiyon podyumunda üçüncü yalnız Kadim Kale'de tek takım elendiyse gösterilir.</li>
+    <li><b>Sorular</b> yarışma başında karıştırılır ve bir yarışmada bir kez sorulur. İptal edilen soru tekrar gelmez.</li>
   </ul>
   <figure><img src="../ekran-goruntuleri/eleme/admin-menu-eleme-1366.webp" style="width:76%"><figcaption>Ana Menü'de kural kartı ve kontenjanlar yarışma başlamadan önce görünür</figcaption></figure>
   <h2>Tur sonu ve şampiyonluk</h2>
   <p>Son sorudan sonra <span class="btn">Turu Bitir</span> sonucu kesinleştirir (eşitlik varsa önce <span class="btn">Eşitlik Sorusuna Geç</span>). <span class="btn">Tur Sonucunu Açıkla</span> sahnede yaklaşık 7 saniyelik gösteriyi başlatır: tur kazananı, puan özeti, yükselen ve elenen takımlar. Gösteri soru açmaz, süreyi başlatmaz, tura geçmez; <span class="btn">Atla</span> sonucu hemen gösterir, <span class="btn">Gösteriyi Tekrar Oynat</span> puanı değiştirmeden yeniden oynatır. İlerlemek için <span class="btn">Sonraki Tura Geç</span>. Finalde düğme <span class="btn">Şampiyonu Açıkla</span>dır: şampiyonluk ekranı, konfeti ve şampiyonluk müziği (yalnız sahnede, ses ayarına bağlı, düşük seviyede).</p>
-  <figure><img src="../ekran-goruntuleri/eleme/sahne-tur-sonu-son-tablo-1920.webp" style="width:76%"><figcaption>Tur sonu gösterisinin son tablosu (ortak kazananlar, bu tur / toplam, yükselen ve elenen)</figcaption></figure>
+  <figure><img src="../ekran-goruntuleri/eleme/sahne-tur-sonu-son-tablo-1920.webp" style="width:76%"><figcaption>Tur sonu gösterisinin son tablosu (turun ortak kazananları, tur puanı, yükselen ve elenen)</figcaption></figure>
   <div class="box">Güncellemeden önce başlamış eski kurallı bir yarışma (ortak yarışma ya da iki gruplu turnuva) puanları korunarak o kuralla sürer; ana menü bunu açıkça yazar. Yeni kural yeni yarışma başlatılınca uygulanır.</div>
   <h2>Puan tablosu</h2>
   <table>
-    <tr><th>Durum</th><th style="width:22%">Puan</th></tr>
-    <tr><td>Doğru cevap (şıklı) / en yakın tahmin</td><td>+10</td></tr>
-    <tr><td>Çift Cevap jokeri, iki seçimden biri doğru</td><td>+10</td></tr>
-    <tr><td>Çifte Puan jokeri, doğru</td><td>+20</td></tr>
-    <tr><td>Jokerle yanlış ya da cevapsız</td><td>−10 (puan sıfırın altına inmez; 5 puanlı takımdan 5 düşer)</td></tr>
-    <tr><td>Jokersiz yanlış ya da cevapsız</td><td>0</td></tr>
+    <tr><th>Durum</th><th style="width:26%">Puan</th></tr>
+    <tr><td>Doğru cevap (şıklı)</td><td>+10</td></tr>
+    <tr><td>Tahmin sorusu: gerçek değere en yakın (eşit yakınlıktakilerin her biri)</td><td>+10</td></tr>
+    <tr><td>Yanlış ya da cevapsız (jokersiz)</td><td>0</td></tr>
+    <tr><td>Çifte Cevap jokeri: en az biri doğru / ikisi de yanlış</td><td>+10 / −10</td></tr>
+    <tr><td>Çift Puan jokeri: doğru / yanlış</td><td>+20 / 0 (puan kaybı yok)</td></tr>
+    <tr><td>Risk Jokeri (yalnız final): doğru / yanlış</td><td>+5/10/15 / −5/10/15 (puan eksiye inebilir)</td></tr>
     <tr><td>İptal edilen soru</td><td>Kimseye puan/ceza yok; uygulanmış etki geri alınır</td></tr>
   </table>
   <h2>Üç kampüs pilotu</h2>
@@ -226,7 +228,7 @@
     <li>Ayarlar → "Takımlar / sınıflar" alanına üç kampüs adını her satıra bir ad olarak yazın → <span class="btn">Ayarları Kaydet</span>. Alttaki satır "Eleme Yarışması · 3 → 3 → 2 → şampiyon" demelidir.</li>
     <li>Ana Menü'deki kural kartını okuyun → <span class="btn">Yarışmayı Başlat</span>.</li>
     <li>Panelde “Kaptan kodları” kutusundaki her kodu yalnız o kampüsün kaptanına iletin.</li>
-    <li>Uzak kampüsler internet adresinden (kaplan-arena.vercel.app/katil) QR/yarışma koduyla katılır, takımını seçip kaptan kodunu girer.</li>
+    <li>Uzak kampüsler internet adresinden (kaplan-arena.vercel.app/katil) QR/yarışma koduyla katılır, özel kaptan giriş kodunu girer ve kendi takım adına dokunur.</li>
   </ol>
 </section>
 
@@ -270,25 +272,26 @@
 <!-- ============ 6 ============ -->
 <section class="chapter">
   <h1>6. Jokerler</h1>
-  <p>Her takımın <b>bütün yarışma boyunca</b> iki jokeri vardır; etap geçişinde ve finalde yenilenmez.</p>
+  <p>Joker hakları <b>her yeni turda yenilenir</b>: her takımın her turda Çifte Cevap ve Çift Puan jokerinden birer hakkı vardır; finalde ayrıca Risk Jokeri açılır. Jokerler cevap gönderilmeden <b>önce</b> seçilmelidir.</p>
   <table>
-    <tr><th style="width:22%">Joker</th><th>Kullanım</th><th style="width:22%">Sonuç</th></tr>
-    <tr><td><b>Çift Cevap</b> (2 Şık)</td><td>Yalnız şıklı soruda. İki farklı şık seçilir ve birlikte gönderilir.</td><td>Biri doğruysa +10; ikisi yanlışsa −10</td></tr>
-    <tr><td><b>Çifte Puan</b> (×2)</td><td>Şıklı ve tahmin sorusunda.</td><td>Doğruysa +20; yanlış/cevapsızsa −10</td></tr>
+    <tr><th style="width:22%">Joker</th><th>Kullanım</th><th style="width:26%">Sonuç</th></tr>
+    <tr><td><b>Çifte Cevap</b> (2 Şık)</td><td>Yalnız şıklı soruda. Önce jokere dokunulur, iki şık işaretlenip <span class="btn">Cevabı Gönder</span>.</td><td>En az biri doğruysa +10; ikisi yanlışsa −10</td></tr>
+    <tr><td><b>Çift Puan</b> (×2)</td><td>Cevap göndermeden önce jokere dokunulur, cevap işaretlenip gönderilir.</td><td>Doğruysa +20; yanlışsa 0 (puan kaybı yok)</td></tr>
+    <tr><td><b>Risk Jokeri</b></td><td>Yalnız Kaplan Arenası Büyük Final'de, finalde bir kez. Takım o soru için 5, 10 ya da 15 puan seçer.</td><td>Doğruysa seçilen puan kazanılır; yanlışsa aynı puan kaybedilir</td></tr>
   </table>
   <h2>Kurallar</h2>
   <ul>
     <li>Aynı soruda bir takım yalnız bir joker kullanır. Eşitlik sorularında joker yoktur.</li>
     <li>Joker yalnız <b>süre işlerken</b> ve takım o soruya <b>ilk cevabını göndermeden önce</b> kullanılabilir; duraklamada, süre bitince ya da açıklamadan sonra kullanılamaz.</li>
-    <li>Telefonda etkisi ve cezası yazan bir onay penceresi çıkar. Onaylanan joker <b>geri alınamaz</b>.</li>
+    <li>Telefonda etkisi yazan bir onay penceresi çıkar (Risk'te puan seçimi). Onaylanan joker <b>geri alınamaz</b>; cevapsız kalan jokerli soru yanlış sayılır.</li>
     <li>Telefonsuz takım için panelde takımın satırındaki joker düğmesi aynı kurallarla kullanılır.</li>
     <li>Joker kullanılınca sahnede kısa, sesli bir tanıtım olur (3,5 sn). Bu sırada süre ve cevaplar herkes için durur, sonra kalan süreyle devam eder. Aynı anda gelen jokerler tek tanıtımda gösterilir.</li>
     <li>Soru iptal edilirse o soruda kullanılan jokerler iade edilir.</li>
   </ul>
   <div class="grid3 phones">
     <figure><img src="../ekran-goruntuleri/telefon-joker-onay-360.webp"><figcaption>Telefon: joker onayı</figcaption></figure>
-    <figure><img src="../ekran-goruntuleri/telefon-cift-cevap-360.webp"><figcaption>Çift Cevap: iki şık</figcaption></figure>
-    <figure><img src="../ekran-goruntuleri/telefon-joker-cezasi-360.webp"><figcaption>Joker cezası</figcaption></figure>
+    <figure><img src="../ekran-goruntuleri/telefon-cift-cevap-360.webp"><figcaption>Çifte Cevap: iki şık</figcaption></figure>
+    <figure><img src="../ekran-goruntuleri/eleme/telefon-final-jokerler-390.webp"><figcaption>Finalde üç joker (Risk kullanıldı)</figcaption></figure>
   </div>
   <figure><img src="../ekran-goruntuleri/sahne-joker-tanitimi-1920.webp" style="width:70%"><figcaption>Sahnede joker tanıtımı (ortak duraklama)</figcaption></figure>
 </section>
@@ -297,12 +300,12 @@
 <section class="chapter">
   <h1>7. Eşitlik durumları</h1>
   <ul>
-    <li><b>Ortak yarışma (3 takım):</b> İlk iki etap sonunda eşitlik önemli değildir; eleme olmadığı için soru sorulmaz. Final sonunda <b>birincilikte</b> eşitlik varsa yalnız eşit liderler yedek tahmin sorusunu cevaplar; diğer takımın telefonunda "Bu soruyu yalnız … cevaplıyor" yazar. Eşitlik sorusu sıralamayı belirler; normal toplam puanları değiştirmez. İkinci/üçüncü sıradaki eşitlik için soru sorulmaz.</li>
-    <li><b>Turnuva:</b> Finale çıkış sınırında (ilk 2) ve final birinciliğinde eşitlik varsa yalnız eşit takımlar yedek soruyu cevaplar.</li>
-    <li>Eşitlik soruları Soru Yönetimi → "Eşitlik (Yedek)" sekmesinden sırayla kullanılır. Yedek soru kalmadıysa sunucu sözlü bir tahmin sorusu sorar; doğru cevabı açıklamadan sonra panele yazarsınız.</li>
+    <li><b>Kural 07:</b> üst tura yükselmeyi ya da şampiyonluğu etkileyen puan eşitliğinde yedek sorulara geçilir; yalnız sınırdaki eşit takımlar cevaplar. Eşitlik bozulana kadar yedek sorularla devam edilir. Diğer sıralardaki eşitlik için soru sorulmaz.</li>
+    <li>Eşitlik çözülmeden kimse elenmez, şampiyon ilan edilmez; “Tur Sonucunu Açıkla” düğmesi görünmez.</li>
+    <li>Eşitlik soruları Soru Yönetimi → "Eşitlik (Yedek)" sekmesinden karışık sırayla ve bir kez kullanılır. Yedek soru kalmadıysa panel uyarır: yeni soru ekleyip “Eklenen Soruyu Kullan” deyin ya da sözlü yeni bir tahmin sorusu sorup doğru cevabı açıklamadan sonra panele yazın.</li>
     <li>Yine eşitlik olursa yeni bir eşitlik sorusu hazırlanır. Hiçbir aday cevap vermediyse panel en az bir tahmin girilmesini ister.</li>
   </ul>
-  <figure><img src="../ekran-goruntuleri/uc-kampus/sahne-final-esitlik-1920.webp" style="width:76%"><figcaption>Ortak yarışmada final birinciliğinde eşitlik</figcaption></figure>
+  <figure><img src="../ekran-goruntuleri/uc-kampus/sahne-final-esitlik-1920.webp" style="width:76%"><figcaption>Final birinciliğinde eşitlik: yalnız eşit takımlar yedek soruya</figcaption></figure>
 </section>
 
 <!-- ============ 8 ============ -->
@@ -311,7 +314,8 @@
   <ol class="steps">
     <li>Katılım ekranında sahnede QR kod ve 6 haneli yarışma kodu görünür.</li>
     <li>Kaptan QR'ı okutur ya da <code>kaplan-arena.vercel.app/katil</code> adresine gidip kodu girer.</li>
-    <li>Kendi takımını seçer ve yönetimden aldığı <b>kaptan kodunu</b> (takıma özel 4 hane) girer. Yarışma kodu herkes için ortaktır; takım kimliğini kaptan kodu doğrular.</li>
+    <li>Yönetimden aldığı <b>özel kaptan giriş kodunu</b> (takıma özel 4 hane) girer, ardından takım seçim ekranında <b>mutlaka kendi takım adına</b> dokunur. Kod başka takıma aitse giriş reddedilir.</li>
+    <li>Yarışma ekranını açık tutar; başka uygulamaya/sekmeye geçmek algılanır ve yönetime bildirilir (kural 08).</li>
     <li>Bir takıma bağlı telefon varken başka telefon o takıma geçemez; bir telefon da başka bir takıma geçemez. Kaptanın telefonu değişecekse panelde o takımın yanındaki <span class="btn">Telefonu Sıfırla</span> kullanılır, yeni telefon aynı kodla bağlanır.</li>
     <li>Elenen takımın telefonu “Bu turda elendiniz” görür; yenileme, kodu yeniden girme ya da başka telefon bunu değiştirmez, cevap ve joker sunucuda da reddedilir.</li>
     <li>Soru açılınca şık seçilir ya da tahmin yazılır, <span class="btn">Cevabı Gönder</span>'e basılır. <b>Şık seçmek cevap göndermez.</b></li>

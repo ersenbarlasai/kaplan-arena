@@ -56,7 +56,7 @@ const ACT = {
     const pl = C.buildPlan(S.questions, (typeof window !== 'undefined' && window.KA_RNG) || rnd01);   // KA_RNG: testte enjekte edilen rastgelelik
     if (!pl.plan.s1.length || !pl.plan.s2.length || !pl.plan.final.length){ ui.confirm = null; return toast('Her turda en az bir soru olmalı (Orman Geçidi, Kadim Kale, Kaplan Arenası). Soru Yönetimi ekranından ekleyin.', 7000); }
     const g = newGame(); g.started = true; g.since = Math.round(nowS());
-    g.mode = 'elim'; g.format = C.makeFormat(roster.length); g.roster = roster.slice();
+    g.mode = 'elim'; g.format = C.makeFormat(roster.length, { perRound:S.settings.perRound || 10 }); g.roster = roster.slice();
     g.teams.all = roster.map((n, k) => ({ id:'t' + (k + 1), name:n, score:0, status:'active' }));
     g.codes = captainCodes(g.teams.all.map(t => t.id)); g.akey = randKey(24);
     g.plan = pl.plan; g.planDups = pl.dups; g.asked = {}; g.rounds = []; g.elimLog = []; g.show = null;
@@ -164,8 +164,9 @@ const ACT = {
       if (bad >= 0) return toast(`${teams[bad].name} için geçerli bir sayı girin.`);
       const r = C.closestWinners(guesses, q.answer); winners = r.winners; detail = { guesses, dists:r.dists };
     }
-    const jk = {}; teams.forEach((t, i) => { const j = activeJk(i); if (j) jk[i] = j; });
-    if (!g.scored[qk]){ pushHistory(); C.applyScore(g, teams, qk, winners, jk, { detail }); }
+    const jk = {}, stakes = {}; teams.forEach((t, i) => { const j = activeJk(i); if (j) jk[i] = j; const st = C.riskStake(g, tkey(t), qk); if (st) stakes[i] = st; });
+    winners = winners.filter(i => teams[i] && teams[i].status !== 'out');   // kural ihlaliyle elenen takım puan almaz
+    if (!g.scored[qk]){ pushHistory(); C.applyScore(g, teams, qk, winners, jk, { detail, stakes }); }
     const sc = g.scored[qk];
     g.last = { qk, winners:sc.winners, delta:sc.delta, jk:sc.jk, detail:sc.detail, answer:q.answer, unit:q.unit, at:sc.at || (sc.at = nowS()) };
     g.view = 'scoreboard'; ui.scoreEdit = false; addEvent('scores'); save(); render();
@@ -184,7 +185,7 @@ const ACT = {
   next(){
     const g = G();
     if (!(g.view === 'scoreboard' || (g.view === 'question' && g.phase === 'cancelled'))) return;
-    if (elim()){ const n = C.nextUnasked(g, stageKey(), g.qIndex + 1); if (n >= 0) toQuestion(n); else finishStage(); }
+    if (elim()){ const n = isLastQ() ? -1 : C.nextUnasked(g, stageKey(), g.qIndex + 1); if (n >= 0) toQuestion(n); else finishStage(); }
     else if (g.qIndex + 1 < S.questions[stageKey()].length) toQuestion(g.qIndex + 1);
     else { finishStage(); }
     save(); render();
@@ -202,12 +203,13 @@ const ACT = {
     C.cancelQuestion(g, curTeams(), qk, nowS());
     g.last = null; addEvent('cancel'); save(); render(); toast('Soru iptal edildi; puan etkisi geri alındı, jokerler iade edildi.', 5000);
   },
-  jkAsk(d){ ui.confirm = `jk:${d.i}:${d.j}`; render(); },
+  jkAsk(d){ ui.confirm = `jk:${d.i}:${d.j}`; ui.riskStake = 10; render(); },
+  riskPick(d){ ui.riskStake = +d.v; render(); },
   jkYes(d){
     const g = G(), i = +d.i, j = d.j, t = curTeams()[i]; ui.confirm = null;
-    if (!t || g.view !== 'question') return render();
+    if (!t || g.view !== 'question' || t.status === 'out') return render();
     const qk = currentQk(), now = nowS();
-    const ctx = { qk, qtype:curQ().type, isTie:false, i, name:tkey(t), label:t.name, j, t:now, admin:true, owner:null, dev:'admin', node:(NET.live.ans || {})[nk(i)] };
+    const ctx = { qk, qtype:curQ().type, isTie:false, i, name:tkey(t), label:t.name, j, t:now, stake:+d.s || 0, riskOk:riskOn(), perRound:elim() && rules().jokersPerRound, admin:true, owner:null, dev:'admin', node:(NET.live.ans || {})[nk(i)] };
     const why = C.checkJoker(g, ctx);
     if (why) return toast(why, 5000);
     const res = C.acceptJoker(g, ctx, now); if (!res.grouped) addEvent('joker');
@@ -276,6 +278,19 @@ const ACT = {
     if (k < 0) return toast('Eşitlik havuzunda sorulmamış soru yok. Önce Soru Yönetimi › Eşitlik bölümüne yeni soru ekleyin.', 6000);
     g.tie.poolIdx = k; save(); render();
   },
+  /* Kural 08: ekran değişikliği. Sistem telefondan algılar ve bildirir; elemeyi admin onaylar (kilit ekranı, gelen arama
+     gibi yanlış alarmlarda takımı haksız elememek için). Elenen takım o anki sorudan puan almaz, sonraki tura geçemez. */
+  dqAsk(d){ ui.confirm = 'dq:' + d.id; render(); },
+  dqYes(d){
+    const g = G(), t = C.teamById(g, d.id); ui.confirm = null;
+    if (!elim() || !t || t.status === 'out' || g.finished) return render();
+    t.dq = { stage:g.stage, at:Math.round(nowS()), reason:'ekran' };
+    t.status = 'out'; t.outStage = g.stage; t.outTotal = t.score;
+    (ui.violSeen || (ui.violSeen = {}))[t.id] = Date.now();
+    addEvent('dq'); save(); render(); ctlSync();
+    toast(`${t.name} kural ihlali (ekran değişikliği) nedeniyle elendi.`, 6000);
+  },
+  violDismiss(d){ (ui.violSeen || (ui.violSeen = {}))[d.id] = Date.now(); render(); },
   codesToggle(){ ui.codesOpen = !ui.codesOpen; render(); },
   devResetAsk(d){ ui.confirm = 'dev:' + d.id; render(); },
   async devResetYes(d){
@@ -386,7 +401,9 @@ Object.assign(ACT, {
     // Aynı temizlik/doğrulama yeni yarışma başlatmada ve yedek içe aktarmada da kullanılır (KaplanCore).
     const classes = C.normRoster(document.getElementById('set-classes').value), rerr = C.rosterError(classes);
     if (rerr) return toast(rerr, 5000);
-    S.settings.title = title; S.settings.seconds = sec; S.settings.classes = classes;
+    const per = Math.round(Number(document.getElementById('set-per')?.value || 10));
+    if (!(per >= 1 && per <= 30)) return toast('Tur başına soru sayısı 1 ile 30 arasında olmalı.');
+    S.settings.title = title; S.settings.seconds = sec; S.settings.classes = classes; S.settings.perRound = per;
     S.settings.sound = document.getElementById('set-sound').checked;
     S.settings.volume = Math.max(0, Math.min(100, Math.round(Number(document.getElementById('set-vol').value))));
     S.settings.reduceMotion = document.getElementById('set-motion').checked;
